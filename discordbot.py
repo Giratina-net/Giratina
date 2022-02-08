@@ -24,6 +24,12 @@ async def chiibakun(ctx):
 async def kaosu(ctx):
     await ctx.send('https://pbs.twimg.com/media/E512yaSVIAQxfNn?format=jpg&name=large')
 
+@bot.command()
+async def inm(ctx):
+    await ctx.send('イキスギィイクイク！！！\nンアッー！！！\nマクラがデカすぎる！！！\n\n'
+                   '聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！\n淫夢ごっこは恥ずかしいよ！\n\n' + ctx.author + 
+                   'おっ大丈夫か大丈夫か〜？？？\nバッチェ冷えてるぞ〜\n淫夢が大好きだってはっきりわかんだね')
+
 
 token = getenv('DISCORD_BOT_TOKEN')
 bot.run(token)
