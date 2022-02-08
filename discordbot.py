@@ -1,6 +1,9 @@
 from discord.ext import commands
 from os import getenv
 import traceback
+import discord
+
+client = discord.Client()
 
 bot = commands.Bot(command_prefix='!')
 
@@ -45,7 +48,7 @@ async def bokuseku(ctx):
     # ボイスチャンネルに接続する
     await ctx.author.voice.channel.connect()
     # 音声を再生する
-    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
+    ctx.guild.voice_client.play("bokuseku.mp3")
 
 token = getenv('DISCORD_BOT_TOKEN')
 bot.run(token)
