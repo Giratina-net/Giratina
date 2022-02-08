@@ -17,5 +17,10 @@ async def ping(ctx):
     await ctx.send('pong')
 
 
+@bot.command()
+async def kaosu(ctx):
+    await ctx.send('https://pbs.twimg.com/media/E512yaSVIAQxfNn?format=jpg&name=large')
+
+
 token = getenv('DISCORD_BOT_TOKEN')
 bot.run(token)
