@@ -27,7 +27,7 @@ async def kaosu(ctx):
 @bot.command()
 async def inm(ctx):
     await ctx.send('イキスギィイクイク！！！\nンアッー！！！\nマクラがデカすぎる！！！\n\n'
-                   f'聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！\n淫夢ごっこは恥ずかしいよ！\n\n{ctx.author.split("#")[0]}'
+                   f'聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！\n淫夢ごっこは恥ずかしいよ！\n\n{str(ctx.author).split("#")[0]}'
                    '、おっ大丈夫か大丈夫か〜？？？\nバッチェ冷えてるぞ〜\n淫夢が大好きだってはっきりわかんだね')
 
 @bot.command()
