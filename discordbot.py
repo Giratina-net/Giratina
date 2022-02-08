@@ -69,5 +69,21 @@ async def inm(ctx):
 async def giratina(ctx):
     await ctx.send('https://images-ext-2.discordapp.net/external/tlYUDsXqoCwJa6TnXCp6V2EnfB9ziojMGuOb_rt1XuU/https/img.gamewith.jp/article/thumbnail/rectangle/36417.png')
 
+<<<<<<< HEAD
+=======
+
+# https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
+
+@bot.command()
+async def bokuseku(ctx):
+    if ctx.author.voice is None:
+        await ctx.channel.send("あなたはボイスチャンネルに接続していません。")
+        return
+    # ボイスチャンネルに接続する
+    await ctx.author.voice.channel.connect()
+    # 音声を再生する
+    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
+
+>>>>>>> 4ac5ab49c9ed33548c8a110e5590cc10cb08105a
 token = getenv('DISCORD_BOT_TOKEN')
 bot.run(token)
