@@ -22,5 +22,17 @@ async def kaosu(ctx):
     await ctx.send('https://pbs.twimg.com/media/E512yaSVIAQxfNn?format=jpg&name=large')
 
 
+# https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
+
+@bot.command()
+async def bokuseku(ctx):
+    if message.author.voice is None:
+        await message.channel.send("あなたはボイスチャンネルに接続していません。")
+        return
+    # ボイスチャンネルに接続する
+    await message.author.voice.channel.connect()
+    # 音声を再生する
+    message.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
+
 token = getenv('DISCORD_BOT_TOKEN')
 bot.run(token)
