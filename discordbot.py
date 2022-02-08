@@ -30,6 +30,10 @@ async def inm(ctx):
                    f'聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！\n淫夢ごっこは恥ずかしいよ！\n\n{ctx.author}' 
                    'おっ大丈夫か大丈夫か〜？？？\nバッチェ冷えてるぞ〜\n淫夢が大好きだってはっきりわかんだね')
 
+@bot.command()
+async def giratina(ctx):
+    await ctx.send('https://images-ext-2.discordapp.net/external/tlYUDsXqoCwJa6TnXCp6V2EnfB9ziojMGuOb_rt1XuU/https/img.gamewith.jp/article/thumbnail/rectangle/36417.png')
+
 
 token = getenv('DISCORD_BOT_TOKEN')
 bot.run(token)
