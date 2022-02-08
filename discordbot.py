@@ -16,6 +16,9 @@ async def on_command_error(ctx, error):
 async def ping(ctx):
     await ctx.send('pong')
 
+@bot.command()
+async def chiibakun(ctx):
+    await ctx.send('https://twitter.com/chi_bakun_chiba')
 
 token = getenv('DISCORD_BOT_TOKEN')
 bot.run(token)
