@@ -1,6 +1,9 @@
 from discord.ext import commands
 from os import getenv
 import traceback
+import discord
+
+client = discord.Client()
 
 bot = commands.Bot(command_prefix='!')
 
