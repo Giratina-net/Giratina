@@ -52,11 +52,29 @@ async def on_message(message):
     if message.author.bot:
         return
     # メッセージの本文が ドナルド だった場合
-    if 'ドナルド' in str(message.content):
+    if  'ドナルド' in str(message.content):
         # 送信するメッセージをランダムで決める
         # メッセージが送られてきたチャンネルに送る
         await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
+    # メッセージに場合  
+
+    if  message.attachments:
+        for attachment in message.attachments:
+            # Attachmentの拡張子がmp3, wavのどれかだった場合
+            if attachment.url.endswith(("mp3", "wav")):
+                await attachment.save("input.mp3")
+                command = "ffmpeg -y -loop 1 -i input.jpg -i input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest output.mp4"
+                proc = await asyncio.create_subprocess_exec(
+                    *command.split(" "),
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE)
+
+                stdout, stderr = await proc.communicate()
+                await ctx.channel.send(file=discord.File("output.mp4"))
     await bot.process_commands(message)
+
+
+
 
 # チーバくんの、なのはな体操
 
@@ -106,17 +124,6 @@ async def bokuseku(ctx):
     # 切断する
     await ctx.guild.voice_client.disconnect()
 
-
-@bot.command()
-async def mp3tomp4(ctx):
-    command = "ffmpeg -y -loop 1 -i input.jpg -i bokuseku.mp3 -vcodec libx264 -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest -vb 50k output.mp4"
-    proc = await asyncio.create_subprocess_exec(
-        *command.split(" "),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE)
-
-    stdout, stderr = await proc.communicate()
-    await ctx.channel.send(file=discord.File("output.mp4"))
 
 
 token = getenv('DISCORD_BOT_TOKEN')
