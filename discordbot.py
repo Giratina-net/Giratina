@@ -39,12 +39,12 @@ async def on_ready():
 
 # ピンポン
 @bot.command()
-async def ping(ctx: Context):
+async def ping(ctx):
     await ctx.send('pong')
 
 
 @bot.event
-async def on_message(message: Message):
+async def on_message(message):
     # 送信者がBotである場合は弾く
     if message.author.bot:
         return
@@ -74,19 +74,19 @@ async def on_message(message: Message):
 
 # チーバくんの、なのはな体操
 @bot.command()
-async def chiibakun(ctx: Context):
+async def chiibakun(ctx):
     await ctx.send('https://www.youtube.com/watch?v=dC0eie-WQss')
 
 
 # かおすちゃんを送信
 @bot.command()
-async def kaosu(ctx: Context):
+async def kaosu(ctx):
     await ctx.send('https://pbs.twimg.com/media/E512yaSVIAQxfNn?format=jpg&name=large')
 
 
 # イキス
 @bot.command()
-async def inm(ctx: Context):
+async def inm(ctx):
     await ctx.send('聖バリ「イキスギィイクイク！！！ンアッー！！！マクラがデカすぎる！！！」\n\n'
                    f'{ctx.author.name}「聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！淫夢ごっこは恥ずかしいよ！」\n\n聖バリ「{ctx.author.name}'
                    '、おっ大丈夫か大丈夫か〜？？？バッチェ冷えてるぞ〜淫夢が大好きだってはっきりわかんだね」')
@@ -94,13 +94,13 @@ async def inm(ctx: Context):
 
 # ギラティナの画像を送る
 @bot.command()
-async def giratina(ctx: Context):
+async def giratina(ctx):
     await ctx.send('https://img.gamewith.jp/article/thumbnail/rectangle/36417.png')
 
 
 # bokuseku.mp3 流し逃げ - https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
 @bot.command()
-async def bokuseku(ctx: Context):
+async def bokuseku(ctx):
     if ctx.author.voice is None:
         await ctx.channel.send('望月くん・・・ボイスチャンネルに来なさい')
         return
