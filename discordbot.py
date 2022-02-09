@@ -3,6 +3,7 @@ from os import getenv
 import discord
 from discord.ext import commands
 from asyncio import sleep
+import asyncio
 
 client = discord.Client()
 
@@ -104,6 +105,18 @@ async def bokuseku(ctx):
         await sleep(1)
     # 切断する
     await ctx.guild.voice_client.disconnect()
+
+
+@bot.command()
+async def mp3tomp4(ctx):
+    command = "ffmpeg -loop 1 -r 1 -i input.jpg -i bokuseku.mp3 -vcodec libx264 -acodec aac -strict experimental -ab 320k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest -vb 50k -ab 128k output.mp4"
+    proc = await asyncio.create_subprocess_exec(
+        *command.split(" "),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE)
+
+    stdout, stderr = await proc.communicate()
+
 
 
 token = getenv('DISCORD_BOT_TOKEN')
