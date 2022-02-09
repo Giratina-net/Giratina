@@ -99,7 +99,7 @@ async def bokuseku(ctx):
 # *.mp3を*.mp4に変換する
 @bot.command()
 async def mp3tomp4(ctx):
-    command = "ffmpeg -loop 1 -r 1 -i input.jpg -i bokuseku.mp3 -vcodec libx264 -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest -vb 50k output.mp4"
+    command = "ffmpeg -y -loop 1 -i input.jpg -i bokuseku.mp3 -vcodec libx264 -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest -vb 50k output.mp4"
     proc = await asyncio.create_subprocess_exec(
         *command.split(" "),
         stdout=asyncio.subprocess.PIPE,
