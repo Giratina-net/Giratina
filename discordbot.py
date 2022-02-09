@@ -92,7 +92,7 @@ async def giratina(ctx):
 @bot.command()
 async def bokuseku(ctx):
     if ctx.author.voice is None:
-        await ctx.channel.send("あなたはボイスチャンネルに接続していません。")
+        await ctx.channel.send("望月くん・・・ボイスチャンネルに来なさい")
         return
     # ボイスチャンネルに接続する
     await ctx.author.voice.channel.connect()
