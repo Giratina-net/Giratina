@@ -8,8 +8,8 @@ client = discord.Client()
 # botの接頭辞を!にする
 bot = commands.Bot(command_prefix='!')
 
-# ボイスチャンネルの聖なるバリア-－ミラーフォース－のチャンネルのID
-SEIBARI_CHANNNEL_ID = 889054561170522152
+# ギラティナのチャンネルのID
+GIRATINA_CHANNNEL_ID = 940610524415144036
 
 
 @bot.event
@@ -23,7 +23,7 @@ async def on_command_error(ctx, error):
 
 
 async def ready_greet():
-    channel = bot.get_channel(SEIBARI_CHANNNEL_ID)
+    channel = bot.get_channel(GIRATINA_CHANNNEL_ID)
     await channel.send('ギラティナ、オォン！')
 
 # 起動時に挨拶をする
