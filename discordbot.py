@@ -51,7 +51,7 @@ async def on_message(message):
         # メッセージが送られてきたチャンネルに送る
         await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
     # メッセージに場合  
-    print(message.attachments)
+    
     if  message.attachments:
         for attachment in message.attachments:
             # Attachmentの拡張子がmp3, wavのどれかだった場合
