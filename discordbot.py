@@ -12,6 +12,7 @@ bot = commands.Bot(command_prefix='!')
 
 # ギラティナのチャンネルのID
 GIRATINA_CHANNEL_ID = 940610524415144036
+WIP_CHANNEL_ID = 940966825087361025
 
 
 @bot.event
@@ -52,7 +53,7 @@ async def on_message(message):
         await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
     # メッセージに場合  
 
-    if message.attachments and message.channel.id == "940966825087361025":
+    if message.attachments and message.channel.id == WIP_CHANNEL_ID:
         for attachment in message.attachments:
             # Attachmentの拡張子がmp3, wavのどれかだった場合
             if attachment.url.endswith(("mp3", "wav")):
