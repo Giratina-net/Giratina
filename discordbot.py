@@ -99,9 +99,9 @@ async def bokuseku(ctx):
     await ctx.author.voice.channel.connect()
     # 音声を再生する
     ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
-    # 接続して2分経つと切断する
+    # 接続して110秒経つと切断する
     time.sleep(110) # 110秒待機させる 
-    await ctx.guild.voice_client.disconnect()
+    ctx.guild.voice_client.disconnect()
 
 
 token = getenv('DISCORD_BOT_TOKEN')
