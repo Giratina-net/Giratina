@@ -46,13 +46,13 @@ async def on_message(message):
         return
     # ドナルドの言葉狩り - https://qiita.com/sizumita/items/9d44ae7d1ce007391699
     # メッセージの本文が ドナルド だった場合
-    if  'ドナルド' in str(message.content):
+    if 'ドナルド' in str(message.content):
         # 送信するメッセージをランダムで決める
         # メッセージが送られてきたチャンネルに送る
         await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
     # メッセージに場合  
-    print(message.attachments)
-    if  message.attachments:
+
+    if message.attachments and message.channel.id == "940966825087361025":
         for attachment in message.attachments:
             # Attachmentの拡張子がmp3, wavのどれかだった場合
             if attachment.url.endswith(("mp3", "wav")):
@@ -66,8 +66,6 @@ async def on_message(message):
                 stdout, stderr = await proc.communicate()
                 await message.channel.send(file=discord.File("output.mp4"))
     await bot.process_commands(message)
-
-
 
 
 # チーバくんの、なのはな体操
@@ -111,7 +109,6 @@ async def bokuseku(ctx):
         await sleep(1)
     # 切断する
     await ctx.guild.voice_client.disconnect()
-
 
 
 token = getenv('DISCORD_BOT_TOKEN')
