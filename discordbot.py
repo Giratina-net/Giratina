@@ -64,7 +64,7 @@ async def on_message(message):
                     stderr=asyncio.subprocess.PIPE)
 
                 stdout, stderr = await proc.communicate()
-                await ctx.channel.send(file=discord.File("output.mp4"))
+                await message.channel.send(file=discord.File("output.mp4"))
     await bot.process_commands(message)
 
 
