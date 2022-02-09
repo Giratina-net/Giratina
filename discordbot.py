@@ -11,6 +11,7 @@ bot = commands.Bot(command_prefix='!')
 # ボイスチャンネルの聖なるバリア-－ミラーフォース－のチャンネルのID
 SEIBARI_CHANNNEL_ID = 889054561170522152
 
+
 @bot.event
 async def on_command_error(ctx, error):
     orig_error = getattr(error, "original", error)
@@ -19,31 +20,58 @@ async def on_command_error(ctx, error):
     await ctx.send(error_msg)
 
 # 起動時のメッセージの関数
+
+
 async def ready_greet():
     channel = bot.get_channel(SEIBARI_CHANNNEL_ID)
     await channel.send('ギラティナ、オォン！')
 
 # 起動時に挨拶をする
+
+
 @bot.event
 async def on_ready():
     await ready_greet()
 
 # ピンポン
+
+
 @bot.command()
 async def ping(ctx):
     await ctx.send('pong')
 
+# ドナルドの言葉狩り
+# https://qiita.com/sizumita/items/9d44ae7d1ce007391699
+
+
+@bot.event
+async def on_message(message):
+    # 送信者がbotである場合は弾く
+    if message.author.bot:
+        return
+    # メッセージの本文が 鳴いて だった場合
+    if 'ドナルド' in str(message.content):
+        # 送信するメッセージをランダムで決める
+        # メッセージが送られてきたチャンネルに送る
+        await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
+
 # チーバくんの、なのはな体操
+
+
 @bot.command()
 async def chiibakun(ctx):
     await ctx.send('https://youtu.be/dC0eie-WQss')
 
 # かおすちゃんを送信
+
+
 @bot.command()
 async def kaosu(ctx):
     await ctx.send('https://pbs.twimg.com/media/E512yaSVIAQxfNn?format=jpg&name=large')
 
 # イキス
+
+
 @bot.command()
 async def inm(ctx):
     await ctx.send('聖バリ「イキスギィイクイク！！！ンアッー！！！マクラがデカすぎる！！！」\n\n'
@@ -51,11 +79,15 @@ async def inm(ctx):
                    '、おっ大丈夫か大丈夫か〜？？？バッチェ冷えてるぞ〜淫夢が大好きだってはっきりわかんだね」')
 
 # ギラティナの画像を送る
+
+
 @bot.command()
 async def giratina(ctx):
     await ctx.send('https://images-ext-2.discordapp.net/external/tlYUDsXqoCwJa6TnXCp6V2EnfB9ziojMGuOb_rt1XuU/https/img.gamewith.jp/article/thumbnail/rectangle/36417.png')
 
 # https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
+
+
 @bot.command()
 async def bokuseku(ctx):
     if ctx.author.voice is None:
