@@ -99,7 +99,7 @@ async def bokuseku(ctx):
     await ctx.author.voice.channel.connect()
     # 音声を再生する
     ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
-    ctx.guild.voice_client.disconnect()
+    await ctx.guild.voice_client.disconnect()
 
 
 token = getenv('DISCORD_BOT_TOKEN')
