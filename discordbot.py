@@ -2,7 +2,7 @@ import traceback
 from os import getenv
 import discord
 from discord.ext import commands
-import time
+from asyncio import sleep
 
 client = discord.Client()
 
@@ -99,6 +99,10 @@ async def bokuseku(ctx):
     await ctx.author.voice.channel.connect()
     # 音声を再生する
     ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
+    # 音声が再生中か確認する
+    while ctx.guild.voice_client.is_playing():
+        await sleep(1)
+    # 切断する
     await ctx.guild.voice_client.disconnect()
 
 
