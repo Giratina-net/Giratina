@@ -59,7 +59,8 @@ async def on_message(message):
     if message.attachments and message.channel.id == WIP_CHANNEL_ID:
         for attachment in message.attachments:
             # Attachmentの拡張子がmp3, wavのどれかだった場合
-            if attachment.url.endswith(("mp3", "wav")):
+            # https://discordpy.readthedocs.io/ja/latest/api.html#attachment
+            if "audio" in attachment.content_type:
                 await attachment.save("input.mp3")
                 command = "ffmpeg -y -loop 1 -i input.jpg -i input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest output.mp4"
                 proc = await asyncio.create_subprocess_exec(
