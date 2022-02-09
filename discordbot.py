@@ -116,7 +116,7 @@ async def mp3tomp4(ctx):
         stderr=asyncio.subprocess.PIPE)
 
     stdout, stderr = await proc.communicate()
-
+    await ctx.channel.send(file=discord.File("output.mp4"))
 
 
 token = getenv('DISCORD_BOT_TOKEN')
