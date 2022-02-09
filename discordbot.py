@@ -49,7 +49,7 @@ async def on_message(message):
     # 送信者がbotである場合は弾く
     if message.author.bot:
         return
-    # メッセージの本文が 鳴いて だった場合
+    # メッセージの本文が ドナルド だった場合
     if 'ドナルド' in str(message.content):
         # 送信するメッセージをランダムで決める
         # メッセージが送られてきたチャンネルに送る
