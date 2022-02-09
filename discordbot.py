@@ -54,6 +54,7 @@ async def on_message(message):
         # 送信するメッセージをランダムで決める
         # メッセージが送られてきたチャンネルに送る
         await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
+    await bot.process_commands(message)
 
 # チーバくんの、なのはな体操
 
