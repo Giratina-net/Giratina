@@ -85,6 +85,12 @@ async def kaosu(ctx):
     await ctx.send('https://pbs.twimg.com/media/E512yaSVIAQxfNn?format=jpg&name=large')
 
 
+# オンモコスブのツイートを送信
+@bot.command()
+async def on(ctx):
+    await ctx.send('https://twitter.com/onmokosub/status/1491369057354149889?s=20&t=D2p9TZ8np-s4a3L-zXwM3Q')
+
+
 # イキス
 @bot.command()
 async def inm(ctx):
