@@ -62,7 +62,7 @@ async def on_message(message):
     # メッセージの本文が 死んだ だった場合
     if '死んだ' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('newdance.gif')
+        await message.channel.send("newdance.gif")
 
     if message.attachments and message.channel.id == WIP_CHANNEL_ID:
         for attachment in message.attachments:
