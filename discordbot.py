@@ -1,11 +1,10 @@
-import traceback
-from os import getenv
-import discord
-from discord import Message
-from discord.ext import commands
-from discord.ext.commands import Context
-from asyncio import sleep
 import asyncio
+import traceback
+from asyncio import sleep
+from os import getenv
+
+import discord
+from discord.ext import commands
 
 client = discord.Client()
 
@@ -20,8 +19,7 @@ WIP_CHANNEL_ID = 940966825087361025
 @bot.event
 async def on_command_error(ctx, error):
     orig_error = getattr(error, 'original', error)
-    error_msg = ''.join(
-        traceback.TracebackException.from_exception(orig_error).format())
+    error_msg = ''.join(traceback.TracebackException.from_exception(orig_error).format())
     await ctx.send(error_msg)
 
 
@@ -96,7 +94,7 @@ async def kaosu(ctx):
 # オンモコスブのツイートを送信
 @bot.command()
 async def on(ctx):
-    await ctx.send('https://twitter.com/onmokosub/status/1491369057354149889?s=20&t=D2p9TZ8np-s4a3L-zXwM3Q')
+    await ctx.send('https://twitter.com/onmokosub/status/1491369057354149889')
 
 
 # イキス
