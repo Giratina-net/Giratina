@@ -46,54 +46,53 @@ async def on_message(message):
     # 送信者がBotである場合は弾く
     if message.author.bot:
         return
-        # ドナルドの言葉狩り - https://qiita.com/sizumita/items/9d44ae7d1ce007391699
-        # メッセージの本文が ドナルド だった場合
-        if 'ドナルド' in str(message.content):
+
+    # ドナルドの言葉狩り - https://qiita.com/sizumita/items/9d44ae7d1ce007391699
+    # メッセージの本文が ドナルド だった場合
+    if 'ドナルド' in str(message.content):
         # 送信するメッセージをランダムで決める
         # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
+        await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
 
-        # メッセージの本文が 死んだ だった場合
-        if '死んだ' in str(message.content):
+    # メッセージの本文が 死んだ だった場合
+    if '死んだ' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif')
+        await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif')
 
-        # メッセージの本文が 一週間 だった場合
-        if '一週間' in str(message.content) or '1週間' in str(message.content) or '1週間' in str(message.content):
+    # メッセージの本文が 一週間 だった場合
+    if '一週間' in str(message.content) or '1週間' in str(message.content) or '1週間' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif')
+        await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif')
 
-        # メッセージの本文が バキ だった場合
-        if 'バキ' in str(message.content):
+    # メッセージの本文が バキ だった場合
+    if 'バキ' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://cdn.discordapp.com/attachments/934792442178306108/942106647927595008/unknown.png')
-        
-         # メッセージの本文が big brother だった場合
-        if 'big brother' in str(message.content):
-        # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942107244349247488/9BD8903B-74D1-4740-8EC8-13110C0D943C.jpg')
-      
-        # メッセージの本文が DJ だった場合
-        if 'DJ' in str(message.content):
-        # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942107858496000010/a834912b8c8f9739.jpg')
+        await message.channel.send('https://cdn.discordapp.com/attachments/934792442178306108/942106647927595008/unknown.png')
 
-        # メッセージの本文が メタ だった場合
-        if 'メタ' in str(message.content):
+    # メッセージの本文が big brother だった場合
+    if 'big brother' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942109742782889994/GWHiBiKi_StYle_9_-_YouTube_1.png')
+        await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942107244349247488/9BD8903B-74D1-4740-8EC8-13110C0D943C.jpg')
 
-        # メッセージの本文が ランキング だった場合
-        if 'ランキング' in str(message.content):
+    # メッセージの本文が DJ だった場合
+    if 'DJ' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942109619243864085/E8sV781VIAEtwZq.png')
+        await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942107858496000010/a834912b8c8f9739.jpg')
 
-        # メッセージの本文が おはよう だった場合
-        if 'おはよう' in str(message.content):
+    # メッセージの本文が メタ だった場合
+    if 'メタ' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png')
+        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942109742782889994/GWHiBiKi_StYle_9_-_YouTube_1.png')
 
+    # メッセージの本文が ランキング だった場合
+    if 'ランキング' in str(message.content):
+        # メッセージが送られてきたチャンネルに送る
+        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942109619243864085/E8sV781VIAEtwZq.png')
 
+    # メッセージの本文が おはよう だった場合
+    if 'おはよう' in str(message.content):
+        # メッセージが送られてきたチャンネルに送る
+        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png')
 
     if message.attachments and message.channel.id == WIP_CHANNEL_ID:
         for attachment in message.attachments:
