@@ -55,7 +55,7 @@ async def on_message(message):
         await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
 
     # メッセージの本文が 死んだ だった場合
-    if '死んだ' in str(message.content):
+    if '死んだ' in str(message.content) or 'しんだ' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
         await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif')
 
@@ -98,6 +98,12 @@ async def on_message(message):
     if 'おはよう' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
         await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png')
+
+    # メッセージの本文が いい曲 だった場合
+    if 'いい曲' in str(message.content):
+        # メッセージが送られてきたチャンネルに送る
+        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942071776815480832/unknown.png')
+
 
     if message.attachments and message.channel.id == WIP_CHANNEL_ID:
         for attachment in message.attachments:
