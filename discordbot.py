@@ -84,10 +84,10 @@ async def on_message(message):
         # メッセージが送られてきたチャンネルに送る
         await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942109742782889994/GWHiBiKi_StYle_9_-_YouTube_1.png')
 
-    # メッセージの本文が めし だった場合
-    if '飯' in str(message.content) or 'めし' in str(message.content):
+    # メッセージの本文が 風呂 だった場合
+    if '風呂' in str(message.content) or 'ふろ' in str(message.content):
     # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942113269034938368/09EEE9A4-03B9-471A-A7D4-372FB51EEE80.jpg')
+        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/943155933343785040/d9ce03af4958b0b7.png')
     
     # メッセージの本文が ランキング だった場合
     if 'ランキング' in str(message.content):
