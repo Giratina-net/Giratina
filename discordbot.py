@@ -86,8 +86,15 @@ async def on_message(message):
 
     # メッセージの本文が 風呂 だった場合
     if '風呂' in str(message.content) or 'ふろ' in str(message.content):
-    # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/943155933343785040/d9ce03af4958b0b7.png')
+        # あるくおすしの場合
+        if message.author.id == 575588255647399958:
+            # メッセージが送られてきたチャンネルに送る
+            await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942389072117256192/19ffe7f2e7464263.png')
+        # あるくおすし以外の場合
+        # 俺か俺以外か（by あるくおすし）   
+        if message.author.id != 575588255647399958:
+            # メッセージが送られてきたチャンネルに送る
+            await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/943155933343785040/d9ce03af4958b0b7.png')
     
     # メッセージの本文が ランキング だった場合
     if 'ランキング' in str(message.content):
