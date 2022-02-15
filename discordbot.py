@@ -96,7 +96,7 @@ async def on_message(message):
             await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942389072117256192/19ffe7f2e7464263.png')
         # あるくおすし以外の場合
         # 俺か俺以外か（by あるくおすし）   
-        if message.author.id != walkingsushibox:
+        else:
             # メッセージが送られてきたチャンネルに送る
             await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/943155933343785040/d9ce03af4958b0b7.png')
     
