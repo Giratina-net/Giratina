@@ -114,6 +114,11 @@ async def on_message(message):
     if 'いい曲' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
         await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942071776815480832/unknown.png')
+    
+    # メッセージの本文が やんぱ だった場合
+    if 'やんぱ' in str(message.content):
+        # メッセージが送られてきたチャンネルに送る
+        await message.channel.send('やんぱ2')
 
 
     if message.attachments and message.channel.id == WIP_CHANNEL_ID:
