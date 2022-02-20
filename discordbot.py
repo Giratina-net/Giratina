@@ -119,6 +119,11 @@ async def on_message(message):
     if 'やんぱ' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
         await message.channel.send('やんぱ2')
+        
+    # メッセージの本文が 精液 だった場合
+    if '精液' in str(message.content):
+        # メッセージが送られてきたチャンネルに送る
+        await message.channel.send('https://cdn.discordapp.com/attachments/395580207970648064/944945500874997841/unknown.png')
 
 
     if message.attachments and message.channel.id == WIP_CHANNEL_ID:
