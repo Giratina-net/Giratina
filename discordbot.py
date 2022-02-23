@@ -9,6 +9,20 @@ import youtube_dl
 
 client = discord.Client()
 
+
+
+yamadahouse_videoID = [
+    "Xpr3vMjgPu4" #ゾンサガ
+    "YV4Q_c0BuwM" #規則正しい生活
+    "0ktLlgm5ChQ" #ぼっち系youtuber
+    "FITOm27RaSQ" #財布にお金入れ続ける
+    "XtKPLTaRYt8" #無職転生
+]
+
+randam_yamadahouse = random.choice(yamadahouse_videoID)
+
+yamadahouse_thumbnail = "http://img.youtube.com/vi/{random_yamadahouse}/sddefault.jpg"
+
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
@@ -71,7 +85,7 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @bot.command()
     async def join(self, ctx, *, channel: discord.VoiceChannel):
         """Joins a voice channel"""
 
@@ -80,7 +94,7 @@ class Music(commands.Cog):
 
         await channel.connect()
 
-    @commands.command(aliases=["p"])
+    @bot.command(aliases=["p"])
     async def play(self, ctx, *, url):
         channel = ctx.author.voice.channel
         if channel is None:
@@ -92,7 +106,7 @@ class Music(commands.Cog):
             ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
             await ctx.send("再生中：{}".format(player.title))
 
-    @commands.command()
+    @bot.command()
     async def yt(self, ctx, *, url):
         """Plays from a url (almost anything youtube_dl supports)"""
 
@@ -102,7 +116,7 @@ class Music(commands.Cog):
 
         await ctx.send('Now playing: {}'.format(player.title))
 
-    @commands.command()
+    @bot.command()
     async def stream(self, ctx, *, url):
         """Streams from a url (same as yt, but doesn't predownload)"""
 
@@ -112,7 +126,7 @@ class Music(commands.Cog):
 
         await ctx.send('Now playing: {}'.format(player.title))
 
-    @commands.command(aliases=["vol"])
+    @bot.command(aliases=["vol"])
     async def volume(self, ctx, volume: int):
         channel = ctx.author.voice.channel
         if channel is None:
@@ -121,7 +135,7 @@ class Music(commands.Cog):
         ctx.voice_client.source.volume = volume / 100
         await ctx.send("ボリューム変更：{}".format(volume))
 
-    @commands.command()
+    @bot.command()
     async def stop(self, ctx):
         """Stops and disconnects the bot from voice"""
 
@@ -195,7 +209,7 @@ async def on_message(message):
     # メッセージの本文が 一週間 だった場合
     if '一週間' in str(message.content) or '1週間' in str(message.content) or '1週間' in str(message.content):
         # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942114480152801361/1641506349_maxresdefault-768x432.png')
+            await message.channel.send(yamadahouse_thumbnail)
 
     # メッセージの本文が バキ だった場合
     if 'バキ' in str(message.content):
