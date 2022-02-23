@@ -2,6 +2,7 @@ import asyncio
 import traceback
 from asyncio import sleep
 from os import getenv
+import random
 
 import discord
 from discord.ext import commands
