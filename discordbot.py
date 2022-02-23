@@ -5,7 +5,7 @@ from os import getenv
 
 import discord
 from discord.ext import commands
-import yt_dlp
+import youtube_dl
 
 client = discord.Client()
 
