@@ -74,55 +74,55 @@ client = discord.Client()
 
 @bot.command()
 async def join(ctx):
-    if message.author.voice is None:
-        await message.channel.send("あなたはボイスチャンネルに接続していません。")
+    if ctx.author.voice is None:
+        await ctx.channel.send("あなたはボイスチャンネルに接続していません。")
         return
      # ボイスチャンネルに接続する
-    await message.author.voice.channel.connect()
-    await message.channel.send("接続しました。")
+    await ctx.author.voice.channel.connect()
+    await ctx.channel.send("接続しました。")
 
 @bot.command()
 async def leave(ctx):
-    if message.guild.voice_client is None:
-        await message.channel.send("接続していません。")
+    if ctx.guild.voice_client is None:
+        await ctx.channel.send("接続していません。")
         return
     # 切断する
-    await message.guild.voice_client.disconnect()
-    await message.channel.send("切断しました。")
+    await ctx.guild.voice_client.disconnect()
+    await ctx.channel.send("切断しました。")
 
 @bot.command()
 async def play(ctx):    
-    if message.guild.voice_client is None:
-        await message.channel.send("接続していません。")
+    if ctx.guild.voice_client is None:
+        await ctx.channel.send("接続していません。")
         return
     # 再生中の場合は再生しない
-    if message.guild.voice_client.is_playing():
-        await message.channel.send("再生中です。")
+    if ctx.guild.voice_client.is_playing():
+        await ctx.channel.send("再生中です。")
         return
 
-        url = message.content[6:]
+        url = ctx.content[6:]
         # youtubeから音楽をダウンロードする
         player = await YTDLSource.from_url(url, loop=client.loop)
 
     # 再生する
-    await message.guild.voice_client.play(player)
+    await ctx.guild.voice_client.play(player)
 
-    await message.channel.send('{} を再生します。'.format(player.title))
+    await ctx.channel.send('{} を再生します。'.format(player.title))
 
 @bot.command()
 async def stop(ctx):  
-    if message.guild.voice_client is None:
-        await message.channel.send("接続していません。")
+    if ctx.guild.voice_client is None:
+        await ctx.send("接続していません。")
         return
 
     # 再生中ではない場合は実行しない
-    if not message.guild.voice_client.is_playing():
-        await message.channel.send("再生していません。")
+    if not ctx.guild.voice_client.is_playing():
+        await ctx.send("再生していません。")
         return
 
-        message.guild.voice_client.stop()
+        ctx.guild.voice_client.stop()
 
-        await message.channel.send("ストップしました。")
+        await ctx.channel.send("ストップしました。")
 
 
 
@@ -145,25 +145,25 @@ async def ping(ctx):
 
 
 @bot.event
-async def on_message(message):
+async def on_message(ctx):
     # 送信者がBotである場合は弾く
-    if message.author.bot:
+    if ctx.author.bot:
         return
 
     # ドナルドの言葉狩り - https://qiita.com/sizumita/items/9d44ae7d1ce007391699
     # メッセージの本文が ドナルド だった場合
-    if 'ドナルド' in str(message.content):
+    if 'ドナルド' in str(ctx.content):
         # 送信するメッセージをランダムで決める
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
+        await ctx.channel.send('https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293')
 
     # メッセージの本文が 死んだ だった場合
-    if '死んだ' in str(message.content) or 'しんだ' in str(message.content):
+    if '死んだ' in str(ctx.content) or 'しんだ' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif')
+        await ctx.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif')
 
     # メッセージの本文が 一週間 だった場合
-    if '一週間' in str(message.content) or '1週間' in str(message.content) or '1週間' in str(message.content):
+    if '一週間' in str(ctx.content) or '1週間' in str(ctx.content) or '1週間' in str(ctx.content):
         yamadahouse_videoID = [
             "Xpr3vMjgPu4", #ゾンサガ
             "YV4Q_c0BuwM", #規則正しい生活
@@ -175,68 +175,68 @@ async def on_message(message):
         random_yamadahouse = random.choice(yamadahouse_videoID)
     
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send("http://img.youtube.com/vi/" + random_yamadahouse + "/maxresdefault.jpg")
+        await ctx.channel.send("http://img.youtube.com/vi/" + random_yamadahouse + "/maxresdefault.jpg")
 
     # メッセージの本文が バキ だった場合
-    if 'バキ' in str(message.content):
+    if 'バキ' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://cdn.discordapp.com/attachments/934792442178306108/942106647927595008/unknown.png')
+        await ctx.channel.send('https://cdn.discordapp.com/attachments/934792442178306108/942106647927595008/unknown.png')
 
     # メッセージの本文が big brother だった場合
-    if 'big brother' in str(message.content):
+    if 'big brother' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942107244349247488/9BD8903B-74D1-4740-8EC8-13110C0D943C.jpg')
+        await ctx.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942107244349247488/9BD8903B-74D1-4740-8EC8-13110C0D943C.jpg')
 
     # メッセージの本文が DJ だった場合
-    if 'DJ' in str(message.content):
+    if 'DJ' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942107858496000010/a834912b8c8f9739.jpg')
+        await ctx.channel.send('https://cdn.discordapp.com/attachments/889054561170522152/942107858496000010/a834912b8c8f9739.jpg')
 
     # メッセージの本文が メタ だった場合
-    if 'メタ' in str(message.content):
+    if 'メタ' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942109742782889994/GWHiBiKi_StYle_9_-_YouTube_1.png')
+        await ctx.channel.send('https://media.discordapp.net/attachments/889054561170522152/942109742782889994/GWHiBiKi_StYle_9_-_YouTube_1.png')
 
     # メッセージの本文が 風呂 だった場合
-    if '風呂' in str(message.content) or 'ふろ' in str(message.content):
+    if '風呂' in str(ctx.content) or 'ふろ' in str(ctx.content):
         # あるくおすしの場合
-        if message.author.id == walkingsushibox:
+        if ctx.author.id == walkingsushibox:
             # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942389072117256192/19ffe7f2e7464263.png')
+            await ctx.channel.send('https://media.discordapp.net/attachments/889054561170522152/942389072117256192/19ffe7f2e7464263.png')
         # あるくおすし以外の場合
         # 俺か俺以外か（by あるくおすし）   
         else:
             # メッセージが送られてきたチャンネルに送る
-            await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/943155933343785040/d9ce03af4958b0b7.png')
+            await ctx.channel.send('https://media.discordapp.net/attachments/889054561170522152/943155933343785040/d9ce03af4958b0b7.png')
     
     # メッセージの本文が ランキング だった場合
-    if 'ランキング' in str(message.content):
+    if 'ランキング' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942109619243864085/E8sV781VIAEtwZq.png')
+        await ctx.channel.send('https://media.discordapp.net/attachments/889054561170522152/942109619243864085/E8sV781VIAEtwZq.png')
 
     # メッセージの本文が おはよう だった場合
-    if 'おはよう' in str(message.content):
+    if 'おはよう' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png')
+        await ctx.channel.send('https://media.discordapp.net/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png')
 
     # メッセージの本文が いい曲 だった場合
-    if 'いい曲' in str(message.content):
+    if 'いい曲' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://media.discordapp.net/attachments/889054561170522152/942071776815480832/unknown.png')
+        await ctx.channel.send('https://media.discordapp.net/attachments/889054561170522152/942071776815480832/unknown.png')
     
     # メッセージの本文が やんぱ だった場合
-    if 'やんぱ' in str(message.content):
+    if 'やんぱ' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('やんぱ2')
+        await ctx.channel.send('やんぱ2')
         
     # メッセージの本文が 精液 だった場合
-    if '精液' in str(message.content):
+    if '精液' in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send('https://cdn.discordapp.com/attachments/395580207970648064/944945500874997841/unknown.png')
+        await ctx.channel.send('https://cdn.discordapp.com/attachments/395580207970648064/944945500874997841/unknown.png')
 
 
-    if message.attachments and message.channel.id == WIP_CHANNEL_ID:
-        for attachment in message.attachments:
+    if ctx.attachments and ctx.channel.id == WIP_CHANNEL_ID:
+        for attachment in ctx.attachments:
             # Attachmentの拡張子がmp3, wavのどれかだった場合
             # https://discordpy.readthedocs.io/ja/latest/api.html#attachment
             if "audio" in attachment.content_type:
@@ -248,8 +248,8 @@ async def on_message(message):
                     stderr=asyncio.subprocess.PIPE)
 
                 stdout, stderr = await proc.communicate()
-                await message.channel.send(file=discord.File("output.mp4"))
-    await bot.process_commands(message)
+                await ctx.channel.send(file=discord.File("output.mp4"))
+    await bot.process_commands(ctx)
 
 
 # チーバくんの、なのはな体操
