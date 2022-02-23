@@ -165,17 +165,31 @@ async def on_message(ctx):
     # メッセージの本文が 一週間 だった場合
     if '一週間' in str(ctx.content) or '1週間' in str(ctx.content) or '1週間' in str(ctx.content):
         yamadahouse_videoID = [
-            "Xpr3vMjgPu4", #ゾンサガ
-            "YV4Q_c0BuwM", #規則正しい生活
-            "0ktLlgm5ChQ", #ぼっち系youtuber
-            "FITOm27RaSQ", #財布にお金入れ続ける
-            "XtKPLTaRYt8", #無職転生
+            "Xpr3vMjgPu4", # ゾンサガ
+            "YV4Q_c0BuwM", # 規則正しい生活
+            "0ktLlgm5ChQ", # ぼっち系youtuber
+            "FITOm27RaSQ", # 財布にお金入れ続ける
+            "XtKPLTaRYt8", # 無職転生
+            "KfErfevjb7E", # 臭いもの
+            "f4WZuwCdB8c", # VTuber
         ]
-        
+        # ↑の部分をYouTubeAPI使ってJSONのリストにする予定 とりあえず今はこの7つだけ
+
+        thumb_types = [
+            "maxresdefault.jpg" #1280*720
+            "sddefault.jpg" #640*480
+            "hqdefault.jpg" #480*360
+            "mqdefault.jpg" #320*180
+            "default.jpg" #120*90
+        ]
+        # ↑の画像を上から順に確認して一番でかいものを選択するようにする ダミー画像が120*120なのを利用してそのサイズがあるか確認する
+
         random_yamadahouse = random.choice(yamadahouse_videoID)
-    
+
+        # サムネイルのサイズを確認する(参考:https://zenn.dev/attt/articles/get-yt-thumbnail)
+        
         # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("http://img.youtube.com/vi/" + random_yamadahouse + "/maxresdefault.jpg")
+        await ctx.channel.send("http://img.youtube.com/vi/" + random_yamadahouse + "/" + "sddefault.jpg")
 
     # メッセージの本文が バキ だった場合
     if 'バキ' in str(ctx.content):
