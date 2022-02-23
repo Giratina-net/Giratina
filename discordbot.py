@@ -116,7 +116,7 @@ class Music(commands.Cog):
     async def volume(self, ctx, volume: int):
         channel = ctx.author.voice.channel
         if channel is None:
-            return await ctx.send(VCに接続していません)
+            return await ctx.send("VCに接続していません")
 
         ctx.voice_client.source.volume = volume / 100
         await ctx.send("ボリューム変更：{}".format(volume))
