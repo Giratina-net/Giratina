@@ -8,9 +8,11 @@ import discord
 from discord.ext import commands
 import youtube_dl
 
-client = discord.Client()
 
 
+# https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
+# Suppress noise about console usage from errors
+youtube_dl.utils.bug_reports_message = lambda: ''
 
 yamadahouse_videoID = [
     "Xpr3vMjgPu4", #ゾンサガ
@@ -55,9 +57,7 @@ WIP_CHANNEL_ID = 940966825087361025
 # あるくおすしのユーザーID
 walkingsushibox = 575588255647399958
 
-# https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
-# Suppress noise about console usage from errors
-youtube_dl.utils.bug_reports_message = lambda: ''
+
 
 
 class YTDLSource(discord.PCMVolumeTransformer):
@@ -80,6 +80,9 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         filename = data['url'] if stream else ytdl.prepare_filename(data)
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+
+
+client = discord.Client()
 
 @client.event
 async def on_message(message: discord.Message):
