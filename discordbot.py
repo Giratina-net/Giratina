@@ -175,7 +175,7 @@ async def on_message(message):
         random_yamadahouse = random.choice(yamadahouse_videoID)
     
         # メッセージが送られてきたチャンネルに送る
-        await message.channel.send("http://img.youtube.com/vi/" + random_yamadahouse + "/sddefault.jpg")
+        await message.channel.send("http://img.youtube.com/vi/" + random_yamadahouse + "/maxresdefault.jpg")
 
     # メッセージの本文が バキ だった場合
     if 'バキ' in str(message.content):
