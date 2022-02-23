@@ -22,7 +22,7 @@ yamadahouse_videoID = [
 
 randam_yamadahouse = random.choice(yamadahouse_videoID)
 
-yamadahouse_thumbnail = 'http://img.youtube.com/vi/' + (random_yamadahouse) + '/sddefault.jpg'
+yamadahouse_thumbnail = "http://img.youtube.com/vi/" + (random_yamadahouse) + "/sddefault.jpg"
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
