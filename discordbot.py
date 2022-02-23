@@ -1,10 +1,10 @@
 import asyncio
+import discord
 import traceback
 from asyncio import sleep
 from os import getenv
 import random
 
-import discord
 from discord.ext import commands
 import youtube_dl
 
@@ -13,18 +13,6 @@ import youtube_dl
 # https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
 # Suppress noise about console usage from errors
 youtube_dl.utils.bug_reports_message = lambda: ''
-
-yamadahouse_videoID = [
-    "Xpr3vMjgPu4", #ゾンサガ
-    "YV4Q_c0BuwM", #規則正しい生活
-    "0ktLlgm5ChQ", #ぼっち系youtuber
-    "FITOm27RaSQ", #財布にお金入れ続ける
-    "XtKPLTaRYt8", #無職転生
-]
-
-random_yamadahouse = random.choice(yamadahouse_videoID)
-
-yamadahouse_thumbnail = "http://img.youtube.com/vi/" + random_yamadahouse + "/sddefault.jpg"
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -179,8 +167,18 @@ async def on_message(message):
 
     # メッセージの本文が 一週間 だった場合
     if '一週間' in str(message.content) or '1週間' in str(message.content) or '1週間' in str(message.content):
+        yamadahouse_videoID = [
+            "Xpr3vMjgPu4", #ゾンサガ
+            "YV4Q_c0BuwM", #規則正しい生活
+            "0ktLlgm5ChQ", #ぼっち系youtuber
+            "FITOm27RaSQ", #財布にお金入れ続ける
+            "XtKPLTaRYt8", #無職転生
+        ]
+        
+        random_yamadahouse = random.choice(yamadahouse_videoID)
+    
         # メッセージが送られてきたチャンネルに送る
-            await message.channel.send(yamadahouse_thumbnail)
+        await message.channel.send("http://img.youtube.com/vi/" + random_yamadahouse + "/sddefault.jpg")
 
     # メッセージの本文が バキ だった場合
     if 'バキ' in str(message.content):
