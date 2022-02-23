@@ -46,8 +46,6 @@ WIP_CHANNEL_ID = 940966825087361025
 walkingsushibox = 575588255647399958
 
 
-
-
 class YTDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
         super().__init__(source, volume)
