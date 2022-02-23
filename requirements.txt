@@ -1,3 +1,4 @@
 py-cord[voice]>=1.7.3
 ffmpeg>=1.4
 youtube-dl
+PyNaCl
