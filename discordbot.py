@@ -72,56 +72,53 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
 client = discord.Client()
 
-@client.event
-async def on_message(message: discord.Message):
-    # メッセージの送信者がbotだった場合は無視する
-    if message.author.bot:
+@bot.command()
+async def join(ctx):
+    if message.author.voice is None:
+        await message.channel.send("あなたはボイスチャンネルに接続していません。")
         return
+     # ボイスチャンネルに接続する
+    await message.author.voice.channel.connect()
+    await message.channel.send("接続しました。")
 
-    if message.content == "!join":
-        if message.author.voice is None:
-            await message.channel.send("あなたはボイスチャンネルに接続していません。")
-            return
-        # ボイスチャンネルに接続する
-        await message.author.voice.channel.connect()
-        await message.channel.send("接続しました。")
+@bot.command()
+async def leave(ctx):
+    if message.guild.voice_client is None:
+        await message.channel.send("接続していません。")
+        return
+    # 切断する
+    await message.guild.voice_client.disconnect()
+    await message.channel.send("切断しました。")
 
-    elif message.content == "!leave":
-        if message.guild.voice_client is None:
-            await message.channel.send("接続していません。")
-            return
-
-        # 切断する
-        await message.guild.voice_client.disconnect()
-
-        await message.channel.send("切断しました。")
-    elif message.content.startswith("!play "):
-        if message.guild.voice_client is None:
-            await message.channel.send("接続していません。")
-            return
-        # 再生中の場合は再生しない
-        if message.guild.voice_client.is_playing():
-            await message.channel.send("再生中です。")
-            return
+@bot.command()
+async def play(ctx):    
+    if message.guild.voice_client is None:
+        await message.channel.send("接続していません。")
+        return
+    # 再生中の場合は再生しない
+    if message.guild.voice_client.is_playing():
+        await message.channel.send("再生中です。")
+        return
 
         url = message.content[6:]
         # youtubeから音楽をダウンロードする
         player = await YTDLSource.from_url(url, loop=client.loop)
 
-        # 再生する
-        await message.guild.voice_client.play(player)
+    # 再生する
+    await message.guild.voice_client.play(player)
 
-        await message.channel.send('{} を再生します。'.format(player.title))
+    await message.channel.send('{} を再生します。'.format(player.title))
 
-    elif message.content == "!stop":
-        if message.guild.voice_client is None:
-            await message.channel.send("接続していません。")
-            return
+@bot.command()
+async def stop(ctx):  
+    if message.guild.voice_client is None:
+        await message.channel.send("接続していません。")
+        return
 
-        # 再生中ではない場合は実行しない
-        if not message.guild.voice_client.is_playing():
-            await message.channel.send("再生していません。")
-            return
+    # 再生中ではない場合は実行しない
+    if not message.guild.voice_client.is_playing():
+        await message.channel.send("再生していません。")
+        return
 
         message.guild.voice_client.stop()
 
