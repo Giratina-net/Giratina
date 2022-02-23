@@ -12,11 +12,11 @@ client = discord.Client()
 
 
 yamadahouse_videoID = [
-    "Xpr3vMjgPu4" #ゾンサガ
-    "YV4Q_c0BuwM" #規則正しい生活
-    "0ktLlgm5ChQ" #ぼっち系youtuber
-    "FITOm27RaSQ" #財布にお金入れ続ける
-    "XtKPLTaRYt8" #無職転生
+    "Xpr3vMjgPu4", #ゾンサガ
+    "YV4Q_c0BuwM", #規則正しい生活
+    "0ktLlgm5ChQ", #ぼっち系youtuber
+    "FITOm27RaSQ", #財布にお金入れ続ける
+    "XtKPLTaRYt8", #無職転生
 ]
 
 randam_yamadahouse = random.choice(yamadahouse_videoID)
