@@ -6,13 +6,13 @@ from os import getenv
 import random
 
 from discord.ext import commands
-import youtube_dl
+import yt_dlp
 
 
 
 # https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
 # Suppress noise about console usage from errors
-youtube_dl.utils.bug_reports_message = lambda: ''
+yt_dlp.utils.bug_reports_message = lambda: ''
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -32,7 +32,7 @@ ffmpeg_options = {
     'options': '-vn'
 }
 
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 # botの接頭辞を!にする
 bot = commands.Bot(command_prefix='!')
@@ -88,23 +88,26 @@ async def leave(ctx):
     await ctx.guild.voice_client.disconnect()
     await ctx.channel.send("切断しました。")
 
-@bot.command()
-async def play(ctx):    
+@bot.command(aliases=["p"])
+async def play(ctx,url):    
     # 再生中の場合は再生しない
+    if ctx.author.voice is None:
+        await ctx.channel.send("接続していません。")
+        return
+        # ボイスチャンネルに接続する
+    if ctx.guild.voice_client is None:
+        await ctx.author.voice.channel.connect()
     if ctx.guild.voice_client.is_playing():
         await ctx.channel.send("再生中です。")
         return
 
-        url = ctx.content[6:]
-        # youtubeから音楽をダウンロードする
-        player = await YTDLSource.from_url(url, loop=client.loop)
+    # youtubeから音楽をダウンロードする
+    player = await YTDLSource.from_url(url, loop=client.loop)
 
     # 再生する
-    await ctx.author.voice.channel.connect()
+    ctx.guild.voice_client.play(player)
 
-    await ctx.guild.voice_client.play(player)
-
-    await ctx.channel.send('{} を再生します。'.format(player.title))
+    await ctx.channel.send('{} を再生します。'.format(player.title) + "\n" + url)
 
 @bot.command()
 async def stop(ctx):  
@@ -117,9 +120,8 @@ async def stop(ctx):
         await ctx.send("再生していません。")
         return
 
-        ctx.guild.voice_client.stop()
-
-        await ctx.channel.send("ストップしました。")
+    ctx.guild.voice_client.stop()
+    await ctx.channel.send("ストップしました。")
 
 
 
