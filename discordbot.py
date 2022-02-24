@@ -100,9 +100,8 @@ async def play(ctx):
         player = await YTDLSource.from_url(url, loop=client.loop)
 
     # 再生する
-    if ctx.guild.voice_client is None:
-        await ctx.author.voice.channel.connect()
-        
+    await ctx.author.voice.channel.connect()
+
     await ctx.guild.voice_client.play(player)
 
     await ctx.channel.send('{} を再生します。'.format(player.title))
