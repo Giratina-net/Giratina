@@ -7,6 +7,8 @@ import discord
 import yt_dlp
 from discord.ext import commands
 
+from googleapiclient.discovery import build
+
 # https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
 # Suppress noise about console usage from errors
 yt_dlp.utils.bug_reports_message = lambda: ""
@@ -30,6 +32,8 @@ ffmpeg_options = {
 }
 
 ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
+
+youtube = build("youtube", "v3", developerKey="")
 
 # botの接頭辞を!にする
 bot = commands.Bot(command_prefix="!")
@@ -156,12 +160,20 @@ async def on_message(ctx):
         await ctx.channel.send("https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293")
 
     # メッセージの本文が 死んだ だった場合
-    if str(ctx.content) in ["死んだ", "しんだ"]:
+    if "死んだ" in str(ctx.content) or "しんだ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif")
 
     # メッセージの本文が 一週間 だった場合
-    if str(ctx.content) in ["一週間", "1週間"]:
+    if "一週間" in str(ctx.content) or "1週間" in str(ctx.content):
+
+        # サムネイルをAPIで取得する構文
+        # こっちを使う時には下のyamadahouse_videoIDの配列は消してください
+        # yamadahouse_videoID = []
+        # response = youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
+        # for item in response.get("items", []):
+        #     yamadahouse_videoID.append(item["snipped"]["thumbnails"]["high"]["url"])
+
         yamadahouse_videoID = [
             "Xpr3vMjgPu4",  # ゾンサガ
             "YV4Q_c0BuwM",  # 規則正しい生活
@@ -210,7 +222,7 @@ async def on_message(ctx):
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942109742782889994/GWHiBiKi_StYle_9_-_YouTube_1.png")
 
     # メッセージの本文が 風呂 だった場合
-    if str(ctx.content) in ["風呂", "ふろ"]:
+    if "風呂" in str(ctx.content) or "ふろ" in str(ctx.content):
         # あるくおすしの場合
         if ctx.author.id == walkingsushibox:
             # メッセージが送られてきたチャンネルに送る
