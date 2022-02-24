@@ -107,7 +107,7 @@ async def play(ctx,url):
     # 再生する
     ctx.guild.voice_client.play(player)
 
-    await ctx.channel.send('{} を再生します。'.format(player.title) + "\n" + url)
+    await ctx.channel.send(f'{player.title} を再生します。\n{url}')
 
 @bot.command()
 async def stop(ctx):  
