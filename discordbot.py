@@ -15,7 +15,7 @@ import yt_dlp
 yt_dlp.utils.bug_reports_message = lambda: ''
 
 ytdl_format_options = {
-    'format': 'bestaudio/best',
+    'format': 'bestaudio/best*[acodec=opus]',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
@@ -51,9 +51,9 @@ class YTDLSource(discord.PCMVolumeTransformer):
         super().__init__(source, volume)
 
         self.data = data
-
         self.title = data.get('title')
         self.url = data.get('url')
+        self.original_url = data.get('original_url')
 
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
@@ -107,7 +107,7 @@ async def play(ctx,url):
     # 再生する
     ctx.guild.voice_client.play(player)
 
-    await ctx.channel.send('{} を再生します。'.format(player.title) + "\n" + url)
+    await ctx.channel.send('{} を再生します。'.format(player.title) + "\n" + player.original_url)
 
 @bot.command()
 async def stop(ctx):  
