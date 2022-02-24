@@ -90,9 +90,6 @@ async def leave(ctx):
 
 @bot.command()
 async def play(ctx):    
-    if ctx.guild.voice_client is None:
-        await ctx.channel.send("接続していません。")
-        return
     # 再生中の場合は再生しない
     if ctx.guild.voice_client.is_playing():
         await ctx.channel.send("再生中です。")
@@ -103,6 +100,9 @@ async def play(ctx):
         player = await YTDLSource.from_url(url, loop=client.loop)
 
     # 再生する
+    if ctx.guild.voice_client is None:
+        await ctx.author.voice.channel.connect()
+        
     await ctx.guild.voice_client.play(player)
 
     await ctx.channel.send('{} を再生します。'.format(player.title))
