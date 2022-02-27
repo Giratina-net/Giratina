@@ -5,6 +5,7 @@ from os import getenv
 
 import discord
 import yt_dlp
+import oseti
 from discord.ext import commands
 
 # https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
