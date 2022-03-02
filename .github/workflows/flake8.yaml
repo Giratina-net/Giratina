@@ -17,7 +17,7 @@ jobs:
           architecture: x64
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install discord.py[voice] flake8
 
       - name: Run flake8
         run: flake8 --select=E9,F63,F72,F82
