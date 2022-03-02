@@ -5,6 +5,7 @@ from os import getenv
 
 import discord
 import yt_dlp
+import oseti
 from discord.ext import commands
 
 from googleapiclient.discovery import build
