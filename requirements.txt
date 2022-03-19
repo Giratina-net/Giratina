@@ -2,4 +2,4 @@ py-cord[voice]>=1.7.3
 ffmpeg>=1.4
 yt-dlp
 PyNaCl==1.5.0
-google-api-python-client==2.40.0
+google-api-python-client==2.41.0
