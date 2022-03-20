@@ -172,7 +172,7 @@ async def on_message(ctx):
         yamadahouse_videoID = []
         response = youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
         for item in response.get("items", []):
-            yamadahouse_videoID.append(item["snipped"]["thumbnails"]["high"]["url"])
+            yamadahouse_videoID.append(item["snippet"]["thumbnails"]["high"]["url"])
 
         # yamadahouse_videoID = [
         #     "Xpr3vMjgPu4",  # ゾンサガ
