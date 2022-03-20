@@ -170,20 +170,20 @@ async def on_message(ctx):
 
         # サムネイルをAPIで取得する構文
         # こっちを使う時には下のyamadahouse_videoIDの配列は消してください
-        # yamadahouse_videoID = []
-        # response = youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
-        # for item in response.get("items", []):
-        #     yamadahouse_videoID.append(item["snipped"]["thumbnails"]["high"]["url"])
+        yamadahouse_videoID = []
+        response = youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
+        for item in response.get("items", []):
+            yamadahouse_videoID.append(item["snipped"]["thumbnails"]["high"]["url"])
 
-        yamadahouse_videoID = [
-            "Xpr3vMjgPu4",  # ゾンサガ
-            "YV4Q_c0BuwM",  # 規則正しい生活
-            "0ktLlgm5ChQ",  # ぼっち系youtuber
-            "FITOm27RaSQ",  # 財布にお金入れ続ける
-            "XtKPLTaRYt8",  # 無職転生
-            "KfErfevjb7E",  # 臭いもの
-            "f4WZuwCdB8c",  # VTuber
-        ]
+        # yamadahouse_videoID = [
+        #     "Xpr3vMjgPu4",  # ゾンサガ
+        #     "YV4Q_c0BuwM",  # 規則正しい生活
+        #     "0ktLlgm5ChQ",  # ぼっち系youtuber
+        #     "FITOm27RaSQ",  # 財布にお金入れ続ける
+        #     "XtKPLTaRYt8",  # 無職転生
+        #     "KfErfevjb7E",  # 臭いもの
+        #     "f4WZuwCdB8c",  # VTuber
+        # ]
         # ↑の部分をYouTubeAPI使ってJSONのリストにする予定 とりあえず今はこの7つだけ
 
         thumb_types = [
