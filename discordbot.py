@@ -33,7 +33,7 @@ ffmpeg_options = {
 
 ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
-youtube = build("youtube", "v3", developerKey="")
+youtube = build("youtube", "v3", developerKey="YOUTUBE_API_KEY")
 
 # botの接頭辞を!にする
 bot = commands.Bot(command_prefix="!")
