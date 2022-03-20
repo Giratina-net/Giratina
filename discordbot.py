@@ -199,7 +199,7 @@ async def on_message(ctx):
         # サムネイルのサイズを確認する(参考:https://zenn.dev/attt/articles/get-yt-thumbnail)
 
         # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send(f"https://img.youtube.com/vi/{random_yamadahouse}/sddefault.jpg")
+        await ctx.channel.send(f"{random_yamadahouse}")
 
     # メッセージの本文が バキ だった場合
     if "バキ" in str(ctx.content):
