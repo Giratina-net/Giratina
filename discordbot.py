@@ -175,17 +175,6 @@ async def on_message(ctx):
         for item in response.get("items", []):
             yamadahouse_videoID.append(item["snippet"]["thumbnails"]["high"]["url"])
 
-        # yamadahouse_videoID = [
-        #     "Xpr3vMjgPu4",  # ゾンサガ
-        #     "YV4Q_c0BuwM",  # 規則正しい生活
-        #     "0ktLlgm5ChQ",  # ぼっち系youtuber
-        #     "FITOm27RaSQ",  # 財布にお金入れ続ける
-        #     "XtKPLTaRYt8",  # 無職転生
-        #     "KfErfevjb7E",  # 臭いもの
-        #     "f4WZuwCdB8c",  # VTuber
-        # ]
-        # ↑の部分をYouTubeAPI使ってJSONのリストにする予定 とりあえず今はこの7つだけ
-
         thumb_types = [
             "maxresdefault.jpg"  # 1280*720
             "sddefault.jpg"  # 640*480
