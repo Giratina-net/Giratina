@@ -33,7 +33,7 @@ ffmpeg_options = {
 
 ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
-developerKey = getenv("DISCORD_BOT_TOKEN")
+developerKey = getenv("YOUTUBE_API_KEY")
 youtube = build("youtube", "v3", developerKey)
 
 # botの接頭辞を!にする
@@ -106,13 +106,19 @@ async def play(ctx, url):
         return
 
     # youtubeから音楽をダウンロードする
+    global player
     player = await YTDLSource.from_url(url, loop=client.loop)
 
     # 再生する
     ctx.guild.voice_client.play(player)
 
-    await ctx.channel.send(f"{player.title} を再生します。\n{url}")
+    await ctx.channel.send(f"{player.title} を再生します。")
 
+@bot.command(aliases=["np"])
+async def nowplaying(ctx):
+    global player
+    embed = discord.Embed(title=player.original_url,description=f"{player.title} を再生中です。")
+    await ctx.channel.send(embed=embed)
 
 @bot.command()
 async def stop(ctx):
