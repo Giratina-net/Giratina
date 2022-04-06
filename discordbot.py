@@ -173,29 +173,16 @@ async def on_message(ctx):
 
     # メッセージの本文が 一週間 だった場合
     if "一週間" in str(ctx.content) or "1週間" in str(ctx.content):
-
         # サムネイルをAPIで取得する構文
-        # こっちを使う時には下のyamadahouse_videoIDの配列は消してください
-        yamadahouse_videoID = []
+        yamadahouse_videoId = []
         response = youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
         for item in response.get("items", []):
-            yamadahouse_videoID.append(item["snippet"]["thumbnails"]["high"]["url"])
+            yamadahouse_videoId.append(item["snippet"]["thumbnails"]["high"]["url"])
 
-        thumb_types = [
-            "maxresdefault.jpg"  # 1280*720
-            "sddefault.jpg"  # 640*480
-            "hqdefault.jpg"  # 480*360
-            "mqdefault.jpg"  # 320*180
-            "default.jpg"  # 120*90
-        ]
-        # ↑の画像を上から順に確認して一番でかいものを選択するようにする ダミー画像が120*120なのを利用してそのサイズがあるか確認する
-
-        random_yamadahouse = random.choice(yamadahouse_videoID)
-
-        # サムネイルのサイズを確認する(参考:https://zenn.dev/attt/articles/get-yt-thumbnail)
+        random_yamadahouse = random.choice(yamadahouse_videoId)
 
         # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send(f"{random_yamadahouse}")
+        await ctx.channel.send(random_yamadahouse)
 
     # メッセージの本文が バキ だった場合
     if "バキ" in str(ctx.content):
