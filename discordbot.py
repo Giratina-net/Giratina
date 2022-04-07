@@ -129,6 +129,12 @@ class Music(commands.Cog):
 
     @commands.command(aliases=["np"])
     async def nowplaying(self, ctx):
+        
+        # 再生中ではない場合は実行しない
+        if not ctx.guild.voice_client.is_playing():
+            await ctx.send("再生していません。")
+            return
+
         embed = discord.Embed(title=self.player.original_url,description=f"{self.player.title} を再生中です。")
         await ctx.channel.send(embed=embed)
 
