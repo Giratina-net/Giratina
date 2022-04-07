@@ -326,4 +326,6 @@ async def bokuseku(ctx):
 
 
 token = getenv("DISCORD_BOT_TOKEN")
+
+bot.add_cog(Music(bot=bot))
 bot.run(token)
