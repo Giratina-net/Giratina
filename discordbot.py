@@ -210,7 +210,6 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("ラブライブです")
 
-
     # メッセージの本文が 一週間 だった場合
     if "一週間" in str(ctx.content) or "1週間" in str(ctx.content):
         # サムネイルをAPIで取得する構文
@@ -293,6 +292,10 @@ async def on_message(ctx):
                 await ctx.channel.send(file=discord.File("output.mp4"))
     await bot.process_commands(ctx)
 
+# Raika
+@bot.command()
+async def raika(ctx):
+    await ctx.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
 
 # チーバくんの、なのはな体操
 @bot.command()
