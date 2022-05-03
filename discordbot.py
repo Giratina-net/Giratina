@@ -34,11 +34,9 @@ ffmpeg_options = {
 
 ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
-token = "OTQwNTc0MDc4ODcwMzU1OTg4.YgJX3w.yn1DYMwK9vbk2BPtqbjCFFhH3A0"
-#getenv("DISCORD_BOT_TOKEN")
+token = getenv("DISCORD_BOT_TOKEN")
 
-developerKey = "AIzaSyAOh95YKH3TVPxLyEGcR4Qzbx4wd5e9yPs"
-#getenv("YOUTUBE_API_KEY")
+developerKey = getenv("YOUTUBE_API_KEY")
 youtube = build("youtube", "v3", developerKey=developerKey)
 
 # botの接頭辞を!にする
