@@ -205,6 +205,12 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif")
 
+    # メッセージの本文が ゆるゆり だった場合
+    if "ゆるゆり" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("ラブライブです")
+
+
     # メッセージの本文が 一週間 だった場合
     if "一週間" in str(ctx.content) or "1週間" in str(ctx.content):
         # サムネイルをAPIで取得する構文
