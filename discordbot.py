@@ -5,6 +5,7 @@ from os import getenv
 
 import discord
 import yt_dlp
+from niconico import NicoNico as niconico_dl
 from discord.ext import commands
 
 from googleapiclient.discovery import build
@@ -33,7 +34,11 @@ ffmpeg_options = {
 
 ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
-developerKey = getenv("YOUTUBE_API_KEY")
+token = "OTQwNTc0MDc4ODcwMzU1OTg4.YgJX3w.yn1DYMwK9vbk2BPtqbjCFFhH3A0"
+#getenv("DISCORD_BOT_TOKEN")
+
+developerKey = "AIzaSyAOh95YKH3TVPxLyEGcR4Qzbx4wd5e9yPs"
+#getenv("YOUTUBE_API_KEY")
 youtube = build("youtube", "v3", developerKey=developerKey)
 
 # botの接頭辞を!にする
@@ -43,6 +48,8 @@ bot = commands.Bot(command_prefix="!")
 GIRATINA_CHANNEL_ID = 940610524415144036
 # mp3tomp4のチャンネルのID
 WIP_CHANNEL_ID = 940966825087361025
+# ファル子☆おもしろ画像集のID
+FALCON_CAHNNEL_ID = 955809774849646603
 # あるくおすしのユーザーID
 walkingsushibox = 575588255647399958
 
@@ -68,6 +75,20 @@ class YTDLSource(discord.PCMVolumeTransformer):
         filename = data["url"] if stream else ytdl.prepare_filename(data)
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
+class NicoNicoDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, *, url, volume=0.1):
+        super().__init__(source, volume)
+
+        self.url = url
+
+    @classmethod
+    async def from_url(cls, url, *, log=False, volume=0.1):
+        nico_id = url.split("/")[-1]
+        niconico = niconico_dl(nico_id)
+        stream_url = await niconico.get_download_link()
+
+        source = OriginalFFmpegPCMAudio(stream_url, **ffmpeg_options)
+        return (cls(source, url=stream_url, volume=volume), niconico)
 
 client = discord.Client()
 
@@ -108,7 +129,11 @@ class Music(commands.Cog):
             await ctx.author.voice.channel.connect()
 
         # youtubeから音楽をダウンロードする
-        self.player = await YTDLSource.from_url(url, loop=client.loop)
+        is_niconico = url.startswith("https://www.nicovideo.jp/")
+        if is_niconico:
+            player, niconico = await NicoNicoDLSource.from_url(url, log=True)
+        else:
+            self.player = await YTDLSource.from_url(url, loop=client.loop)
 
         if ctx.guild.voice_client.is_playing():
             self.queue.append(self.player)
@@ -292,6 +317,20 @@ async def on_message(ctx):
                 await ctx.channel.send(file=discord.File("output.mp4"))
     await bot.process_commands(ctx)
 
+## ファルコおもしろ画像を送信
+#@bot.command(aliases=["syai","faruko"])
+#async def falco(ctx):
+    ## 送信者がBotである場合は弾く
+    #if ctx.author.bot:
+    #    return
+    
+    #falco_cahnnel_message = await channel.messages.fetch({ limit: 100 })
+
+    #random_falco = random.choice(falco_cahnnel_message)
+
+    ## メッセージが送られてきたチャンネルに送る
+    #await ctx.channel.send(random_falco)
+
 # Raika
 @bot.command()
 async def raika(ctx):
@@ -329,18 +368,18 @@ async def bokuseku(ctx):
     if ctx.author.voice is None:
         await ctx.channel.send("望月くん・・・ボイスチャンネルに来なさい")
         return
-    # ボイスチャンネルに接続する
-    await ctx.author.voice.channel.connect()
-    # 音声を再生する
-    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
+    else:
+        # ボイスチャンネルに接続する
+        await ctx.author.voice.channel.connect()
+        # 音声を再生する
+        ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
     # 音声が再生中か確認する
-    while ctx.guild.voice_client.is_playing():
-        await sleep(1)
-    # 切断する
-    await ctx.guild.voice_client.disconnect()
+        while ctx.guild.voice_client.is_playing():
+            await sleep(1)
+        # 切断する
+        await ctx.guild.voice_client.disconnect()
 
 
-token = getenv("DISCORD_BOT_TOKEN")
 
 bot.add_cog(Music(bot=bot))
 bot.run(token)
