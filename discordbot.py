@@ -85,7 +85,7 @@ class NicoNicoDLSource(discord.PCMVolumeTransformer):
         niconico = niconico_dl(nico_id)
         stream_url = await niconico.get_download_link()
 
-        source = OriginalFFmpegPCMAudio(stream_url, **ffmpeg_options)
+        source = Music(stream_url, **ffmpeg_options)
         return (cls(source, url=stream_url, volume=volume), niconico)
 
 client = discord.Client()
