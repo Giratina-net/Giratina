@@ -5,7 +5,6 @@ from os import getenv
 
 import discord
 import yt_dlp
-from niconico import NicoNico as niconico_dl
 from discord.ext import commands
 
 from googleapiclient.discovery import build
@@ -15,7 +14,7 @@ from googleapiclient.discovery import build
 yt_dlp.utils.bug_reports_message = lambda: ""
 
 ytdl_format_options = {
-    "format": "bestaudio/best*[acodec=opus]",
+    "format": "bestaudio/best*[acodec=aac]",
     "outtmpl": "%(extractor)s-%(id)s-%(title)s.%(ext)s",
     "restrictfilenames": True,
     "noplaylist": True,
@@ -42,6 +41,8 @@ youtube = build("youtube", "v3", developerKey=developerKey)
 # botの接頭辞を!にする
 bot = commands.Bot(command_prefix="!")
 
+# 聖バリ鯖のサーバーID
+SEIBARI_GUILD_ID = 889049222152871986
 # ギラティナのチャンネルのID
 GIRATINA_CHANNEL_ID = 940610524415144036
 # mp3tomp4のチャンネルのID
@@ -73,20 +74,8 @@ class YTDLSource(discord.PCMVolumeTransformer):
         filename = data["url"] if stream else ytdl.prepare_filename(data)
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
-class NicoNicoDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, url, volume=0.1):
-        super().__init__(source, volume)
-
-        self.url = url
-
-    @classmethod
-    async def from_url(cls, url, *, log=False, volume=0.1):
-        nico_id = url.split("/")[-1]
-        niconico = niconico_dl(nico_id)
-        stream_url = await niconico.get_download_link()
-
-        source = Music(stream_url, **ffmpeg_options)
-        return (cls(source, url=stream_url, volume=volume), niconico)
+# もしniconicoDLをいれるなら参考になるかも
+# https://github.com/akomekagome/SmileMusic/blob/dd94c342fed5301c790ce64360ad33f7c0d46208/python/smile_music.py
 
 client = discord.Client()
 
@@ -126,12 +115,7 @@ class Music(commands.Cog):
         if ctx.guild.voice_client is None:
             await ctx.author.voice.channel.connect()
 
-        # youtubeから音楽をダウンロードする
-        is_niconico = url.startswith("https://www.nicovideo.jp/")
-        if is_niconico:
-            player, niconico = await NicoNicoDLSource.from_url(url, log=True)
-        else:
-            self.player = await YTDLSource.from_url(url, loop=client.loop)
+        self.player = await YTDLSource.from_url(url, loop=client.loop)
 
         if ctx.guild.voice_client.is_playing():
             self.queue.append(self.player)
@@ -149,6 +133,13 @@ class Music(commands.Cog):
 
         self.player = self.queue.pop(0)
         guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_played(guild))
+
+    @commands.command(aliases=["q"])
+    async def queue(self,ctx):
+        # 再生中ではない場合は実行しない
+        if not ctx.guild.voice_client.is_playing():
+            await ctx.send("再生していません。")
+            return
 
     @commands.command(aliases=["np"])
     async def nowplaying(self, ctx):
@@ -315,19 +306,29 @@ async def on_message(ctx):
                 await ctx.channel.send(file=discord.File("output.mp4"))
     await bot.process_commands(ctx)
 
-## ファルコおもしろ画像を送信
-#@bot.command(aliases=["syai","faruko"])
-#async def falco(ctx):
-    ## 送信者がBotである場合は弾く
-    #if ctx.author.bot:
-    #    return
+# ファルコおもしろ画像を送信
+@bot.command(aliases=["syai","faruko"])
+async def falco(ctx):
+    # 送信者がBotである場合は弾く
+    if ctx.author.bot:
+        return
     
-    #falco_cahnnel_message = await channel.messages.fetch({ limit: 100 })
+    guild = bot.get_guild(SEIBARI_GUILD_ID)
 
-    #random_falco = random.choice(falco_cahnnel_message)
+    channel = guild.get_channel(FALCON_CAHNNEL_ID)
 
-    ## メッセージが送られてきたチャンネルに送る
-    #await ctx.channel.send(random_falco)
+    falco_cahnnel_messages = [message async for message in channel.history(limit=None)]
+    # falco_cahnnel_message = await channel.messages.fetch({ limit: 100 })
+
+    random_falco = random.choice(falco_cahnnel_messages)
+
+    # print(random_falco)
+    content = random_falco.content
+    if content == "":
+        content = random_falco.attachments[0].url
+
+    # メッセージが送られてきたチャンネルに送る
+    await ctx.channel.send(content)
 
 # Raika
 @bot.command()
