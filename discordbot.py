@@ -289,11 +289,6 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("やんぱ2")
 
-    # メッセージの本文が 精液 だった場合
-    if "精液" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/395580207970648064/944945500874997841/unknown.png")
-
     if ctx.attachments and ctx.channel.id == WIP_CHANNEL_ID:
         for attachment in ctx.attachments:
             # Attachmentの拡張子がmp3, wavのどれかだった場合
