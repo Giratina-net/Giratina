@@ -13,7 +13,7 @@ import tweepy
 consumer_key = getenv("CONSUMER_KEY")
 consumer_secret = getenv("CONSUMER_SECRET")
 access_token = getenv("ACCESS_TOKEN_KEY")
-access_token_secret = ("ACCESS_TOKEN_SECRET")
+access_token_secret = getenv("ACCESS_TOKEN_SECRET")
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
