@@ -8,6 +8,16 @@ import yt_dlp
 from discord.ext import commands
 
 from googleapiclient.discovery import build
+import tweepy
+
+consumer_key = getenv("CONSUMER_KEY")
+consumer_secret = getenv("CONSUMER_SECRET")
+access_token = getenv("ACCESS_TOKEN_KEY")
+access_token_secret = ("ACCESS_TOKEN_SECRET")
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+
+api = tweepy.API(auth)    
 
 # https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
 # Suppress noise about console usage from errors
@@ -43,6 +53,8 @@ bot = commands.Bot(command_prefix="!")
 
 # 聖バリ鯖のサーバーID
 SEIBARI_GUILD_ID = 889049222152871986
+# 検索欄のチャンネルID
+TWITTER_SEARCH_CHANNEL = 974430034691498034
 # ギラティナのチャンネルのID
 GIRATINA_CHANNEL_ID = 940610524415144036
 # mp3tomp4のチャンネルのID
@@ -107,7 +119,7 @@ class Music(commands.Cog):
 
 
     @commands.command(aliases=["p"])
-    async def play(self, ctx, url):
+    async def play(self, ctx, *, url):
         if ctx.author.voice is None:
             await ctx.channel.send("接続していません。")
             return
@@ -301,6 +313,16 @@ async def on_message(ctx):
                 await ctx.channel.send(file=discord.File("output.mp4"))
     await bot.process_commands(ctx)
 
+    # 検索欄チャンネルに投稿されたメッセージから、TwitterAPIを通してそのメッセージを検索して、チャンネルに画像を送信する    
+#    if ctx.content and ctx.channel.id == TWITTER_SEARCH_CHANNEL:
+#        tweets = api.search_tweets(q=f"filter:images {arg}", tweet_mode='extended', include_entities=True, count=1)
+#        for tweet in tweets:
+#            media = tweet.extended_entities["media"]
+#            for m in media:
+#                origin = m["media_url"]
+#        await ctx.channel.send(origin)
+
+
 # ファルコおもしろ画像を送信
 @bot.command(aliases=["syai","faruko"])
 async def falco(ctx):
@@ -335,11 +357,55 @@ async def raika(ctx):
 async def chiibakun(ctx):
     await ctx.send("https://www.youtube.com/watch?v=dC0eie-WQss")
 
+# https://zenn.dev/zakiii/articles/7ada80144c9db0
+# https://qiita.com/soma_sekimoto/items/65c664f00573284b0b74
+
+# TwitterのIDを指定して最新の画像を送信
+@bot.command()
+async def twitter(ctx, *, arg):
+    tweets = api.search_tweets(q=f"filter:images {arg}", tweet_mode='extended', include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.extended_entities["media"]
+        for m in media:
+            origin = m["media_url"]
+        await ctx.send(origin)
+
+# こまちゃんを送信
+@bot.command()
+async def komachan(ctx):
+    tweets = api.search_tweets(q="from:@komachan_pic", tweet_mode='extended', include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities['media']
+        for m in media:
+            origin = m['media_url']
+        await ctx.send(origin)
 
 # かおすちゃんを送信
 @bot.command()
 async def kaosu(ctx):
-    await ctx.send("https://pbs.twimg.com/media/E512yaSVIAQxfNn?format=jpg&name=large")
+    tweets = api.search_tweets(q="from:@kaosu_pic", tweet_mode='extended', include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities['media']
+        for m in media:
+            origin = m['media_url']
+        await ctx.send(origin)
+
+# らきすたを送信
+#https://ja.stackoverflow.com/questions/56894/twitter-api-%e3%81%a7-%e5%8b%95%e7%94%bb%e3%83%84%e3%82%a4%e3%83%bc%e3%83%88-%e3%82%921%e4%bb%b6%e5%8f%96%e5%be%97%e3%81%97%e3%81%a6html%e4%b8%8a%e3%81%a7%e8%a1%a8%e7%a4%ba%e3%81%95%e3%81%9b%e3%81%9f%e3%81%84%e3%81%ae%e3%81%a7%e3%81%99%e3%81%8c-m3u8-%e5%bd%a2%e5%bc%8f%e3%81%a8-mp4-%e5%bd%a2%e5%bc%8f%e3%81%ae%e9%96%a2%e4%bf%82%e6%80%a7%e3%81%af
+@bot.command()
+async def lucky(ctx):
+    tweets = api.search_tweets(q="from:@LuckyStarPicBot", tweet_mode='extended', include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.extended_entities["media"]
+        for m in media:
+            if m["type"] =="video":
+                for video_info in m:
+                    for variants in video_info:
+                        for url in variants[0]:
+                            origin = url
+            else:
+                origin = m["media_url"]
+        await ctx.send(origin)
 
 
 # イキス
