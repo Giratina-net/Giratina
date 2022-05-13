@@ -2,6 +2,8 @@ import asyncio
 import random
 from asyncio import sleep
 from os import getenv
+import sys
+import MeCab
 
 import discord
 import yt_dlp
@@ -313,6 +315,46 @@ async def on_message(ctx):
                 await ctx.channel.send(file=discord.File("output.mp4"))
     await bot.process_commands(ctx)
 
+    # n575
+    # https://gist.github.com/4geru/46f300e561374833646ffd8f4b916672
+    m = MeCab.Tagger ("-Ochasen")
+    print(m.parse (ctx.content))
+    check = [5, 7, 5] # 5, 7, 5
+    check_index = 0
+    word_cnt = 0
+    node = m.parseToNode(word)
+    # suggestion文の各要素の品詞を確認
+    while node:
+        feature = node.feature.split(",")[0]
+        surface = node.surface.split(",")[0]
+        # 記号, BOS/EOSはスルー
+        if feature == '記号' or feature == 'BOS/EOS':
+            node = node.next
+            continue
+        # 文字数をカウント
+        word_cnt += len(surface)
+        
+        # 字数チェック
+        if word_cnt == check[check_index]:
+            check_index += 1
+            word_cnt = 0
+            continue
+        # 字余りチェック
+        elif word_cnt > check[check_index]:
+            return False
+            
+        # [5, 7, 5] の長さになっているか
+        if check_index == len(check) - 1:
+            return True
+            await ctx.channel.send("575を見つけました!")
+        node = node.next
+        
+    return False
+        
+#    print(sys.argv[1], len(sys.argv))
+#    print(judge_five_seven_five(sys.argv[1]))
+
+
     # 検索欄チャンネルに投稿されたメッセージから、TwitterAPIを通してそのメッセージを検索して、チャンネルに画像を送信する    
 #    if ctx.content and ctx.channel.id == TWITTER_SEARCH_CHANNEL:
 #        tweets = api.search_tweets(q=f"filter:images {arg}", tweet_mode='extended', include_entities=True, count=1)
@@ -384,6 +426,16 @@ async def komachan(ctx):
 @bot.command()
 async def kaosu(ctx):
     tweets = api.search_tweets(q="from:@kaosu_pic", tweet_mode='extended', include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities['media']
+        for m in media:
+            origin = m['media_url']
+        await ctx.send(origin)
+
+# ゆるゆりを送信
+@bot.command()
+async def yuruyuri(ctx):
+    tweets = api.search_tweets(q="from:@YuruYuriBot1", tweet_mode='extended', include_entities=True, count=1)
     for tweet in tweets:
         media = tweet.entities['media']
         for m in media:

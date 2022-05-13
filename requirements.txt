@@ -4,3 +4,4 @@ yt-dlp==2022.4.8
 google-api-python-client==2.47.0
 tweepy
 mecab-python3
+unidic-lite
