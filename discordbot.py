@@ -441,6 +441,16 @@ async def yuruyuri(ctx):
             origin = m['media_url']
         await ctx.send(origin)
 
+# サターニャを送信
+@bot.command()
+async def satanya(ctx):
+    tweets = api.search_tweets(q="from:@satanya_gazobot", tweet_mode='extended', include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities['media']
+        for m in media:
+            origin = m['media_url']
+        await ctx.send(origin)
+
 # らきすたを送信
 #https://ja.stackoverflow.com/questions/56894/twitter-api-%e3%81%a7-%e5%8b%95%e7%94%bb%e3%83%84%e3%82%a4%e3%83%bc%e3%83%88-%e3%82%921%e4%bb%b6%e5%8f%96%e5%be%97%e3%81%97%e3%81%a6html%e4%b8%8a%e3%81%a7%e8%a1%a8%e7%a4%ba%e3%81%95%e3%81%9b%e3%81%9f%e3%81%84%e3%81%ae%e3%81%a7%e3%81%99%e3%81%8c-m3u8-%e5%bd%a2%e5%bc%8f%e3%81%a8-mp4-%e5%bd%a2%e5%bc%8f%e3%81%ae%e9%96%a2%e4%bf%82%e6%80%a7%e3%81%af
 @bot.command()
