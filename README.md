@@ -20,6 +20,8 @@
 @kaosu_picから最新の画像を貼ります。
 ### !komachan
 @komachan_picから最新の画像を貼ります。
+### !yuruyuri
+@YuruYuriBot1から最新の画像を貼ります。
 ### !lucky
 @LuckyStarPicBotから最新の画像を貼ります。今は画像のみですが動画にも対応できるようにしたいです。
 ### !raika
