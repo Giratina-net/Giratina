@@ -317,39 +317,38 @@ async def on_message(ctx):
 
     # n575
     # https://gist.github.com/4geru/46f300e561374833646ffd8f4b916672
-    m = MeCab.Tagger ("-Ochasen")
-    print(m.parse (ctx.content))
-    check = [5, 7, 5] # 5, 7, 5
-    check_index = 0
-    word_cnt = 0
-    node = m.parseToNode(word)
-    # suggestion文の各要素の品詞を確認
-    while node:
-        feature = node.feature.split(",")[0]
-        surface = node.surface.split(",")[0]
-        # 記号, BOS/EOSはスルー
-        if feature == '記号' or feature == 'BOS/EOS':
-            node = node.next
-            continue
-        # 文字数をカウント
-        word_cnt += len(surface)
-        
-        # 字数チェック
-        if word_cnt == check[check_index]:
-            check_index += 1
-            word_cnt = 0
-            continue
-        # 字余りチェック
-        elif word_cnt > check[check_index]:
-            return False
-            
-        # [5, 7, 5] の長さになっているか
-        if check_index == len(check) - 1:
-            return True
-            await ctx.channel.send("575を見つけました!")
-        node = node.next
-        
-    return False
+#    m = MeCab.Tagger ("-Ochasen")
+#    print(m.parse (ctx.content))
+#    check = [5, 7, 5] # 5, 7, 5
+#    check_index = 0
+#    word_cnt = 0
+#    node = m.parseToNode(word)
+#    # suggestion文の各要素の品詞を確認
+#    while node:
+#        feature = node.feature.split(",")[0]
+#        surface = node.surface.split(",")[0]
+#        # 記号, BOS/EOSはスルー
+#        if feature == '記号' or feature == 'BOS/EOS':
+#            node = node.next
+#            continue
+#        # 文字数をカウント
+#        word_cnt += len(surface)
+#        
+#        # 字数チェック
+#        if word_cnt == check[check_index]:
+#            check_index += 1
+#            word_cnt = 0
+#            continue
+#        # 字余りチェック
+#        elif word_cnt > check[check_index]:
+#            return False
+#            
+#        # [5, 7, 5] の長さになっているか
+#        if check_index == len(check) - 1:
+#            return True
+#            await ctx.channel.send("575を見つけました!")
+#        node = node.next        
+#    return False
         
 #    print(sys.argv[1], len(sys.argv))
 #    print(judge_five_seven_five(sys.argv[1]))
