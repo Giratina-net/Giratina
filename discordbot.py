@@ -402,7 +402,7 @@ async def chiibakun(ctx):
 # https://qiita.com/soma_sekimoto/items/65c664f00573284b0b74
 
 # TwitterのIDを指定して最新の画像を送信
-@bot.command()
+@bot.command(aliases=["tw"])
 async def twitter(ctx, *, arg):
     tweets = api.search_tweets(q=f"filter:images {arg}", tweet_mode='extended', include_entities=True, count=1)
     for tweet in tweets:
