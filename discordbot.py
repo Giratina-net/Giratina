@@ -4,6 +4,8 @@ from asyncio import sleep
 from os import getenv
 import sys
 import MeCab
+import requests
+import json
 
 import discord
 import yt_dlp
@@ -16,10 +18,13 @@ consumer_key = getenv("CONSUMER_KEY")
 consumer_secret = getenv("CONSUMER_SECRET")
 access_token = getenv("ACCESS_TOKEN_KEY")
 access_token_secret = getenv("ACCESS_TOKEN_SECRET")
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
+twauth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+twauth.set_access_token(access_token, access_token_secret)
 
-api = tweepy.API(auth)    
+twapi = tweepy.API(twauth)    
+
+annict_access_token = getenv("ANNICT_API_KEY")
+
 
 # https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
 # Suppress noise about console usage from errors
@@ -388,6 +393,71 @@ async def falco(ctx):
     # メッセージが送られてきたチャンネルに送る
     await ctx.channel.send(content)
 
+#アニクトから取得したキャラクターをランダムで表示
+@bot.command()
+async def odai(ctx):
+    # 送信者がBotである場合は弾く
+    if ctx.author.bot:
+        return
+    while(1):
+        # リスト
+        random_ids = []
+        # 10個のランダムな数を生成
+        for i in range(10):
+            random_id = random.randint(1,41767)
+            random_ids.append(str(random_id))
+        # リストの中の要素を結合する
+        filter_ids = ",".join(random_ids)
+        # エンドポイント
+        AnnictUrl = f"https://api.annict.com/v1/characters?access_token={annict_access_token}&filter_ids={filter_ids}"
+        # リクエスト
+        AnnictRes = requests.get(AnnictUrl)
+        # 変数
+        AnnictCharacters = AnnictRes.json()["characters"]
+        # シャッフルする
+        random.shuffle(AnnictCharacters)
+        TargetCharacter = None
+        # 配列の中を先頭から順に舐めていく
+        for AnnictCharacter in AnnictCharacters:
+        # お気に入り数が5以上あるときループを解除する        
+            if AnnictCharacter["favorite_characters_count"] > 4:
+                TargetCharacter = AnnictCharacter
+                break
+        if not TargetCharacter is None:
+            break
+
+
+    if TargetCharacter["series"] is None:
+        AnnictCharacterName = TargetCharacter["name"]
+        AnnictCharacterId = TargetCharacter["id"]
+        AnnictCharacterFan = TargetCharacter["favorite_characters_count"]
+        await ctx.send(f"{AnnictCharacterName} - ファン数{AnnictCharacterFan}人\nhttps://annict.com/characters/{AnnictCharacterId}")
+    else:
+        AnnictCharacterName = TargetCharacter["name"]
+        AnnictCharacterSeries = TargetCharacter["series"]["name"]      
+        AnnictCharacterId = TargetCharacter["id"]  
+        AnnictCharacterFan = TargetCharacter["favorite_characters_count"]
+        await ctx.send(f"{AnnictCharacterName}({AnnictCharacterSeries}) - ファン数{AnnictCharacterFan}人\nhttps://annict.com/characters/{AnnictCharacterId}")
+
+#アニクトから取得したアニメをランダムで表示
+@bot.command(aliases=["ani"])
+async def anime(ctx):
+    # 送信者がBotである場合は弾く
+    if ctx.author.bot:
+        return
+    random_id = random.randint(1
+,9669)
+    # エンドポイント
+    AnnictUrl = f"https://api.annict.com/v1/works?access_token={annict_access_token}&filter_ids={random_id}"
+    # リクエスト
+    AnnictRes = requests.get(AnnictUrl)
+    # 取得したjsonから必要な情報を取得
+    AnnictWorksTitle = AnnictRes.json()["works"][0]["title"]
+    AnnictWorksseason_name_text = AnnictRes.json()["works"][0]["season_name_text"]
+    AnnictWorksEpisodes_count = AnnictRes.json()["works"][0]["episodes_count"]
+    AnnictWorksImages_recommended_url = AnnictRes.json()["works"][0]["images"]["recommended_url"]
+    await ctx.send(f"{AnnictWorksTitle}({AnnictWorksseason_name_text}-{AnnictWorksEpisodes_count}話)\nhttps://annict.com/works/{random_id}")
+
 # Raika
 @bot.command()
 async def raika(ctx):
@@ -404,7 +474,7 @@ async def chiibakun(ctx):
 # TwitterのIDを指定して最新の画像を送信
 @bot.command(aliases=["tw"])
 async def twitter(ctx, *, arg):
-    tweets = api.search_tweets(q=f"filter:images {arg}", tweet_mode='extended', include_entities=True, count=1)
+    tweets = twapi.search_tweets(q=f"filter:images {arg}", tweet_mode='extended', include_entities=True, count=1)
     for tweet in tweets:
         media = tweet.extended_entities["media"]
         for m in media:
@@ -414,7 +484,7 @@ async def twitter(ctx, *, arg):
 # こまちゃんを送信
 @bot.command()
 async def komachan(ctx):
-    tweets = api.search_tweets(q="from:@komachan_pic", tweet_mode='extended', include_entities=True, count=1)
+    tweets = twapi.search_tweets(q="from:@komachan_pic", tweet_mode='extended', include_entities=True, count=1)
     for tweet in tweets:
         media = tweet.entities['media']
         for m in media:
@@ -424,7 +494,7 @@ async def komachan(ctx):
 # かおすちゃんを送信
 @bot.command()
 async def kaosu(ctx):
-    tweets = api.search_tweets(q="from:@kaosu_pic", tweet_mode='extended', include_entities=True, count=1)
+    tweets = twapi.search_tweets(q="from:@kaosu_pic", tweet_mode='extended', include_entities=True, count=1)
     for tweet in tweets:
         media = tweet.entities['media']
         for m in media:
@@ -434,7 +504,7 @@ async def kaosu(ctx):
 # ゆるゆりを送信
 @bot.command()
 async def yuruyuri(ctx):
-    tweets = api.search_tweets(q="from:@YuruYuriBot1", tweet_mode='extended', include_entities=True, count=1)
+    tweets = twapi.search_tweets(q="from:@YuruYuriBot1", tweet_mode='extended', include_entities=True, count=1)
     for tweet in tweets:
         media = tweet.entities['media']
         for m in media:
@@ -444,7 +514,7 @@ async def yuruyuri(ctx):
 # サターニャを送信
 @bot.command()
 async def satanya(ctx):
-    tweets = api.search_tweets(q="from:@satanya_gazobot", tweet_mode='extended', include_entities=True, count=1)
+    tweets = twapi.search_tweets(q="from:@satanya_gazobot", tweet_mode='extended', include_entities=True, count=1)
     for tweet in tweets:
         media = tweet.entities['media']
         for m in media:
@@ -455,7 +525,7 @@ async def satanya(ctx):
 #https://ja.stackoverflow.com/questions/56894/twitter-api-%e3%81%a7-%e5%8b%95%e7%94%bb%e3%83%84%e3%82%a4%e3%83%bc%e3%83%88-%e3%82%921%e4%bb%b6%e5%8f%96%e5%be%97%e3%81%97%e3%81%a6html%e4%b8%8a%e3%81%a7%e8%a1%a8%e7%a4%ba%e3%81%95%e3%81%9b%e3%81%9f%e3%81%84%e3%81%ae%e3%81%a7%e3%81%99%e3%81%8c-m3u8-%e5%bd%a2%e5%bc%8f%e3%81%a8-mp4-%e5%bd%a2%e5%bc%8f%e3%81%ae%e9%96%a2%e4%bf%82%e6%80%a7%e3%81%af
 @bot.command()
 async def lucky(ctx):
-    tweets = api.search_tweets(q="from:@LuckyStarPicBot", tweet_mode='extended', include_entities=True, count=1)
+    tweets = twapi.search_tweets(q="from:@LuckyStarPicBot", tweet_mode='extended', include_entities=True, count=1)
     for tweet in tweets:
         media = tweet.extended_entities["media"]
         for m in media:
