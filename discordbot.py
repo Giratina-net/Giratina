@@ -107,6 +107,7 @@ class Music(commands.Cog):
         if ctx.author.voice is None:
             await ctx.channel.send("あなたはボイスチャンネルに接続していません。")
             return
+
         # ボイスチャンネルに接続する
         await ctx.author.voice.channel.connect()
         await ctx.channel.send("接続しました。")
@@ -116,6 +117,7 @@ class Music(commands.Cog):
         if ctx.guild.voice_client is None:
             await ctx.channel.send("接続していません。")
             return
+
         # 切断する
         await ctx.guild.voice_client.disconnect()
         await ctx.channel.send("切断しました。")
@@ -125,19 +127,21 @@ class Music(commands.Cog):
         if ctx.author.voice is None:
             await ctx.channel.send("接続していません。")
             return
-            # ボイスチャンネルに接続する
+
+        # ボイスチャンネルにbotが未接続の場合はボイスチャンネルに接続する
         if ctx.guild.voice_client is None:
             await ctx.author.voice.channel.connect()
 
-        self.player = await YTDLSource.from_url(url, loop=client.loop)
-
-        if ctx.guild.voice_client.is_playing():
-            self.queue.append(self.player)
-            await ctx.channel.send(f"{self.player.title} をキューに追加しました。")
+        if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
+            # self.playerに追加するとNowPlayingで衝突する為一時的に別の変数にURLを追加してキューに追加する
+            add_queue = await YTDLSource.from_url(url, loop=client.loop)
+            self.queue.append(add_queue)
+            await ctx.channel.send(f"{add_queue.title} をキューに追加しました。")
             return
 
-        else:
-            # 再生する
+        else:  # 他の曲を再生していない場合
+            # self.playerにURLを追加し再生する
+            self.player = await YTDLSource.from_url(url, loop=client.loop)
             ctx.guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_played(ctx.guild))
             await ctx.channel.send(f"{self.player.title} を再生します。")
 
