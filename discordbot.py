@@ -478,7 +478,7 @@ async def uma(ctx):
     two_star = ["ゴールドシップ", "ウオッカ", "ダイワスカーレット", "グラスワンダー", "エルコンドルパサー", "エアグルーヴ", "マヤノトップガン", "スーパークリーク", "マチカネタンホイザ"]
     one_star = ["メジロライアン", "アグネスタキオン", "ウイニングチケット", "サクラバクシンオー", "ハルウララ", "マチカネフクキタル", "ナイスネイチャ", "キングヘイロー"]
     for i in range(10):
-        items = [f"☆☆☆{random.choice(three_star)}", f"☆☆　{random.choice(two_star)}", f"☆　　{random.choice(one_star)}"]  # 内容
+        items = [f"☆3 {random.choice(three_star)}", f"☆2 {random.choice(two_star)}", f"☆1 {random.choice(one_star)}"]  # 内容
         prob = [0.03, 0.18, 0.79]  # 確率
 
         result_random = random.choices(items, weights=prob)
