@@ -600,7 +600,7 @@ async def odai(ctx):
 async def ping(ctx):
     latency = bot.latency
     latency_milli = round(latency * 1000)
-    await ctx.send(f"Pong!: ${latency_milli}ms")
+    await ctx.send(f"Pong!: {latency_milli}ms")
 
 
 # Raika
