@@ -11,6 +11,8 @@ import tweepy
 import yt_dlp
 from discord.ext import commands
 from googleapiclient.discovery import build
+from niconico import NicoNico
+
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
@@ -75,20 +77,30 @@ WALKINGSUSHIBOX_USER_ID = 575588255647399958
 
 client = discord.Client()
 
+# NicoNicoDLSourceのためにちゃんと閉じる必要があるので、Sourceのあと voice_client.play の最後にこれを実行してやってください
+def after_play(source, e, guild, f):
+    if type(source) == NicoNicoDLSource:
+        source.close_connection()
+
+    if e:
+        print(f"has error: {e}")
+    else:
+        f(guild)
+
 
 # Cog とは: コマンドとかの機能をひとまとめにできる
 class Music(commands.Cog):
     def __init__(self, bot_arg):
         self.bot = bot_arg
-        self.player: typing.Optional[YTDLSource] = None
-        self.queue: typing.List[YTDLSource] = []
+        self.player: typing.Optional[YTDLSource | NicoNicoDLSource] = None
+        self.queue: typing.List[YTDLSource | NicoNicoDLSource] = []
 
     def after_played(self, guild):
         if len(self.queue) <= 0:
             return
 
         self.player = self.queue.pop(0)
-        guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_played(guild))
+        guild.voice_client.play(self.player, after=lambda e: after_play(self.player, e, guild, self.after_played))
 
     @commands.command()
     async def join(self, ctx):
@@ -153,16 +165,23 @@ class Music(commands.Cog):
         if ctx.guild.voice_client is None:
             await ctx.author.voice.channel.connect()
 
+        # niconico.py は短縮URLも取り扱えるっぽいので信じてみる
+        # https://github.com/tasuren/niconico.py/blob/b4d9fcb1d0b80e83f2d8635dd85987d1fa2d84fc/niconico/video.py#L367
+        is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
+        if is_niconico:
+            source = await NicoNicoDLSource.from_url(url)
+        else:
+            source = await YTDLSource.from_url(url, loop=client.loop)
+
         if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
             # self.playerに追加すると再生中の曲と衝突する
-            add_queue = await YTDLSource.from_url(url, loop=client.loop)
-            self.queue.append(add_queue)
-            await ctx.channel.send(f"{add_queue.title} をキューに追加しました。")
+            self.queue.append(source)
+            await ctx.channel.send(f"{source.title} をキューに追加しました。")
 
         else:  # 他の曲を再生していない場合
             # self.playerにURLを追加し再生する
-            self.player = await YTDLSource.from_url(url, loop=client.loop)
-            ctx.guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_played(ctx.guild))
+            self.player = source
+            ctx.guild.voice_client.play(self.player, after=lambda e: after_play(source, e, ctx.guild, self.after_played))
             await ctx.channel.send(f"{self.player.title} を再生します。")
 
     @commands.command(aliases=["q"])
@@ -241,7 +260,32 @@ class YTDLSource(discord.PCMVolumeTransformer):
             data = data["entries"][0]
 
         filename = data["url"] if stream else ytdl.prepare_filename(data)
+        #ここにURLを流すとストリーミングしてくれる
         return cls(discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS), data=data)
+
+
+class NicoNicoDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, url, original_url, video, volume=0.5):
+        super().__init__(source, volume)
+
+        self.url = url
+        self.original_url = original_url
+        self.video = video
+        self.title = video.video.title
+
+    @classmethod
+    async def from_url(cls, url):
+        # とりあえず毎回clientを作っておく
+        client = NicoNico()
+        video = client.video.get_video(url)
+        # 必ずあとでコネクションを切る
+        video.connect()
+
+        source = discord.FFmpegPCMAudio(video.download_link, **FFMPEG_OPTIONS)
+        return cls(source, video.download_link, url, video)
+
+    def close_connection(self):
+        self.video.close()
 
 
 # Bot起動時に実行される関数
