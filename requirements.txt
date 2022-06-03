@@ -3,5 +3,5 @@ ffmpeg>=1.4
 yt-dlp==2022.5.18
 google-api-python-client==2.49.0
 tweepy
-mecab-python3
-unidic-lite
+# mecab-python3
+# unidic-lite
