@@ -1,4 +1,4 @@
-# seibaribot
+# Giratina
 [![Check Syntax](https://github.com/SehataKuro/seibaribot/actions/workflows/check_syntax.yml/badge.svg?branch=master)](https://github.com/SehataKuro/seibaribot/actions/workflows/check_syntax.yml)
 - 身内のサーバーで使うことを目的としたDiscord向けのBotです。
 - 開発段階のためバグや唐突な仕様変更があります。
