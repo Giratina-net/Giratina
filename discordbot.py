@@ -598,7 +598,7 @@ async def odai(ctx):
 # ピンポン
 @bot.command()
 async def ping(ctx):
-    latency = client.latency
+    latency = bot.latency
     latency_milli = round(latency * 1000)
     await ctx.send(f"Pong!: ${latency_milli}ms")
 
