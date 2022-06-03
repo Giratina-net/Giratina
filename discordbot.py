@@ -171,7 +171,7 @@ class Music(commands.Cog):
         if is_niconico:
             source = await NicoNicoDLSource.from_url(url)
         else:
-            source = await YTDLSource.from_url(url, loop=client.loop)
+            source = await YTDLSource.from_url(url, loop=client.loop ,stream=True)
 
         if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
             # self.playerに追加すると再生中の曲と衝突する
@@ -260,8 +260,9 @@ class YTDLSource(discord.PCMVolumeTransformer):
             data = data["entries"][0]
 
         filename = data["url"] if stream else ytdl.prepare_filename(data)
-        #ここにURLを流すとストリーミングしてくれる
-        return cls(discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS), data=data)
+        
+        source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
+        return cls(source, data=data)
 
 
 class NicoNicoDLSource(discord.PCMVolumeTransformer):
