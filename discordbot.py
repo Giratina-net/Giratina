@@ -1,5 +1,6 @@
 import asyncio
 import random
+import typing
 from asyncio import sleep
 from os import getenv
 
@@ -10,22 +11,30 @@ import yt_dlp
 from discord.ext import commands
 from googleapiclient.discovery import build
 
-consumer_key = getenv("CONSUMER_KEY")
-consumer_secret = getenv("CONSUMER_SECRET")
-access_token = getenv("ACCESS_TOKEN_KEY")
-access_token_secret = getenv("ACCESS_TOKEN_SECRET")
-twauth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-twauth.set_access_token(access_token, access_token_secret)
+# DiscordBot
+DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
+# Botの接頭辞を ! にする
+bot = commands.Bot(command_prefix="!")
+
+# Annict
+ANNICT_API_KEY = getenv("ANNICT_API_KEY")
+
+# google-api-python-client / YouTube Data API v3
+YOUTUBE_API_KEY = getenv("YOUTUBE_API_KEY")
+youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+
+# Tweepy
+TWITTER_CONSUMER_KEY = getenv("CONSUMER_KEY")
+TWITTER_CONSUMER_SECRET = getenv("CONSUMER_SECRET")
+TWITTER_ACCESS_TOKEN_KEY = getenv("ACCESS_TOKEN_KEY")
+TWITTER_ACCESS_TOKEN_SECRET = getenv("ACCESS_TOKEN_SECRET")
+twauth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
+twauth.set_access_token(TWITTER_ACCESS_TOKEN_KEY, TWITTER_ACCESS_TOKEN_SECRET)
 
 twapi = tweepy.API(twauth)
 
-annict_access_token = getenv("ANNICT_API_KEY")
-
-# https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
-# Suppress noise about console usage from errors
-yt_dlp.utils.bug_reports_message = lambda: ""
-
-ytdl_format_options = {
+# yt_dlp
+YTDL_FORMAT_OPTIONS = {
     "format": "bestaudio/best*[acodec=aac]",
     "outtmpl": "%(extractor)s-%(id)s-%(title)s.%(ext)s",
     "restrictfilenames": True,
@@ -39,111 +48,39 @@ ytdl_format_options = {
     "source_address": "0.0.0.0"  # bind to ipv4 since ipv6 addresses cause issues sometimes
 }
 
-ffmpeg_options = {
+FFMPEG_OPTIONS = {
     "options": "-vn"
 }
 
-ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
+# https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
+# Suppress noise about console usage from errors
+yt_dlp.utils.bug_reports_message = lambda: ""
 
-token = getenv("DISCORD_BOT_TOKEN")
+ytdl = yt_dlp.YoutubeDL(YTDL_FORMAT_OPTIONS)
 
-developerKey = getenv("YOUTUBE_API_KEY")
-youtube = build("youtube", "v3", developerKey=developerKey)
-
-# botの接頭辞を!にする
-bot = commands.Bot(command_prefix="!")
-
+# 定数 - 基本的に大文字
 # 聖バリ鯖のサーバーID
 SEIBARI_GUILD_ID = 889049222152871986
 # 検索欄のチャンネルID
-TWITTER_SEARCH_CHANNEL = 974430034691498034
-# ギラティナのチャンネルのID
+TWITTER_SEARCH_CHANNEL_ID = 974430034691498034
+# ギラティナのチャンネルID
 GIRATINA_CHANNEL_ID = 940610524415144036
-# mp3tomp4のチャンネルのID
+# mp3tomp4のチャンネルID
 WIP_CHANNEL_ID = 940966825087361025
-# ファル子☆おもしろ画像集のID
-FALCON_CAHNNEL_ID = 955809774849646603
+# ファル子☆おもしろ画像集のチャンネルID
+FALCON_CHANNEL_ID = 955809774849646603
 # あるくおすしのユーザーID
-walkingsushibox = 575588255647399958
-
-
-class YTDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume=0.5):
-        super().__init__(source, volume)
-
-        self.data = data
-        self.title = data.get("title")
-        self.url = data.get("url")
-        self.original_url = data.get("original_url")
-
-    @classmethod
-    async def from_url(cls, url, *, loop=None, stream=False):
-        loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-
-        if "entries" in data:
-            # take first item from a playlist
-            data = data["entries"][0]
-
-        filename = data["url"] if stream else ytdl.prepare_filename(data)
-        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
-
-
-# もしniconicoDLをいれるなら参考になるかも
-# https://github.com/akomekagome/SmileMusic/blob/dd94c342fed5301c790ce64360ad33f7c0d46208/python/smile_music.py
+WALKINGSUSHIBOX_USER_ID = 575588255647399958
 
 client = discord.Client()
 
 
-# Cog とは? コマンドとかの機能をひとまとめにできる
+# Cog とは: コマンドとかの機能をひとまとめにできる
 class Music(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        self.player = None
-        self.queue = []
-
-    @commands.command()
-    async def join(self, ctx):
-        if ctx.author.voice is None:
-            await ctx.channel.send("あなたはボイスチャンネルに接続していません。")
-            return
-
-        # ボイスチャンネルに接続する
-        await ctx.author.voice.channel.connect()
-        await ctx.channel.send("接続しました。")
-
-    @commands.command()
-    async def leave(self, ctx):
-        if ctx.guild.voice_client is None:
-            await ctx.channel.send("接続していません。")
-            return
-
-        # 切断する
-        await ctx.guild.voice_client.disconnect()
-        await ctx.channel.send("切断しました。")
-
-    @commands.command(aliases=["p"])
-    async def play(self, ctx, *, url):
-        if ctx.author.voice is None:
-            await ctx.channel.send("接続していません。")
-            return
-
-        # ボイスチャンネルにbotが未接続の場合はボイスチャンネルに接続する
-        if ctx.guild.voice_client is None:
-            await ctx.author.voice.channel.connect()
-
-        if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
-            # self.playerに追加するとNowPlayingで衝突する為一時的に別の変数にURLを追加してキューに追加する
-            add_queue = await YTDLSource.from_url(url, loop=client.loop)
-            self.queue.append(add_queue)
-            await ctx.channel.send(f"{add_queue.title} をキューに追加しました。")
-            return
-
-        else:  # 他の曲を再生していない場合
-            # self.playerにURLを追加し再生する
-            self.player = await YTDLSource.from_url(url, loop=client.loop)
-            ctx.guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_played(ctx.guild))
-            await ctx.channel.send(f"{self.player.title} を再生します。")
+    def __init__(self, bot_arg):
+        self.bot = bot_arg
+        self.player: typing.Optional[YTDLSource] = None
+        self.queue: typing.List[YTDLSource] = []
 
     def after_played(self, guild):
         if len(self.queue) <= 0:
@@ -152,28 +89,103 @@ class Music(commands.Cog):
         self.player = self.queue.pop(0)
         guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_played(guild))
 
-    @commands.command(aliases=["q"])
-    async def queue(self, ctx):
-        # 再生中ではない場合は実行しない
-        if not ctx.guild.voice_client.is_playing():
-            await ctx.send("再生していません。")
+    @commands.command()
+    async def join(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
             return
+
+        # ボイスチャンネルに接続する
+        await ctx.author.voice.channel.connect()
+        await ctx.channel.send("接続しました。")
+
+    @commands.command()
+    async def leave(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+            return
+
+        # Botがボイスチャンネルに居ない場合
+        if ctx.guild.voice_client is None:
+            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
+            return
+
+        # 切断する
+        await ctx.guild.voice_client.disconnect()
+        await ctx.channel.send("切断しました。")
 
     @commands.command(aliases=["np"])
     async def nowplaying(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+            return
 
         # 再生中ではない場合は実行しない
         if not ctx.guild.voice_client.is_playing():
             await ctx.send("再生していません。")
             return
 
-        embed = discord.Embed(title=self.player.original_url, description=f"{self.player.title} を再生中です。")
+        embed = discord.Embed(title=self.player.title, url=self.player.original_url)
+        embed.set_author(name="現在再生中")
+
+        # YouTube再生時にサムネイルも一緒に表示できるであろう構文
+        # if "youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url:
+        #     np_youtube_video = youtube.videos().list(part="snippet", id=id).execute()
+        #     np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
+        #     np_highres_thumbnail = list(np_thumbnail.keys())[-1]
+        # 
+        #     embed.set_image(url=np_thumbnail[np_highres_thumbnail]["url"])
+
         await ctx.channel.send(embed=embed)
 
-    @commands.command()
-    async def skip(self, ctx):
+    @commands.command(aliases=["p"])
+    async def play(self, ctx, *, url):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+            return
+
+        # ボイスチャンネルにBotが未接続の場合はボイスチャンネルに接続する
         if ctx.guild.voice_client is None:
-            await ctx.send("接続していません。")
+            await ctx.author.voice.channel.connect()
+
+        if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
+            # self.playerに追加すると再生中の曲と衝突する
+            add_queue = await YTDLSource.from_url(url, loop=client.loop)
+            self.queue.append(add_queue)
+            await ctx.channel.send(f"{add_queue.title} をキューに追加しました。")
+
+        else:  # 他の曲を再生していない場合
+            # self.playerにURLを追加し再生する
+            self.player = await YTDLSource.from_url(url, loop=client.loop)
+            ctx.guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_played(ctx.guild))
+            await ctx.channel.send(f"{self.player.title} を再生します。")
+
+    @commands.command(aliases=["q"])
+    async def queue(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+            return
+
+        # 再生中ではない場合は実行しない
+        if not ctx.guild.voice_client.is_playing():
+            await ctx.send("再生していません。")
+            return
+
+    @commands.command(aliases=["s"])
+    async def skip(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+            return
+
+        # Botがボイスチャンネルに居ない場合
+        if ctx.guild.voice_client is None:
+            await ctx.send("Botがボイスチャンネルに接続していません。")
             return
 
         # 再生中ではない場合は実行しない
@@ -186,8 +198,14 @@ class Music(commands.Cog):
 
     @commands.command()
     async def stop(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+            return
+
+        # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
-            await ctx.send("接続していません。")
+            await ctx.send("Botがボイスチャンネルに接続していません。")
             return
 
         # 再生中ではない場合は実行しない
@@ -197,67 +215,48 @@ class Music(commands.Cog):
 
         self.queue.clear()
         ctx.guild.voice_client.stop()
-        await ctx.send("停止しました。")
+        await ctx.send("再生を停止し、キューをリセットしました。")
 
 
-# 起動時のメッセージの関数
-async def ready_greet():
-    channel = bot.get_channel(GIRATINA_CHANNEL_ID)
-    await channel.send("ギラティナ、オォン！")
+# もしniconicoDLをいれるなら参考になるかも
+# https://github.com/akomekagome/SmileMusic/blob/dd94c342fed5301c790ce64360ad33f7c0d46208/python/smile_music.py
+class YTDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, *, data, volume=0.5):
+        super().__init__(source, volume)
+
+        self.data = data
+        self.id = data.get("id")
+        self.original_url = data.get("original_url")
+        self.title = data.get("title")
+        self.url = data.get("url")
+
+    @classmethod
+    async def from_url(cls, url, *, loop=None, stream=False):
+        loop = loop or asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
+
+        if "entries" in data:
+            # take first item from a playlist
+            data = data["entries"][0]
+
+        filename = data["url"] if stream else ytdl.prepare_filename(data)
+        return cls(discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS), data=data)
 
 
 # Bot起動時に実行される関数
 @bot.event
 async def on_ready():
-    await ready_greet()
+    channel = bot.get_channel(GIRATINA_CHANNEL_ID)
+    await channel.send("ギラティナ、オォン！")
 
 
-# ピンポン
-@bot.command()
-async def ping(ctx):
-    await ctx.send("pong")
-
-
+# メッセージ送信時に実行される関数
 @bot.event
 async def on_message(ctx):
     # 送信者がBotである場合は弾く
+    # ここで弾けば以降は書かなくて良さそう
     if ctx.author.bot:
         return
-
-    # ドナルドの言葉狩り - https://qiita.com/sizumita/items/9d44ae7d1ce007391699
-    # メッセージの本文が ドナルド だった場合
-    if "ドナルド" in str(ctx.content):
-        # 送信するメッセージをランダムで決める
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293")
-
-    # メッセージの本文が 死んだ だった場合
-    if "死んだ" in str(ctx.content) or "しんだ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif")
-
-    # メッセージの本文が ゆるゆり だった場合
-    if "ゆるゆり" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("ラブライブです")
-
-    # メッセージの本文が 一週間 だった場合
-    if "一週間" in str(ctx.content) or "1週間" in str(ctx.content):
-        # サムネイルをAPIで取得する構文
-        yamadahouse_videoId = []
-        response = youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
-        for item in response.get("items", []):
-            yamadahouse_videoId.append(item["snippet"]["thumbnails"]["high"]["url"])
-
-        random_yamadahouse = random.choice(yamadahouse_videoId)
-
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send(random_yamadahouse)
-
-    # メッセージの本文が バキ だった場合
-    if "バキ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/934792442178306108/942106647927595008/unknown.png")
 
     # メッセージの本文が big brother だった場合
     if "big brother" in str(ctx.content):
@@ -269,15 +268,75 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942107858496000010/a834912b8c8f9739.jpg")
 
+    # メッセージの本文が いい曲 だった場合
+    if "いい曲" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942071776815480832/unknown.png")
+
+    # メッセージの本文が おはよう だった場合
+    if "おはよう" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png")
+
+    # ドナルドの言葉狩り - https://qiita.com/sizumita/items/9d44ae7d1ce007391699
+    # メッセージの本文が ドナルド だった場合
+    if "ドナルド" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293")
+
+    # メッセージの本文が バキ だった場合
+    if "バキ" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://cdn.discordapp.com/attachments/934792442178306108/942106647927595008/unknown.png")
+
     # メッセージの本文が メタ だった場合
     if "メタ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942109742782889994/GWHiBiKi_StYle_9_-_YouTube_1.png")
 
+    # メッセージの本文が やんぱ だった場合
+    if "やんぱ" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("やんぱ2")
+
+    # メッセージの本文が ゆるゆり だった場合
+    if "ゆるゆり" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("ラブライブです")
+
+    # メッセージの本文が ランキング だった場合
+    if "ランキング" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942109619243864085/E8sV781VIAEtwZq.png")
+
+    # メッセージの本文が 一週間 だった場合
+    if "一週間" in str(ctx.content) or "1週間" in str(ctx.content):
+        yamadahouse_thumbnails = []
+
+        # サムネイルをAPIで取得
+        yamadahouse_response = youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
+
+        for item in yamadahouse_response.get("items", []):
+            # 一番高画質なサムネイルのキーを取得
+            yamadahouse_highres_thumb = list(item["snippet"]["thumbnails"].keys())[-1]
+            # サムネイルのURLだけを抽出して配列に突っ込む
+            yamadahouse_thumbnails.append(item["snippet"]["thumbnails"][yamadahouse_highres_thumb]["url"])
+
+        # サムネイルURLの配列内から1つランダムで選ぶ
+        yamadahouse_random_thumb = random.choice(yamadahouse_thumbnails)
+
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send(yamadahouse_random_thumb)
+
+    # メッセージの本文が 死んだ だった場合
+    if "死んだ" in str(ctx.content) or "しんだ" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif")
+
     # メッセージの本文が 風呂 だった場合
     if "風呂" in str(ctx.content) or "ふろ" in str(ctx.content):
         # あるくおすしの場合
-        if ctx.author.id == walkingsushibox:
+        if ctx.author.id == WALKINGSUSHIBOX_USER_ID:
             # メッセージが送られてきたチャンネルに送る
             await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942389072117256192/19ffe7f2e7464263.png")
         # あるくおすし以外の場合
@@ -285,26 +344,6 @@ async def on_message(ctx):
         else:
             # メッセージが送られてきたチャンネルに送る
             await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/943155933343785040/d9ce03af4958b0b7.png")
-
-    # メッセージの本文が ランキング だった場合
-    if "ランキング" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942109619243864085/E8sV781VIAEtwZq.png")
-
-    # メッセージの本文が おはよう だった場合
-    if "おはよう" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png")
-
-    # メッセージの本文が いい曲 だった場合
-    if "いい曲" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942071776815480832/unknown.png")
-
-    # メッセージの本文が やんぱ だった場合
-    if "やんぱ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("やんぱ2")
 
     if ctx.attachments and ctx.channel.id == WIP_CHANNEL_ID:
         for attachment in ctx.attachments:
@@ -316,69 +355,104 @@ async def on_message(ctx):
                 proc = await asyncio.create_subprocess_exec(*command.split(" "), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
                 stdout, stderr = await proc.communicate()
                 await ctx.channel.send(file=discord.File("output.mp4"))
+
+    # 検索欄チャンネルに投稿されたメッセージから、TwitterAPIを通してそのメッセージを検索して、チャンネルに画像を送信する
+    # if ctx.content and ctx.channel.id == TWITTER_SEARCH_CHANNEL_ID:
+    #     tweets = twapi.search_tweets(q=f"filter:images {arg}", tweet_mode="extended", include_entities=True, count=1)
+    #     for tweet in tweets:
+    #         media = tweet.extended_entities["media"]
+    #         for m in media:
+    #             origin = m["media_url"]
+    #     await ctx.channel.send(origin)
+
+    # n575
+    # https://gist.github.com/4geru/46f300e561374833646ffd8f4b916672
+    # m = MeCab.Tagger ("-Ochasen")
+    # print(m.parse (ctx.content))
+    # check = [5, 7, 5] # 5, 7, 5
+    # check_index = 0
+    # word_cnt = 0
+    # node = m.parseToNode(word)
+    # # suggestion文の各要素の品詞を確認
+    # while node:
+    #     feature = node.feature.split(",")[0]
+    #     surface = node.surface.split(",")[0]
+    #     # 記号, BOS/EOSはスルー
+    #     if feature == "記号" or feature == "BOS/EOS":
+    #         node = node.next
+    #         continue
+    #     # 文字数をカウント
+    #     word_cnt += len(surface)
+    #
+    #     # 字数チェック
+    #     if word_cnt == check[check_index]:
+    #         check_index += 1
+    #         word_cnt = 0
+    #         continue
+    #     # 字余りチェック
+    #     elif word_cnt > check[check_index]:
+    #         return False
+    #
+    #     # [5, 7, 5] の長さになっているか
+    #     if check_index == len(check) - 1:
+    #         return True
+    #         await ctx.channel.send("575を見つけました!")
+    #     node = node.next
+    # return False
+    #
+    # print(sys.argv[1], len(sys.argv))
+    # print(judge_five_seven_five(sys.argv[1]))
+
     await bot.process_commands(ctx)
 
 
-# n575
-# https://gist.github.com/4geru/46f300e561374833646ffd8f4b916672
-#
-#    m = MeCab.Tagger ("-Ochasen")
-#    print(m.parse (ctx.content))
-#    check = [5, 7, 5] # 5, 7, 5
-#    check_index = 0
-#    word_cnt = 0
-#    node = m.parseToNode(word)
-#    # suggestion文の各要素の品詞を確認
-#    while node:
-#        feature = node.feature.split(",")[0]
-#        surface = node.surface.split(",")[0]
-#        # 記号, BOS/EOSはスルー
-#        if feature == '記号' or feature == 'BOS/EOS':
-#            node = node.next
-#            continue
-#        # 文字数をカウント
-#        word_cnt += len(surface)
-#        
-#        # 字数チェック
-#        if word_cnt == check[check_index]:
-#            check_index += 1
-#            word_cnt = 0
-#            continue
-#        # 字余りチェック
-#        elif word_cnt > check[check_index]:
-#            return False
-#            
-#        # [5, 7, 5] の長さになっているか
-#        if check_index == len(check) - 1:
-#            return True
-#            await ctx.channel.send("575を見つけました!")
-#        node = node.next        
-#    return False
-#
-#    print(sys.argv[1], len(sys.argv))
-#    print(judge_five_seven_five(sys.argv[1]))
+# アニクトから取得したアニメをランダムで表示
+@bot.command(aliases=["ani"])
+async def anime(ctx):
+    random_id = random.randint(1, 9669)
+    # エンドポイント
+    annict_url = f"https://api.annict.com/v1/works?access_token={ANNICT_API_KEY}&filter_ids={random_id}"
+    # リクエスト
+    annict_res = requests.get(annict_url)
+    # 取得したjsonから必要な情報を取得
+    annict_works = annict_res.json()["works"][0]
+    annict_works_title = annict_works["title"]
+    annict_works_season_name_text = annict_works["season_name_text"]
+    annict_works_episodes_count = annict_works["episodes_count"]
+    annict_works_images_recommended_url = annict_works["images"]["recommended_url"]
+    await ctx.send(f"{annict_works_title}({annict_works_season_name_text}-{annict_works_episodes_count}話)\nhttps://annict.com/works/{random_id}")
 
 
-# 検索欄チャンネルに投稿されたメッセージから、TwitterAPIを通してそのメッセージを検索して、チャンネルに画像を送信する
-#    if ctx.content and ctx.channel.id == TWITTER_SEARCH_CHANNEL:
-#        tweets = api.search_tweets(q=f"filter:images {arg}", tweet_mode='extended', include_entities=True, count=1)
-#        for tweet in tweets:
-#            media = tweet.extended_entities["media"]
-#            for m in media:
-#                origin = m["media_url"]
-#        await ctx.channel.send(origin)
+# bokuseku.mp3 流し逃げ - https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
+@bot.command()
+async def bokuseku(ctx):
+    if ctx.author.voice is None:
+        await ctx.channel.send("望月くん・・・ボイスチャンネルに来なさい")
+        return
+
+    # ボイスチャンネルに接続する
+    await ctx.author.voice.channel.connect()
+    # 音声を再生する
+    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
+    # 音声が再生中か確認する
+    while ctx.guild.voice_client.is_playing():
+        await sleep(1)
+    # 切断する
+    await ctx.guild.voice_client.disconnect()
+
+
+# チーバくんの、なのはな体操
+@bot.command()
+async def chiibakun(ctx):
+    await ctx.send("https://www.youtube.com/watch?v=dC0eie-WQss")
 
 
 # ファルコおもしろ画像を送信
 @bot.command(aliases=["syai", "faruko"])
 async def falco(ctx):
-    # 送信者がBotである場合は弾く
-    if ctx.author.bot:
-        return
-
     guild = bot.get_guild(SEIBARI_GUILD_ID)
 
-    channel = guild.get_channel(FALCON_CAHNNEL_ID)
+    channel = guild.get_channel(FALCON_CHANNEL_ID)
 
     falco_cahnnel_messages = [message async for message in channel.history(limit=None)]
     # falco_cahnnel_message = await channel.messages.fetch({ limit: 100 })
@@ -394,91 +468,26 @@ async def falco(ctx):
     await ctx.channel.send(content)
 
 
-# アニクトから取得したキャラクターをランダムで表示
+# ギラティナの画像を送る
 @bot.command()
-async def odai(ctx):
-    # 送信者がBotである場合は弾く
-    if ctx.author.bot:
-        return
-    while 1:
-        # リスト
-        random_ids = []
-        # 10個のランダムな数を生成
-        for i in range(10):
-            random_id = random.randint(1, 41767)
-            random_ids.append(str(random_id))
-        # リストの中の要素を結合する
-        filter_ids = ",".join(random_ids)
-        # エンドポイント
-        AnnictUrl = f"https://api.annict.com/v1/characters?access_token={annict_access_token}&filter_ids={filter_ids}"
-        # リクエスト
-        AnnictRes = requests.get(AnnictUrl)
-        # 変数
-        AnnictCharacters = AnnictRes.json()["characters"]
-        # シャッフルする
-        random.shuffle(AnnictCharacters)
-        TargetCharacter = None
-        # 配列の中を先頭から順に舐めていく
-        for AnnictCharacter in AnnictCharacters:
-            # お気に入り数が5以上あるときループを解除する
-            if AnnictCharacter["favorite_characters_count"] > 4:
-                TargetCharacter = AnnictCharacter
-                break
-        if TargetCharacter is not None:
-            break
-
-    if TargetCharacter["series"] is None:
-        AnnictCharacterName = TargetCharacter["name"]
-        AnnictCharacterId = TargetCharacter["id"]
-        AnnictCharacterFan = TargetCharacter["favorite_characters_count"]
-        await ctx.send(f"{AnnictCharacterName} - ファン数{AnnictCharacterFan}人\nhttps://annict.com/characters/{AnnictCharacterId}")
-    else:
-        AnnictCharacterName = TargetCharacter["name"]
-        AnnictCharacterSeries = TargetCharacter["series"]["name"]
-        AnnictCharacterId = TargetCharacter["id"]
-        AnnictCharacterFan = TargetCharacter["favorite_characters_count"]
-        await ctx.send(f"{AnnictCharacterName}({AnnictCharacterSeries}) - ファン数{AnnictCharacterFan}人\nhttps://annict.com/characters/{AnnictCharacterId}")
+async def giratina(ctx):
+    await ctx.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
 
 
-# アニクトから取得したアニメをランダムで表示
-@bot.command(aliases=["ani"])
-async def anime(ctx):
-    # 送信者がBotである場合は弾く
-    if ctx.author.bot:
-        return
-    random_id = random.randint(1, 9669)
-    # エンドポイント
-    AnnictUrl = f"https://api.annict.com/v1/works?access_token={annict_access_token}&filter_ids={random_id}"
-    # リクエスト
-    AnnictRes = requests.get(AnnictUrl)
-    # 取得したjsonから必要な情報を取得
-    AnnictWorksTitle = AnnictRes.json()["works"][0]["title"]
-    AnnictWorksseason_name_text = AnnictRes.json()["works"][0]["season_name_text"]
-    AnnictWorksEpisodes_count = AnnictRes.json()["works"][0]["episodes_count"]
-    AnnictWorksImages_recommended_url = AnnictRes.json()["works"][0]["images"]["recommended_url"]
-    await ctx.send(f"{AnnictWorksTitle}({AnnictWorksseason_name_text}-{AnnictWorksEpisodes_count}話)\nhttps://annict.com/works/{random_id}")
-
-
-# Raika
+# イキス
 @bot.command()
-async def raika(ctx):
-    await ctx.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
+async def inm(ctx):
+    await ctx.send("聖バリ「イキスギィイクイク！！！ンアッー！！！マクラがデカすぎる！！！」\n\n"
+                   f"{ctx.author.name}「聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！淫夢ごっこは恥ずかしいよ！」\n\n"
+                   f"聖バリ「{ctx.author.name}、おっ大丈夫か大丈夫か〜？？？バッチェ冷えてるぞ〜淫夢が大好きだってはっきりわかんだね」")
 
 
-# チーバくんの、なのはな体操
+# かおすちゃんを送信
 @bot.command()
-async def chiibakun(ctx):
-    await ctx.send("https://www.youtube.com/watch?v=dC0eie-WQss")
-
-
-# https://zenn.dev/zakiii/articles/7ada80144c9db0
-# https://qiita.com/soma_sekimoto/items/65c664f00573284b0b74
-# TwitterのIDを指定して最新の画像を送信
-@bot.command(aliases=["tw"])
-async def twitter(ctx, *, arg):
-    tweets = twapi.search_tweets(q=f"filter:images {arg}", tweet_mode='extended', include_entities=True, count=1)
+async def kaosu(ctx):
+    tweets = twapi.search_tweets(q="from:@kaosu_pic", tweet_mode="extended", include_entities=True, count=1)
     for tweet in tweets:
-        media = tweet.extended_entities["media"]
+        media = tweet.entities["media"]
         for m in media:
             origin = m["media_url"]
         await ctx.send(origin)
@@ -487,44 +496,11 @@ async def twitter(ctx, *, arg):
 # こまちゃんを送信
 @bot.command()
 async def komachan(ctx):
-    tweets = twapi.search_tweets(q="from:@komachan_pic", tweet_mode='extended', include_entities=True, count=1)
+    tweets = twapi.search_tweets(q="from:@komachan_pic", tweet_mode="extended", include_entities=True, count=1)
     for tweet in tweets:
-        media = tweet.entities['media']
+        media = tweet.entities["media"]
         for m in media:
-            origin = m['media_url']
-        await ctx.send(origin)
-
-
-# かおすちゃんを送信
-@bot.command()
-async def kaosu(ctx):
-    tweets = twapi.search_tweets(q="from:@kaosu_pic", tweet_mode='extended', include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.entities['media']
-        for m in media:
-            origin = m['media_url']
-        await ctx.send(origin)
-
-
-# ゆるゆりを送信
-@bot.command()
-async def yuruyuri(ctx):
-    tweets = twapi.search_tweets(q="from:@YuruYuriBot1", tweet_mode='extended', include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.entities['media']
-        for m in media:
-            origin = m['media_url']
-        await ctx.send(origin)
-
-
-# サターニャを送信
-@bot.command()
-async def satanya(ctx):
-    tweets = twapi.search_tweets(q="from:@satanya_gazobot", tweet_mode='extended', include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.entities['media']
-        for m in media:
-            origin = m['media_url']
+            origin = m["media_url"]
         await ctx.send(origin)
 
 
@@ -532,7 +508,7 @@ async def satanya(ctx):
 # https://ja.stackoverflow.com/questions/56894/twitter-api-%e3%81%a7-%e5%8b%95%e7%94%bb%e3%83%84%e3%82%a4%e3%83%bc%e3%83%88-%e3%82%921%e4%bb%b6%e5%8f%96%e5%be%97%e3%81%97%e3%81%a6html%e4%b8%8a%e3%81%a7%e8%a1%a8%e7%a4%ba%e3%81%95%e3%81%9b%e3%81%9f%e3%81%84%e3%81%ae%e3%81%a7%e3%81%99%e3%81%8c-m3u8-%e5%bd%a2%e5%bc%8f%e3%81%a8-mp4-%e5%bd%a2%e5%bc%8f%e3%81%ae%e9%96%a2%e4%bf%82%e6%80%a7%e3%81%af
 @bot.command()
 async def lucky(ctx):
-    tweets = twapi.search_tweets(q="from:@LuckyStarPicBot", tweet_mode='extended', include_entities=True, count=1)
+    tweets = twapi.search_tweets(q="from:@LuckyStarPicBot", tweet_mode="extended", include_entities=True, count=1)
     for tweet in tweets:
         media = tweet.extended_entities["media"]
         for m in media:
@@ -546,37 +522,101 @@ async def lucky(ctx):
         await ctx.send(origin)
 
 
-# イキス
+# アニクトから取得したキャラクターをランダムで表示
 @bot.command()
-async def inm(ctx):
-    await ctx.send("聖バリ「イキスギィイクイク！！！ンアッー！！！マクラがデカすぎる！！！」\n\n"
-                   f"{ctx.author.name}「聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！淫夢ごっこは恥ずかしいよ！」\n\n"
-                   f"聖バリ「{ctx.author.name}、おっ大丈夫か大丈夫か〜？？？バッチェ冷えてるぞ〜淫夢が大好きだってはっきりわかんだね」")
+async def odai(ctx):
+    while 1:
+        # リスト
+        random_ids = []
+        # 10個のランダムな数を生成
+        for i in range(10):
+            random_id = random.randint(1, 41767)
+            random_ids.append(str(random_id))
+        # リストの中の要素を結合する
+        filter_ids = ",".join(random_ids)
+        # エンドポイント
+        annict_url = f"https://api.annict.com/v1/characters?access_token={ANNICT_API_KEY}&filter_ids={filter_ids}"
+        # リクエスト
+        annict_res = requests.get(annict_url)
+        # 変数
+        annict_characters = annict_res.json()["characters"]
+        # シャッフルする
+        random.shuffle(annict_characters)
+        target_character = None
+        # 配列の中を先頭から順に舐めていく
+        for annict_character in annict_characters:
+            # お気に入り数が5以上あるときループを解除する
+            if annict_character["favorite_characters_count"] > 4:
+                target_character = annict_character
+                break
+        if target_character is not None:
+            break
+
+    # 共通の要素
+    annict_character_name = target_character["name"]
+    annict_character_id = target_character["id"]
+    annict_character_fan = target_character["favorite_characters_count"]
+
+    # 送信するメッセージの変数の宣言
+    annict_character_msg = f"{annict_character_name} - ファン数{annict_character_fan}人\nhttps://annict.com/characters/{annict_character_id}"
+
+    # シリーズの記載がある場合
+    if target_character["series"] is not None:
+        annict_character_series = target_character["series"]["name"]
+        # 送信するメッセージの変数にシリーズを入れたテキストを代入
+        annict_character_msg = f"{annict_character_name}({annict_character_series}) - ファン数{annict_character_fan}人\nhttps://annict.com/characters/{annict_character_id}"
+
+    await ctx.send(annict_character_msg)
 
 
-# ギラティナの画像を送る
+# ピンポン
 @bot.command()
-async def giratina(ctx):
-    await ctx.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
+async def ping(ctx):
+    latency = client.latency
+    latency_milli = round(latency * 1000)
+    await ctx.send(f"Pong!: ${latency_milli}ms")
 
 
-# bokuseku.mp3 流し逃げ - https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
+# Raika
 @bot.command()
-async def bokuseku(ctx):
-    if ctx.author.voice is None:
-        await ctx.channel.send("望月くん・・・ボイスチャンネルに来なさい")
-        return
-    else:
-        # ボイスチャンネルに接続する
-        await ctx.author.voice.channel.connect()
-        # 音声を再生する
-        ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
-        # 音声が再生中か確認する
-        while ctx.guild.voice_client.is_playing():
-            await sleep(1)
-        # 切断する
-        await ctx.guild.voice_client.disconnect()
+async def raika(ctx):
+    await ctx.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
 
 
-bot.add_cog(Music(bot=bot))
-bot.run(token)
+# サターニャを送信
+@bot.command()
+async def satanya(ctx):
+    tweets = twapi.search_tweets(q="from:@satanya_gazobot", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities["media"]
+        for m in media:
+            origin = m["media_url"]
+        await ctx.send(origin)
+
+
+# https://zenn.dev/zakiii/articles/7ada80144c9db0
+# https://qiita.com/soma_sekimoto/items/65c664f00573284b0b74
+# TwitterのIDを指定して最新の画像を送信
+@bot.command(aliases=["tw"])
+async def twitter(ctx, *, arg):
+    tweets = twapi.search_tweets(q=f"filter:images {arg}", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.extended_entities["media"]
+        for m in media:
+            origin = m["media_url"]
+        await ctx.send(origin)
+
+
+# ゆるゆりを送信
+@bot.command()
+async def yuruyuri(ctx):
+    tweets = twapi.search_tweets(q="from:@YuruYuriBot1", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities["media"]
+        for m in media:
+            origin = m["media_url"]
+        await ctx.send(origin)
+
+
+bot.add_cog(Music(bot_arg=bot))
+bot.run(DISCORD_BOT_TOKEN)
