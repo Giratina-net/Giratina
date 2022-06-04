@@ -100,12 +100,8 @@ class Music(commands.Cog):
         if len(self.queue) <= 0:
             return
 
-        if type(self.player) == NicoNicoDLSource:
-            self.player.close_connection()
-
         self.player = self.queue.pop(0)
-        # guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, guild, self.after_play))
-        guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_play(guild))
+        guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, guild, self.after_play))
 
     @commands.command()
     async def join(self, ctx):
@@ -197,7 +193,7 @@ class Music(commands.Cog):
         else:  # 他の曲を再生していない場合
             # self.playerにURLを追加し再生する
             self.player = source
-            ctx.guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_play(ctx.guild))
+            ctx.guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, ctx.guild, self.after_play))
             embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
             embed.set_author(name="再生を開始します")
             await play_msg.edit(embed=embed)
