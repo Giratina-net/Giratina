@@ -408,6 +408,11 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://twitter.com/aaruaika/status/1518874935024054272")
 
+    # メッセージの本文が ライカ だった場合
+    if "ライカ" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("はぁ、どちら様ですか？")
+
     # メッセージの本文が ランキング だった場合
     if "ランキング" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
