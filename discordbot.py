@@ -369,6 +369,11 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942107858496000010/a834912b8c8f9739.jpg")
 
+    # メッセージの本文が somunia だった場合
+    if "somunia" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://twitter.com/aaruaika/status/1518874935024054272")
+
     # メッセージの本文が いい曲 だった場合
     if "いい曲" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
@@ -404,6 +409,11 @@ async def on_message(ctx):
     if "ゆるゆり" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("ラブライブです")
+
+    # メッセージの本文が ライカ だった場合
+    if "ライカ" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("はぁ、どちら様ですか？")
 
     # メッセージの本文が ランキング だった場合
     if "ランキング" in str(ctx.content):
