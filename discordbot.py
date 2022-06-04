@@ -100,8 +100,12 @@ class Music(commands.Cog):
         if len(self.queue) <= 0:
             return
 
+        if type(self.player) == NicoNicoDLSource:
+            self.player.close_connection()
+
         self.player = self.queue.pop(0)
-        guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, guild, self.after_play))
+        # guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, guild, self.after_play))
+        guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_play(guild))
 
     @commands.command()
     async def join(self, ctx):
@@ -171,6 +175,10 @@ class Music(commands.Cog):
         if ctx.guild.voice_client is None:
             await ctx.author.voice.channel.connect()
 
+        embed = discord.Embed(colour=0xff00ff)
+        embed.set_author(name="処理中です...")
+        play_msg: discord.Message = await ctx.channel.send(embed=embed)
+
         # niconico.py は短縮URLも取り扱えるっぽいので信じてみる
         # https://github.com/tasuren/niconico.py/blob/b4d9fcb1d0b80e83f2d8635dd85987d1fa2d84fc/niconico/video.py#L367
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
@@ -184,15 +192,15 @@ class Music(commands.Cog):
             self.queue.append(source)
             embed = discord.Embed(colour=0xff00ff, title=source.title, url=source.original_url)
             embed.set_author(name="キューに追加しました")
-            await ctx.channel.send(embed=embed)
+            await play_msg.edit(embed=embed)
 
         else:  # 他の曲を再生していない場合
             # self.playerにURLを追加し再生する
             self.player = source
-            ctx.guild.voice_client.play(self.player, after=lambda e: after_play_niconico(source, e, ctx.guild, self.after_play))
+            ctx.guild.voice_client.play(self.player, after=lambda e: print(f"has error: {e}") if e else self.after_play(ctx.guild))
             embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
             embed.set_author(name="再生を開始します")
-            await ctx.channel.send(embed=embed)
+            await play_msg.edit(embed=embed)
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
@@ -208,7 +216,8 @@ class Music(commands.Cog):
 
         # 再生中ではない場合は実行しない
         if not ctx.guild.voice_client.is_playing():
-            await ctx.channel.send("再生していません。")
+            embed = discord.Embed(colour=0xff00ff, title="現在のキュー", description="再生されていません")
+            await ctx.channel.send(embed=embed)
             return
 
         queue_embed = [f"__現在再生中__:\n[{self.player.title}]({self.player.original_url})"]
@@ -222,7 +231,7 @@ class Music(commands.Cog):
                 else:
                     queue_embed.append(f"`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
 
-        queue_embed.append(f"**残りのキュー: {len(self.queue) + 1}個**")
+        queue_embed.append(f"**残りのキュー: {len(self.queue) + 1} 個**")
 
         embed = discord.Embed(colour=0xff00ff, title="現在のキュー", description="\n\n".join(queue_embed))
         await ctx.channel.send(embed=embed)
