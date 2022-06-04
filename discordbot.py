@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import copy
 import random
 import typing
 from asyncio import sleep
@@ -12,7 +13,6 @@ import yt_dlp
 from discord.ext import commands
 from googleapiclient.discovery import build
 from niconico import NicoNico
-
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
@@ -77,8 +77,9 @@ WALKINGSUSHIBOX_USER_ID = 575588255647399958
 
 client = discord.Client()
 
+
 # NicoNicoDLSourceのためにちゃんと閉じる必要があるので、Sourceのあと voice_client.play の最後にこれを実行してやってください
-def after_play(source, e, guild, f):
+def after_play_niconico(source, e, guild, f):
     if type(source) == NicoNicoDLSource:
         source.close_connection()
 
@@ -92,15 +93,17 @@ def after_play(source, e, guild, f):
 class Music(commands.Cog):
     def __init__(self, bot_arg):
         self.bot = bot_arg
-        self.player: typing.Optional[YTDLSource | NicoNicoDLSource] = None
-        self.queue: typing.List[YTDLSource | NicoNicoDLSource] = []
+        self.loop = False
+        self.player: typing.Union[YTDLSource, NicoNicoDLSource, None] = None
+        self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource]] = []
 
-    def after_played(self, guild):
+    def after_play(self, guild):
         if len(self.queue) <= 0:
             return
 
-        self.player = self.queue.pop(0)
-        guild.voice_client.play(self.player, after=lambda e: after_play(self.player, e, guild, self.after_played))
+        if not self.loop:
+            self.player = self.queue.pop(0)
+        guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, guild, self.after_play))
 
     @commands.command()
     async def join(self, ctx):
@@ -129,6 +132,30 @@ class Music(commands.Cog):
         await ctx.guild.voice_client.disconnect()
         await ctx.channel.send("切断しました。")
 
+    @commands.command()
+    async def loop(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+            return
+
+        # Botがボイスチャンネルに居ない場合
+        if ctx.guild.voice_client is None:
+            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
+            return
+
+        # 再生中ではない場合は実行しない
+        if not ctx.guild.voice_client.is_playing():
+            await ctx.channel.send("再生していません。")
+            return
+
+        if self.loop:
+            self.loop = False
+            await ctx.channel.send("ループを無効にしました。")
+        else:
+            self.loop = True
+            await ctx.channel.send("ループを有効にしました。")
+
     @commands.command(aliases=["np"])
     async def nowplaying(self, ctx):
         # コマンドを送ったユーザーがボイスチャンネルに居ない場合
@@ -136,12 +163,17 @@ class Music(commands.Cog):
             await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
             return
 
-        # 再生中ではない場合は実行しない
-        if not ctx.guild.voice_client.is_playing():
-            await ctx.send("再生していません。")
+        # Botがボイスチャンネルに居ない場合
+        if ctx.guild.voice_client is None:
+            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
             return
 
-        embed = discord.Embed(title=self.player.title, url=self.player.original_url)
+        # 再生中ではない場合は実行しない
+        if not ctx.guild.voice_client.is_playing():
+            await ctx.channel.send("再生していません。")
+            return
+
+        embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
         embed.set_author(name="現在再生中")
 
         # YouTube再生時にサムネイルも一緒に表示できるであろう構文
@@ -171,18 +203,22 @@ class Music(commands.Cog):
         if is_niconico:
             source = await NicoNicoDLSource.from_url(url)
         else:
-            source = await YTDLSource.from_url(url, loop=client.loop ,stream=True)
+            source = await YTDLSource.from_url(url, loop=client.loop, stream=True)
 
         if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
             # self.playerに追加すると再生中の曲と衝突する
             self.queue.append(source)
-            await ctx.channel.send(f"{source.title} をキューに追加しました。")
+            embed = discord.Embed(colour=0xff00ff, title=source.title, url=source.original_url)
+            embed.set_author(name="キューに追加しました")
+            await ctx.channel.send(embed=embed)
 
         else:  # 他の曲を再生していない場合
             # self.playerにURLを追加し再生する
             self.player = source
-            ctx.guild.voice_client.play(self.player, after=lambda e: after_play(source, e, ctx.guild, self.after_played))
-            await ctx.channel.send(f"{self.player.title} を再生します。")
+            ctx.guild.voice_client.play(self.player, after=lambda e: after_play_niconico(source, e, ctx.guild, self.after_play))
+            embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
+            embed.set_author(name="再生を開始します")
+            await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
@@ -191,10 +227,33 @@ class Music(commands.Cog):
             await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
             return
 
+        # Botがボイスチャンネルに居ない場合
+        if ctx.guild.voice_client is None:
+            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
+            return
+
         # 再生中ではない場合は実行しない
         if not ctx.guild.voice_client.is_playing():
-            await ctx.send("再生していません。")
+            await ctx.channel.send("再生していません。")
             return
+
+        queues = copy.copy(self.queue)
+        queue_embed = [f"__現在再生中__\n[{queues.pop(0).title}]({queues.pop(0).original_url})"]
+
+        if len(queues) > 1:
+            for i in range(len(queues)):
+                if i > 9:
+                    break
+                elif i == 0:
+                    queue_embed.append(f"__次に再生__\n`{i + 1}.` [{queues[i].title}]({queues[i].original_url})")
+                else:
+                    queue_embed.append(f"`{i + 1}.` [{queues[i].title}]({queues[i].original_url})")
+
+        queue_embed.append(f"**残りのキュー: {len(queues) + 1}個**")
+
+        embed = discord.Embed(colour=0xff00ff, title="現在のキュー", description="\n\n".join(queue_embed))
+        embed.set_footer(text=f'ループ: {":o:" if self.loop else ":x:"}')
+        await ctx.channel.send(embed)
 
     @commands.command(aliases=["s"])
     async def skip(self, ctx):
@@ -205,16 +264,36 @@ class Music(commands.Cog):
 
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
-            await ctx.send("Botがボイスチャンネルに接続していません。")
+            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
             return
 
         # 再生中ではない場合は実行しない
         if not ctx.guild.voice_client.is_playing():
-            await ctx.send("再生していません。")
+            await ctx.channel.send("再生していません。")
             return
 
         ctx.guild.voice_client.stop()
-        await ctx.send("次の曲を再生します。")
+        await ctx.channel.send("次の曲を再生します。")
+
+    @commands.command()
+    async def shuffle(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+            return
+
+        # Botがボイスチャンネルに居ない場合
+        if ctx.guild.voice_client is None:
+            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
+            return
+
+        # 再生中ではない場合は実行しない
+        if not ctx.guild.voice_client.is_playing():
+            await ctx.channel.send("再生していません。")
+            return
+
+        random.shuffle(self.queue)
+        await ctx.channel.send("キューをシャッフルしました。")
 
     @commands.command()
     async def stop(self, ctx):
@@ -225,17 +304,41 @@ class Music(commands.Cog):
 
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
-            await ctx.send("Botがボイスチャンネルに接続していません。")
+            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
             return
 
         # 再生中ではない場合は実行しない
         if not ctx.guild.voice_client.is_playing():
-            await ctx.send("再生していません。")
+            await ctx.channel.send("再生していません。")
             return
 
         self.queue.clear()
         ctx.guild.voice_client.stop()
-        await ctx.send("再生を停止し、キューをリセットしました。")
+        await ctx.channel.send("再生を停止し、キューをリセットしました。")
+
+
+class NicoNicoDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, url, original_url, video, volume=0.5):
+        super().__init__(source, volume)
+
+        self.url = url
+        self.original_url = original_url
+        self.video = video
+        self.title = video.video.title
+
+    @classmethod
+    async def from_url(cls, url):
+        # とりあえず毎回clientを作っておく
+        niconico_client = NicoNico()
+        video = niconico_client.video.get_video(url)
+        # 必ずあとでコネクションを切る
+        video.connect()
+
+        source = discord.FFmpegPCMAudio(video.download_link, **FFMPEG_OPTIONS)
+        return cls(source, video.download_link, url, video)
+
+    def close_connection(self):
+        self.video.close()
 
 
 # もしniconicoDLをいれるなら参考になるかも
@@ -260,33 +363,9 @@ class YTDLSource(discord.PCMVolumeTransformer):
             data = data["entries"][0]
 
         filename = data["url"] if stream else ytdl.prepare_filename(data)
-        
+
         source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
         return cls(source, data=data)
-
-
-class NicoNicoDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, url, original_url, video, volume=0.5):
-        super().__init__(source, volume)
-
-        self.url = url
-        self.original_url = original_url
-        self.video = video
-        self.title = video.video.title
-
-    @classmethod
-    async def from_url(cls, url):
-        # とりあえず毎回clientを作っておく
-        client = NicoNico()
-        video = client.video.get_video(url)
-        # 必ずあとでコネクションを切る
-        video.connect()
-
-        source = discord.FFmpegPCMAudio(video.download_link, **FFMPEG_OPTIONS)
-        return cls(source, video.download_link, url, video)
-
-    def close_connection(self):
-        self.video.close()
 
 
 # Bot起動時に実行される関数
