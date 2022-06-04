@@ -1,6 +1,7 @@
 # Giratina
-![Check Syntax](https://github.com/SehataKuro/Giratina/actions/workflows/check_syntax.yml/badge.svg?branch=master)
 ![badge](https://github.com/neko252222/GIF/blob/main/badge.svg)
+![Check Syntax](https://github.com/SehataKuro/Giratina/actions/workflows/check_syntax.yml/badge.svg?branch=master)
+
 (https://github.com/SehataKuro/Giratina/actions/workflows/check_syntax.yml)
 
 - 身内のサーバーで使うことを目的としたDiscord向けのBotです。
