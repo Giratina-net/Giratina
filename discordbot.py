@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import asyncio
-import copy
 import random
 import typing
 from asyncio import sleep
@@ -219,10 +218,8 @@ class Music(commands.Cog):
         queue_embed = [f"__現在再生中__:\n[{self.player.title}]({self.player.original_url})"]
 
         if len(self.queue) > 0:
-            for i in range(len(self.queue)):
-                if i > 9:
-                    break
-                elif i == 0:
+            for i in range(min(len(self.queue), 10)):
+                if i == 0:
                     queue_embed.append(f"__次に再生__:\n`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
                 else:
                     queue_embed.append(f"`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
