@@ -144,11 +144,6 @@ class Music(commands.Cog):
             await ctx.channel.send("Botがボイスチャンネルに接続していません。")
             return
 
-        # 再生中ではない場合は実行しない
-        if not ctx.guild.voice_client.is_playing():
-            await ctx.channel.send("再生していません。")
-            return
-
         if self.loop:
             self.loop = False
             await ctx.channel.send("ループを無効にしました。")
@@ -237,23 +232,22 @@ class Music(commands.Cog):
             await ctx.channel.send("再生していません。")
             return
 
-        queues = copy.copy(self.queue)
-        queue_embed = [f"__現在再生中__\n[{queues.pop(0).title}]({queues.pop(0).original_url})"]
+        queue_embed = [f"__現在再生中__\n[{self.player.title}]({self.player.original_url})"]
 
-        if len(queues) > 1:
-            for i in range(len(queues)):
+        if len(self.queue) > 0:
+            for i in range(len(self.queue)):
                 if i > 9:
                     break
                 elif i == 0:
-                    queue_embed.append(f"__次に再生__\n`{i + 1}.` [{queues[i].title}]({queues[i].original_url})")
+                    queue_embed.append(f"__次に再生__\n`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
                 else:
-                    queue_embed.append(f"`{i + 1}.` [{queues[i].title}]({queues[i].original_url})")
+                    queue_embed.append(f"`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
 
-        queue_embed.append(f"**残りのキュー: {len(queues) + 1}個**")
+        queue_embed.append(f"**残りのキュー: {len(self.queue) + 1}個**")
 
         embed = discord.Embed(colour=0xff00ff, title="現在のキュー", description="\n\n".join(queue_embed))
         embed.set_footer(text=f'ループ: {":o:" if self.loop else ":x:"}')
-        await ctx.channel.send(embed)
+        await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["s"])
     async def skip(self, ctx):
