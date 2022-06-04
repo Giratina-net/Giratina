@@ -539,6 +539,10 @@ async def uma(ctx):
     await ctx.send(result_str)
 
 
+@bot.command()
+async def ma(ctx):
+    await ctx.send("https://cdn.discordapp.com/attachments/964831309627289620/982691239025598494/long_ver.___feat._0s_screenshot.png")
+
 # ギラティナの画像を送る
 @bot.command()
 async def giratina(ctx):
