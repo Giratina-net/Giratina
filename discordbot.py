@@ -93,7 +93,6 @@ def after_play_niconico(source, e, guild, f):
 class Music(commands.Cog):
     def __init__(self, bot_arg):
         self.bot = bot_arg
-        self.loop = False
         self.player: typing.Union[YTDLSource, NicoNicoDLSource, None] = None
         self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource]] = []
 
@@ -101,8 +100,7 @@ class Music(commands.Cog):
         if len(self.queue) <= 0:
             return
 
-        if not self.loop:
-            self.player = self.queue.pop(0)
+        self.player = self.queue.pop(0)
         guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, guild, self.after_play))
 
     @commands.command()
@@ -131,25 +129,6 @@ class Music(commands.Cog):
         # 切断する
         await ctx.guild.voice_client.disconnect()
         await ctx.channel.send("切断しました。")
-
-    @commands.command()
-    async def loop(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
-            return
-
-        # Botがボイスチャンネルに居ない場合
-        if ctx.guild.voice_client is None:
-            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
-            return
-
-        if self.loop:
-            self.loop = False
-            await ctx.channel.send("ループを無効にしました。")
-        else:
-            self.loop = True
-            await ctx.channel.send("ループを有効にしました。")
 
     @commands.command(aliases=["np"])
     async def nowplaying(self, ctx):
@@ -232,21 +211,20 @@ class Music(commands.Cog):
             await ctx.channel.send("再生していません。")
             return
 
-        queue_embed = [f"__現在再生中__\n[{self.player.title}]({self.player.original_url})"]
+        queue_embed = [f"__現在再生中__:\n[{self.player.title}]({self.player.original_url})"]
 
         if len(self.queue) > 0:
             for i in range(len(self.queue)):
                 if i > 9:
                     break
                 elif i == 0:
-                    queue_embed.append(f"__次に再生__\n`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
+                    queue_embed.append(f"__次に再生__:\n`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
                 else:
                     queue_embed.append(f"`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
 
         queue_embed.append(f"**残りのキュー: {len(self.queue) + 1}個**")
 
         embed = discord.Embed(colour=0xff00ff, title="現在のキュー", description="\n\n".join(queue_embed))
-        embed.set_footer(text=f'ループ: {":o:" if self.loop else ":x:"}')
         await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["s"])
