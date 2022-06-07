@@ -565,10 +565,10 @@ async def falco(ctx):
 
     channel = guild.get_channel(FALCON_CHANNEL_ID)
 
-    falco_cahnnel_messages = [message async for message in channel.history(limit=None)]
-    # falco_cahnnel_message = await channel.messages.fetch({ limit: 100 })
+    falco_channel_messages = [message async for message in channel.history(limit=None)]
+    # falco_channel_messages = await channel.messages.fetch({ limit: 100 })
 
-    random_falco = random.choice(falco_cahnnel_messages)
+    random_falco = random.choice(falco_channel_messages)
 
     # print(random_falco)
     content = random_falco.content
