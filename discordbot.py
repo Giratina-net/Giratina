@@ -710,7 +710,7 @@ async def uma(ctx):
         if i == 5:
             draw.rectangle((0, 0, width, height), fill=bg)
         # アイコン画像をumaiconフォルダから読み込み&貼り付け(urlから読み込むと遅かった)
-        uma_image = Image.open(f"umaicon\\i_{umamusume.index(uma_result) + 1}.png")
+        uma_image = Image.open(f"umaiconi_{umamusume.index(uma_result) + 1}.png")
         img.paste(uma_image, (0, kankaku * (i % 5)))
         # テキストを描画(星マーク)
         draw.text((40, -4 + kankaku * (i % 5)), "★" * (uma_result[1] % 10) + "　" * (3 - uma_result[1] % 10), color, font=font)
