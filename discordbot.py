@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import datetime
+import os
 import random
 import typing
-from asyncio import sleep
 from os import getenv
-import os
-from PIL import Image, ImageFont, ImageDraw
 
 import discord
 import requests
 import tweepy
 import yt_dlp
+from PIL import Image, ImageFont, ImageDraw
 from discord.ext import commands
 from googleapiclient.discovery import build
 from niconico import NicoNico
@@ -349,6 +349,9 @@ class YTDLSource(discord.PCMVolumeTransformer):
 # Bot起動時に実行される関数
 @bot.event
 async def on_ready():
+    now_time = datetime.datetime.utcnow() + datetime.timedelta(hours=9)
+    await bot.change_presence(activity=discord.Game(name=f'オォン: {now_time.strftime("%Y/%m/%d %H:%M:%S")}'))
+
     channel = bot.get_channel(GIRATINA_CHANNEL_ID)
     await channel.send("ギラティナ、オォン！")
 
@@ -463,11 +466,13 @@ async def on_message(ctx):
             # Attachmentの拡張子がmp3, wavのどれかだった場合
             # https://discordpy.readthedocs.io/ja/latest/api.html#attachment
             if "audio" in attachment.content_type:
-                await attachment.save("input.mp3")
-                command = "ffmpeg -y -loop 1 -i input.jpg -i input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest output.mp4"
+                await attachment.save("resources/temporally/wip_input.mp3")
+                command = "ffmpeg -y -loop 1 -i resources/wip_input.jpg -i resources/temporally/wip_input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest resources/temporally/wip_output.mp4"
                 proc = await asyncio.create_subprocess_exec(*command.split(" "), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
                 stdout, stderr = await proc.communicate()
-                await ctx.channel.send(file=discord.File("output.mp4"))
+                await ctx.channel.send(file=discord.File("resources/temporally/wip_output.mp4"))
+                os.remove("resources/temporally/wip_input.mp3")
+                os.remove("resources/temporally/wip_output.mp4")
 
     # 検索欄チャンネルに投稿されたメッセージから、TwitterAPIを通してそのメッセージを検索して、チャンネルに画像を送信する
     # if ctx.content and ctx.channel.id == TWITTER_SEARCH_CHANNEL_ID:
@@ -546,10 +551,7 @@ async def bokuseku(ctx):
     # ボイスチャンネルに接続する
     await ctx.author.voice.channel.connect()
     # 音声を再生する
-    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("bokuseku.mp3"))
-    # 音声が再生中か確認する
-    while ctx.guild.voice_client.is_playing():
-        await sleep(1)
+    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("resources/bokuseku.mp3"), after=ctx.guild.voice_client.disconnect())
     # 切断する
     await ctx.guild.voice_client.disconnect()
 
@@ -709,8 +711,8 @@ async def uma(ctx):
         # 原寸で表示される最大の画像サイズが400x300(10連だと見切れる)なので5連ずつ2枚の画像に分ける
         if i == 5:
             draw.rectangle((0, 0, width, height), fill=bg)
-        # アイコン画像をumaiconフォルダから読み込み&貼り付け(urlから読み込むと遅かった)
-        uma_image = Image.open(f"umaicon/i_{umamusume.index(uma_result) + 1}.png")
+        # アイコン画像をuma_iconフォルダから読み込み&貼り付け(URLから読み込むと遅かった)
+        uma_image = Image.open(f"resources/uma_icon/i_{umamusume.index(uma_result) + 1}.png")
         img.paste(uma_image, (0, kankaku * (i % 5)))
         # テキストを描画(星マーク)
         draw.text((40, -4 + kankaku * (i % 5)), "★" * (uma_result[1] % 10) + "　" * (3 - uma_result[1] % 10), color, font=font)
@@ -718,10 +720,9 @@ async def uma(ctx):
         draw.text((40, 12 + kankaku * (i % 5)), uma_result[0], color, font=font)
         # 5連ごとに画像を書き出し送信
         if i == 4 or i == 9:
-            img.save("temp.png")
-            await ctx.send(file=discord.File("temp.png"))
-
-    os.remove("temp.png")
+            img.save("resources/temporally/umagacha.png")
+            await ctx.send(file=discord.File("resources/temporally/umagacha.png"))
+            os.remove("resources/temporally/umagacha.png")
 
 
 @bot.command()
@@ -738,9 +739,11 @@ async def giratina(ctx):
 # イキス
 @bot.command()
 async def inm(ctx):
-    await ctx.send("聖バリ「イキスギィイクイク！！！ンアッー！！！マクラがデカすぎる！！！」\n\n"
-                   f"{ctx.author.name}「聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！淫夢ごっこは恥ずかしいよ！」\n\n"
-                   f"聖バリ「{ctx.author.name}、おっ大丈夫か大丈夫か〜？？？バッチェ冷えてるぞ〜淫夢が大好きだってはっきりわかんだね」")
+    await ctx.send(
+        "聖バリ「イキスギィイクイク！！！ンアッー！！！マクラがデカすぎる！！！」\n\n"
+        f"{ctx.author.name}「聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！淫夢ごっこは恥ずかしいよ！」\n\n"
+        f"聖バリ「{ctx.author.name}、おっ大丈夫か大丈夫か〜？？？バッチェ冷えてるぞ〜淫夢が大好きだってはっきりわかんだね」"
+    )
 
 
 # かおすちゃんを送信
@@ -751,7 +754,7 @@ async def kaosu(ctx):
         media = tweet.entities["media"]
         for m in media:
             origin = m["media_url"]
-        await ctx.send(origin)
+            await ctx.send(origin)
 
 
 # こまちゃんを送信
@@ -762,7 +765,7 @@ async def komachan(ctx):
         media = tweet.entities["media"]
         for m in media:
             origin = m["media_url"]
-        await ctx.send(origin)
+            await ctx.send(origin)
 
 
 # らきすたを送信
@@ -779,9 +782,10 @@ async def lucky(ctx):
                     for variants in video_info:
                         for url in variants[0]:
                             origin = url
+                            await ctx.send(origin)
             else:
                 origin = m["media_url"]
-        await ctx.send(origin)
+                await ctx.send(origin)
 
 
 # アニクトから取得したキャラクターをランダムで表示
@@ -853,7 +857,7 @@ async def satanya(ctx):
         media = tweet.entities["media"]
         for m in media:
             origin = m["media_url"]
-        await ctx.send(origin)
+            await ctx.send(origin)
 
 
 # https://zenn.dev/zakiii/articles/7ada80144c9db0
@@ -866,7 +870,7 @@ async def twitter(ctx, *, arg):
         media = tweet.extended_entities["media"]
         for m in media:
             origin = m["media_url"]
-        await ctx.send(origin)
+            await ctx.send(origin)
 
 
 # ゆるゆりを送信
@@ -877,7 +881,7 @@ async def yuruyuri(ctx):
         media = tweet.entities["media"]
         for m in media:
             origin = m["media_url"]
-        await ctx.send(origin)
+            await ctx.send(origin)
 
 
 bot.add_cog(Music(bot_arg=bot))
