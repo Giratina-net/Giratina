@@ -350,7 +350,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
 @bot.event
 async def on_ready():
     now_time = datetime.datetime.utcnow() + datetime.timedelta(hours=9)
-    await bot.change_presence(activity=discord.Game(name=f'オォン: {now_time.strftime("%Y/%m/%d %H:%M:%S")}'))
+    await bot.change_presence(activity=discord.Game(name=now_time.strftime("%Y/%m/%d %H:%M:%S")))
 
     channel = bot.get_channel(GIRATINA_CHANNEL_ID)
     await channel.send("ギラティナ、オォン！")
