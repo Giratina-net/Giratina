@@ -75,7 +75,7 @@ WIP_CHANNEL_ID = 940966825087361025
 FALCON_CHANNEL_ID = 955809774849646603
 # あるくおすしのユーザーID
 WALKINGSUSHIBOX_USER_ID = 575588255647399958
-#野獣先輩のユーザーID
+# 野獣先輩のユーザーID
 TADOKOROKOUJI_USER_ID = 1145141919810364364
 
 client = discord.Client()
@@ -585,7 +585,7 @@ async def falco(ctx):
 @bot.command()
 async def uma(ctx):
     umamusume = [
-        #[ウマ娘の名称, レア度(ピックアップは+10)]
+        # [ウマ娘の名称, レア度(ピックアップは+10)]
         ["[スペシャルドリーマー]スペシャルウィーク", 3],
         ["[サイレントイノセンス]サイレンススズカ", 3],
         ["[トップ・オブ・ジョイフル]トウカイテイオー", 3],
@@ -669,63 +669,65 @@ async def uma(ctx):
         ["[朔月のマ・シェリ]カレンチャン", 13],
         ["[Titania]ファインモーション", 13]
     ]
-    #確率比[★1, ★2, ★3, ピックアップ]
+
+    # 確率比[★1, ★2, ★3, ピックアップ]
     weights = [79, 18, 1.5, 1.5]
-    #確率比(10回目)
+    # 確率比(10回目)
     weights_10 = [0, 97, 1.5, 1.5]
 
-    #画像サイズ
+    # 画像サイズ
     width = 400
     height = 222
-    #項目の間隔
+    # 項目の間隔
     kankaku = 46
-    #画像の背景色
+    # 画像の背景色
     bg = (54, 57, 63)
-    #画像の初期化
+    # 画像の初期化
     img = Image.new("RGB", (width, height), bg)
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(".fonts/meiryo.ttf", 16)
-    uma_rare = []
 
     for i in range(10):
-        if (i < 9):
+        if i < 9:
             w = weights
         else:
             w = weights_10
-        #レア度ごとに選出
+        # レア度ごとに選出
         uma_rare = [
             random.choice([i for i in umamusume if i[1] == 1]),
             random.choice([i for i in umamusume if i[1] == 2]),
             random.choice([i for i in umamusume if i[1] == 3]),
             random.choice([i for i in umamusume if i[1] > 10])
         ]
-        #最終的な排出ウマ娘を決定
+        # 最終的な排出ウマ娘を決定
         uma_result = random.choices(uma_rare, weights=w)[0]
-        #レア度が3なら文字色を変える
-        if (uma_result[1] % 10 == 3):
-            color = (214,204,107)
+        # レア度が3なら文字色を変える
+        if uma_result[1] % 10 == 3:
+            color = (214, 204, 107)
         else:
-            color = (255,255,255)
-        #原寸で表示される最大の画像サイズが400x300(10連だと見切れる)なので5連ずつ2枚の画像に分ける
-        if (i == 5):
+            color = (255, 255, 255)
+        # 原寸で表示される最大の画像サイズが400x300(10連だと見切れる)なので5連ずつ2枚の画像に分ける
+        if i == 5:
             draw.rectangle((0, 0, width, height), fill=bg)
-        #アイコン画像をumaiconフォルダから読み込み&貼り付け(urlから読み込むと遅かった)
-        uma_image = Image.open(f"umaicon\\i_{umamusume.index(uma_result)+1}.png")
+        # アイコン画像をumaiconフォルダから読み込み&貼り付け(urlから読み込むと遅かった)
+        uma_image = Image.open(f"umaicon\\i_{umamusume.index(uma_result) + 1}.png")
         img.paste(uma_image, (0, kankaku * (i % 5)))
-        #テキストを描画(星マーク)
-        draw.text((40,-4 + kankaku * (i % 5)), "★" * (uma_result[1] % 10) + "　" * (3 - uma_result[1] % 10),color,font=font)
-        #テキストを描画(ウマ娘名称)
-        draw.text((40,12 + kankaku * (i % 5)), uma_result[0] ,color,font=font)
-        #5連ごとに画像を書き出し送信
-        if (i == 4 or i == 9):
+        # テキストを描画(星マーク)
+        draw.text((40, -4 + kankaku * (i % 5)), "★" * (uma_result[1] % 10) + "　" * (3 - uma_result[1] % 10), color, font=font)
+        # テキストを描画(ウマ娘名称)
+        draw.text((40, 12 + kankaku * (i % 5)), uma_result[0], color, font=font)
+        # 5連ごとに画像を書き出し送信
+        if i == 4 or i == 9:
             img.save("temp.png")
             await ctx.send(file=discord.File("temp.png"))
+
     os.remove("temp.png")
 
 
 @bot.command()
 async def ma(ctx):
     await ctx.send("https://cdn.discordapp.com/attachments/964831309627289620/982691239025598494/long_ver.___feat._0s_screenshot.png")
+
 
 # ギラティナの画像を送る
 @bot.command()
