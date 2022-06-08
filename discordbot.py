@@ -551,7 +551,7 @@ async def bokuseku(ctx):
     # ボイスチャンネルに接続する
     await ctx.author.voice.channel.connect()
     # 音声を再生する
-    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("resources/bokuseku.mp3"), after=ctx.guild.voice_client.disconnect())
+    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("resources/bokuseku.mp3"), after=lambda e: ctx.guild.voice_client.disconnect())
     # 切断する
     await ctx.guild.voice_client.disconnect()
 
