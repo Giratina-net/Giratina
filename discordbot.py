@@ -684,7 +684,7 @@ async def uma(ctx):
     #画像の初期化
     img = Image.new("RGB", (width, height), bg)
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype("/.fonts/meiryo.ttf", 16)
+    font = ImageFont.truetype(".fonts/meiryo.ttf", 16)
     uma_rare = []
 
     for i in range(10):
