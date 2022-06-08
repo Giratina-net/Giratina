@@ -720,9 +720,9 @@ async def uma(ctx):
         draw.text((40, 12 + kankaku * (i % 5)), uma_result[0], color, font=font)
         # 5連ごとに画像を書き出し送信
         if i == 4 or i == 9:
-            img.save("resources/temporally/umagacha.png")
-            await ctx.send(file=discord.File("resources/temporally/umagacha.png"))
-            os.remove("resources/temporally/umagacha.png")
+            img.save("resources/temporally/uma_gacha.png")
+            await ctx.send(file=discord.File("resources/temporally/uma_gacha.png"))
+            os.remove("resources/temporally/uma_gacha.png")
 
 
 @bot.command()
