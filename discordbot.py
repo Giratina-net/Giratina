@@ -583,6 +583,154 @@ async def falco(ctx):
     await ctx.channel.send(content)
 
 
+# ギラティナの画像を送る
+@bot.command()
+async def giratina(ctx):
+    await ctx.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
+
+
+# イキス
+@bot.command()
+async def inm(ctx):
+    await ctx.send(
+        "聖バリ「イキスギィイクイク！！！ンアッー！！！マクラがデカすぎる！！！」\n\n"
+        f"{ctx.author.name}「聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！淫夢ごっこは恥ずかしいよ！」\n\n"
+        f"聖バリ「{ctx.author.name}、おっ大丈夫か大丈夫か〜？？？バッチェ冷えてるぞ〜淫夢が大好きだってはっきりわかんだね」"
+    )
+
+
+# かおすちゃんを送信
+@bot.command()
+async def kaosu(ctx):
+    tweets = twapi.search_tweets(q="from:@kaosu_pic", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities["media"]
+        for m in media:
+            origin = m["media_url"]
+            await ctx.send(origin)
+
+
+# こまちゃんを送信
+@bot.command()
+async def komachan(ctx):
+    tweets = twapi.search_tweets(q="from:@komachan_pic", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities["media"]
+        for m in media:
+            origin = m["media_url"]
+            await ctx.send(origin)
+
+
+# らきすたを送信
+# https://ja.stackoverflow.com/questions/56894/twitter-api-%e3%81%a7-%e5%8b%95%e7%94%bb%e3%83%84%e3%82%a4%e3%83%bc%e3%83%88-%e3%82%921%e4%bb%b6%e5%8f%96%e5%be%97%e3%81%97%e3%81%a6html%e4%b8%8a%e3%81%a7%e8%a1%a8%e7%a4%ba%e3%81%95%e3%81%9b%e3%81%9f%e3%81%84%e3%81%ae%e3%81%a7%e3%81%99%e3%81%8c-m3u8-%e5%bd%a2%e5%bc%8f%e3%81%a8-mp4-%e5%bd%a2%e5%bc%8f%e3%81%ae%e9%96%a2%e4%bf%82%e6%80%a7%e3%81%af
+# https://syncer.jp/Web/API/Twitter/REST_API/Object/Entity/#:~:text=Filter-,%E3%83%84%E3%82%A4%E3%83%BC%E3%83%88%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88%20(%E5%8B%95%E7%94%BB),-%E5%8B%95%E7%94%BB%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%92
+@bot.command()
+async def lucky(ctx):
+    tweets = twapi.search_tweets(q="from:@LuckyStarPicBot", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.extended_entities["media"]
+        for m in media:
+            if m["type"] == "video":
+                for video_info in m:
+                    for variants in video_info:
+                        for url in variants[0]:
+                            origin = url
+                            await ctx.send(origin)
+            else:
+                origin = m["media_url"]
+                await ctx.send(origin)
+
+
+@bot.command()
+async def ma(ctx):
+    await ctx.send("https://cdn.discordapp.com/attachments/964831309627289620/982691239025598494/long_ver.___feat._0s_screenshot.png")
+
+
+# アニクトから取得したキャラクターをランダムで表示
+@bot.command()
+async def odai(ctx):
+    while 1:
+        # リスト
+        random_ids = []
+        # 10個のランダムな数を生成
+        for i in range(10):
+            random_id = random.randint(1, 41767)
+            random_ids.append(str(random_id))
+        # リストの中の要素を結合する
+        filter_ids = ",".join(random_ids)
+        # エンドポイント
+        annict_url = f"https://api.annict.com/v1/characters?access_token={ANNICT_API_KEY}&filter_ids={filter_ids}"
+        # リクエスト
+        annict_res = requests.get(annict_url)
+        # 変数
+        annict_characters = annict_res.json()["characters"]
+        # シャッフルする
+        random.shuffle(annict_characters)
+        target_character = None
+        # 配列の中を先頭から順に舐めていく
+        for annict_character in annict_characters:
+            # お気に入り数が5以上あるときループを解除する
+            if annict_character["favorite_characters_count"] > 4:
+                target_character = annict_character
+                break
+        if target_character is not None:
+            break
+
+    # 共通の要素
+    annict_character_name = target_character["name"]
+    annict_character_id = target_character["id"]
+    annict_character_fan = target_character["favorite_characters_count"]
+
+    # 送信するメッセージの変数の宣言
+    annict_character_msg = f"{annict_character_name} - ファン数{annict_character_fan}人\nhttps://annict.com/characters/{annict_character_id}"
+
+    # シリーズの記載がある場合
+    if target_character["series"] is not None:
+        annict_character_series = target_character["series"]["name"]
+        # 送信するメッセージの変数にシリーズを入れたテキストを代入
+        annict_character_msg = f"{annict_character_name}({annict_character_series}) - ファン数{annict_character_fan}人\nhttps://annict.com/characters/{annict_character_id}"
+
+    await ctx.send(annict_character_msg)
+
+
+# ピンポン
+@bot.command()
+async def ping(ctx):
+    latency = bot.latency
+    latency_milli = round(latency * 1000)
+    await ctx.send(f"Pong!: {latency_milli}ms")
+
+
+# Raika
+@bot.command()
+async def raika(ctx):
+    await ctx.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
+
+
+# サターニャを送信
+@bot.command()
+async def satanya(ctx):
+    tweets = twapi.search_tweets(q="from:@satanya_gazobot", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities["media"]
+        for m in media:
+            origin = m["media_url"]
+            await ctx.send(origin)
+
+
+# https://zenn.dev/zakiii/articles/7ada80144c9db0
+# https://qiita.com/soma_sekimoto/items/65c664f00573284b0b74
+# TwitterのIDを指定して最新の画像を送信
+@bot.command(aliases=["tw"])
+async def twitter(ctx, *, arg):
+    tweets = twapi.search_tweets(q=f"filter:images {arg}", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.extended_entities["media"]
+        for m in media:
+            origin = m["media_url"]
+            await ctx.send(origin)
+
+
 # ウマ娘ガチャシミュレーター
 @bot.command()
 async def uma(ctx):
@@ -695,14 +843,14 @@ async def uma(ctx):
         else:
             w = weights_10
         # レア度ごとに選出
-        uma_rare = [
+        uma_results_by_rarity = [
             random.choice([i for i in uma_list if i[1] == 1]),
             random.choice([i for i in uma_list if i[1] == 2]),
             random.choice([i for i in uma_list if i[1] == 3]),
             random.choice([i for i in uma_list if i[1] > 10])
         ]
         # 最終的な排出ウマ娘を決定
-        uma_result = random.choices(uma_rare, weights=w)[0]
+        uma_result = random.choices(uma_results_by_rarity, weights=w)[0]
         # レア度が3なら文字色を変える
         if uma_result[1] % 10 == 3:
             color = (214, 204, 107)
@@ -733,154 +881,6 @@ async def uma(ctx):
 
     os.remove(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png")
     os.remove(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
-
-
-@bot.command()
-async def ma(ctx):
-    await ctx.send("https://cdn.discordapp.com/attachments/964831309627289620/982691239025598494/long_ver.___feat._0s_screenshot.png")
-
-
-# ギラティナの画像を送る
-@bot.command()
-async def giratina(ctx):
-    await ctx.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
-
-
-# イキス
-@bot.command()
-async def inm(ctx):
-    await ctx.send(
-        "聖バリ「イキスギィイクイク！！！ンアッー！！！マクラがデカすぎる！！！」\n\n"
-        f"{ctx.author.name}「聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！淫夢ごっこは恥ずかしいよ！」\n\n"
-        f"聖バリ「{ctx.author.name}、おっ大丈夫か大丈夫か〜？？？バッチェ冷えてるぞ〜淫夢が大好きだってはっきりわかんだね」"
-    )
-
-
-# かおすちゃんを送信
-@bot.command()
-async def kaosu(ctx):
-    tweets = twapi.search_tweets(q="from:@kaosu_pic", tweet_mode="extended", include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.entities["media"]
-        for m in media:
-            origin = m["media_url"]
-            await ctx.send(origin)
-
-
-# こまちゃんを送信
-@bot.command()
-async def komachan(ctx):
-    tweets = twapi.search_tweets(q="from:@komachan_pic", tweet_mode="extended", include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.entities["media"]
-        for m in media:
-            origin = m["media_url"]
-            await ctx.send(origin)
-
-
-# らきすたを送信
-# https://ja.stackoverflow.com/questions/56894/twitter-api-%e3%81%a7-%e5%8b%95%e7%94%bb%e3%83%84%e3%82%a4%e3%83%bc%e3%83%88-%e3%82%921%e4%bb%b6%e5%8f%96%e5%be%97%e3%81%97%e3%81%a6html%e4%b8%8a%e3%81%a7%e8%a1%a8%e7%a4%ba%e3%81%95%e3%81%9b%e3%81%9f%e3%81%84%e3%81%ae%e3%81%a7%e3%81%99%e3%81%8c-m3u8-%e5%bd%a2%e5%bc%8f%e3%81%a8-mp4-%e5%bd%a2%e5%bc%8f%e3%81%ae%e9%96%a2%e4%bf%82%e6%80%a7%e3%81%af
-# https://syncer.jp/Web/API/Twitter/REST_API/Object/Entity/#:~:text=Filter-,%E3%83%84%E3%82%A4%E3%83%BC%E3%83%88%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88%20(%E5%8B%95%E7%94%BB),-%E5%8B%95%E7%94%BB%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%92
-@bot.command()
-async def lucky(ctx):
-    tweets = twapi.search_tweets(q="from:@LuckyStarPicBot", tweet_mode="extended", include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.extended_entities["media"]
-        for m in media:
-            if m["type"] == "video":
-                for video_info in m:
-                    for variants in video_info:
-                        for url in variants[0]:
-                            origin = url
-                            await ctx.send(origin)
-            else:
-                origin = m["media_url"]
-                await ctx.send(origin)
-
-
-# アニクトから取得したキャラクターをランダムで表示
-@bot.command()
-async def odai(ctx):
-    while 1:
-        # リスト
-        random_ids = []
-        # 10個のランダムな数を生成
-        for i in range(10):
-            random_id = random.randint(1, 41767)
-            random_ids.append(str(random_id))
-        # リストの中の要素を結合する
-        filter_ids = ",".join(random_ids)
-        # エンドポイント
-        annict_url = f"https://api.annict.com/v1/characters?access_token={ANNICT_API_KEY}&filter_ids={filter_ids}"
-        # リクエスト
-        annict_res = requests.get(annict_url)
-        # 変数
-        annict_characters = annict_res.json()["characters"]
-        # シャッフルする
-        random.shuffle(annict_characters)
-        target_character = None
-        # 配列の中を先頭から順に舐めていく
-        for annict_character in annict_characters:
-            # お気に入り数が5以上あるときループを解除する
-            if annict_character["favorite_characters_count"] > 4:
-                target_character = annict_character
-                break
-        if target_character is not None:
-            break
-
-    # 共通の要素
-    annict_character_name = target_character["name"]
-    annict_character_id = target_character["id"]
-    annict_character_fan = target_character["favorite_characters_count"]
-
-    # 送信するメッセージの変数の宣言
-    annict_character_msg = f"{annict_character_name} - ファン数{annict_character_fan}人\nhttps://annict.com/characters/{annict_character_id}"
-
-    # シリーズの記載がある場合
-    if target_character["series"] is not None:
-        annict_character_series = target_character["series"]["name"]
-        # 送信するメッセージの変数にシリーズを入れたテキストを代入
-        annict_character_msg = f"{annict_character_name}({annict_character_series}) - ファン数{annict_character_fan}人\nhttps://annict.com/characters/{annict_character_id}"
-
-    await ctx.send(annict_character_msg)
-
-
-# ピンポン
-@bot.command()
-async def ping(ctx):
-    latency = bot.latency
-    latency_milli = round(latency * 1000)
-    await ctx.send(f"Pong!: {latency_milli}ms")
-
-
-# Raika
-@bot.command()
-async def raika(ctx):
-    await ctx.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
-
-
-# サターニャを送信
-@bot.command()
-async def satanya(ctx):
-    tweets = twapi.search_tweets(q="from:@satanya_gazobot", tweet_mode="extended", include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.entities["media"]
-        for m in media:
-            origin = m["media_url"]
-            await ctx.send(origin)
-
-
-# https://zenn.dev/zakiii/articles/7ada80144c9db0
-# https://qiita.com/soma_sekimoto/items/65c664f00573284b0b74
-# TwitterのIDを指定して最新の画像を送信
-@bot.command(aliases=["tw"])
-async def twitter(ctx, *, arg):
-    tweets = twapi.search_tweets(q=f"filter:images {arg}", tweet_mode="extended", include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.extended_entities["media"]
-        for m in media:
-            origin = m["media_url"]
-            await ctx.send(origin)
 
 
 # ゆるゆりを送信
