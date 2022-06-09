@@ -719,17 +719,17 @@ async def uma(ctx):
         # テキストを描画(ウマ娘名称)
         draw.text((40, 12 + margin * (i % 5)), uma_result[0], color, font=font)
 
-        # 5連ごとに画像を書き出し送信
+        # 5連ごとに画像を書き出し
         if i == 4:
             img.save(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png")
         if i == 9:
             img.save(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
 
-    uma_gacha_image = [
+    uma_gacha_images = [
         discord.File(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png"),
         discord.File(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
     ]
-    await ctx.send(file=uma_gacha_image)
+    await ctx.send(files=uma_gacha_images)
 
     os.remove(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png")
     os.remove(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
