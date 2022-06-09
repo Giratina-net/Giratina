@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import datetime
+import glob
 import os
 import random
 import typing
@@ -583,10 +584,32 @@ async def falco(ctx):
     await ctx.channel.send(content)
 
 
+# Twitterから#GenshinImpactの1000いいね以上を探して送信
+@bot.command(aliases=["gennshinn", "gensin", "gennsinn", "gs"])
+async def genshin(ctx):
+    tweets = twapi.search_tweets(q=f"filter:images min_faves:1000 #GenshinImpact", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.extended_entities["media"]
+        for m in media:
+            origin = m["media_url"]
+            await ctx.send(origin)
+
+
 # ギラティナの画像を送る
 @bot.command()
 async def giratina(ctx):
     await ctx.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
+
+
+# Twitterから#胡桃の1000いいね以上を探して送信
+@bot.command(aliases=["kisshutao"])
+async def hutao(ctx):
+    tweets = twapi.search_tweets(q=f"filter:images min_faves:1000 #胡桃", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.extended_entities["media"]
+        for m in media:
+            origin = m["media_url"]
+            await ctx.send(origin)
 
 
 # イキス
@@ -713,28 +736,6 @@ async def satanya(ctx):
     tweets = twapi.search_tweets(q="from:@satanya_gazobot", tweet_mode="extended", include_entities=True, count=1)
     for tweet in tweets:
         media = tweet.entities["media"]
-        for m in media:
-            origin = m["media_url"]
-            await ctx.send(origin)
-
-
-# Twitterから#GenshinImpactの1000いいね以上を探して送信
-@bot.command(aliases=["gennshinn","gensin","gennsinn","gs"])
-async def genshin(ctx):
-    tweets = twapi.search_tweets(q=f"filter:images min_faves:1000 #GenshinImpact", tweet_mode="extended", include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.extended_entities["media"]
-        for m in media:
-            origin = m["media_url"]
-            await ctx.send(origin)
-
-
-# Twitterから#胡桃の1000いいね以上を探して送信
-@bot.command(aliases=["kisshutao"])
-async def hutao(ctx):
-    tweets = twapi.search_tweets(q=f"filter:images min_faves:1000 #胡桃", tweet_mode="extended", include_entities=True, count=1)
-    for tweet in tweets:
-        media = tweet.extended_entities["media"]
         for m in media:
             origin = m["media_url"]
             await ctx.send(origin)
@@ -890,19 +891,20 @@ async def uma(ctx):
         draw.text((40, 12 + margin * (i % 5)), uma_result[0], color, font=font)
 
         # 5連ごとに画像を書き出し
-        if i == 4:
-            img.save(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png")
-        if i == 9:
-            img.save(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
+        if i % 5 == 4:
+            img.save(f"resources/temporally/uma_gacha_{ctx.channel.id}_{int(i / 5) + 1}.png")
 
-    uma_gacha_images = [
-        discord.File(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png"),
-        discord.File(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
-    ]
+    uma_gacha_images = []
+    get_uma_gacha_images = glob.glob(f"resources/temporally/uma_gacha_{ctx.channel.id}_*.png")
+
+    for file in get_uma_gacha_images:
+        uma_gacha_images.append(discord.File(file))
+
     await ctx.send(files=uma_gacha_images)
 
-    os.remove(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png")
-    os.remove(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
+    for file in get_uma_gacha_images:
+        if os.path.isfile(file):
+            os.remove(file)
 
 
 # ゆるゆりを送信
