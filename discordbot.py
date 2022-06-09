@@ -586,7 +586,7 @@ async def falco(ctx):
 # ウマ娘ガチャシミュレーター
 @bot.command()
 async def uma(ctx):
-    umamusume = [
+    uma_list = [
         # [ウマ娘の名称, レア度(ピックアップは+10)]
         ["[スペシャルドリーマー]スペシャルウィーク", 3],
         ["[サイレントイノセンス]サイレンススズカ", 3],
@@ -681,7 +681,7 @@ async def uma(ctx):
     width = 400
     height = 222
     # 項目の間隔
-    kankaku = 46
+    margin = 46
     # 画像の背景色
     bg = (54, 57, 63)
     # 画像の初期化
@@ -696,10 +696,10 @@ async def uma(ctx):
             w = weights_10
         # レア度ごとに選出
         uma_rare = [
-            random.choice([i for i in umamusume if i[1] == 1]),
-            random.choice([i for i in umamusume if i[1] == 2]),
-            random.choice([i for i in umamusume if i[1] == 3]),
-            random.choice([i for i in umamusume if i[1] > 10])
+            random.choice([i for i in uma_list if i[1] == 1]),
+            random.choice([i for i in uma_list if i[1] == 2]),
+            random.choice([i for i in uma_list if i[1] == 3]),
+            random.choice([i for i in uma_list if i[1] > 10])
         ]
         # 最終的な排出ウマ娘を決定
         uma_result = random.choices(uma_rare, weights=w)[0]
@@ -712,17 +712,27 @@ async def uma(ctx):
         if i == 5:
             draw.rectangle((0, 0, width, height), fill=bg)
         # アイコン画像をuma_iconフォルダから読み込み&貼り付け(URLから読み込むと遅かった)
-        uma_image = Image.open(f"resources/uma_icon/i_{umamusume.index(uma_result) + 1}.png")
-        img.paste(uma_image, (0, kankaku * (i % 5)))
+        uma_image = Image.open(f"resources/uma_icon/i_{uma_list.index(uma_result) + 1}.png")
+        img.paste(uma_image, (0, margin * (i % 5)))
         # テキストを描画(星マーク)
-        draw.text((40, -4 + kankaku * (i % 5)), "★" * (uma_result[1] % 10) + "　" * (3 - uma_result[1] % 10), color, font=font)
+        draw.text((40, -4 + margin * (i % 5)), "★" * (uma_result[1] % 10) + "　" * (3 - uma_result[1] % 10), color, font=font)
         # テキストを描画(ウマ娘名称)
-        draw.text((40, 12 + kankaku * (i % 5)), uma_result[0], color, font=font)
+        draw.text((40, 12 + margin * (i % 5)), uma_result[0], color, font=font)
+
         # 5連ごとに画像を書き出し送信
-        if i == 4 or i == 9:
-            img.save("resources/temporally/uma_gacha.png")
-            await ctx.send(file=discord.File("resources/temporally/uma_gacha.png"))
-            os.remove("resources/temporally/uma_gacha.png")
+        if i == 4:
+            img.save(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png")
+        if i == 9:
+            img.save(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
+
+    uma_gacha_image = [
+        discord.File(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png"),
+        discord.File(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
+    ]
+    await ctx.send(file=uma_gacha_image)
+
+    os.remove(f"resources/temporally/uma_gacha_{ctx.channel.id}_1.png")
+    os.remove(f"resources/temporally/uma_gacha_{ctx.channel.id}_2.png")
 
 
 @bot.command()
