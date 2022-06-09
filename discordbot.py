@@ -718,6 +718,28 @@ async def satanya(ctx):
             await ctx.send(origin)
 
 
+# Twitterから#GenshinImpactの1000いいね以上を探して送信
+@bot.command(aliases=["gennshinn","gensin","gennsinn","gs"])
+async def genshin(ctx):
+    tweets = twapi.search_tweets(q=f"filter:images min_faves:1000 #GenshinImpact", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.extended_entities["media"]
+        for m in media:
+            origin = m["media_url"]
+            await ctx.send(origin)
+
+
+# Twitterから#胡桃の1000いいね以上を探して送信
+@bot.command(aliases=["kisshutao"])
+async def hutao(ctx):
+    tweets = twapi.search_tweets(q=f"filter:images min_faves:1000 #胡桃", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.extended_entities["media"]
+        for m in media:
+            origin = m["media_url"]
+            await ctx.send(origin)
+
+
 # https://zenn.dev/zakiii/articles/7ada80144c9db0
 # https://qiita.com/soma_sekimoto/items/65c664f00573284b0b74
 # TwitterのIDを指定して最新の画像を送信
