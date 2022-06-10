@@ -204,10 +204,6 @@ class Music(commands.Cog):
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
-            return
 
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
