@@ -618,6 +618,14 @@ async def inm(ctx):
     )
 
 
+# マノム
+@bot.command(aliases=["mano"])
+async def manomu(ctx):
+    await ctx.send(
+        "家で飼ってるピーちゃんを\n　　　　使ったお料理も好きです。\n\n　　　　　あ　ら　ま\n\n動物性たんぱくパク　たべるルル\n\n　　　　＼内臓もっと／\n\n頂戴な　　　　　　　　　頂戴な\nねぇ　　　　　　　　　　　ねぇ\n\n　　灯織ちゃんもおいでって"
+    )
+
+
 # かおすちゃんを送信
 @bot.command()
 async def kaosu(ctx):
