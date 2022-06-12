@@ -25,6 +25,9 @@
 [@komachan_pic](https://twitter.com/komachan_pic)から最新の画像を貼ります。
 ### !lucky
 [@LuckyStarPicBot](https://twitter.com/LuckyStarPicBot)から最新の画像を貼ります。
+### !manomu(mano)
+家で飼ってるピーちゃんを使ったお料理も好きです。
+
 ### !odai
 絵のお題を出してくれます。  
 [Annict](https://annict.com)のデータベースからお気に入りが5人以上いるキャラクターをランダムで表示します。
