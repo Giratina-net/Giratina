@@ -4,6 +4,7 @@ import datetime
 import glob
 import os
 import random
+import time
 import typing
 from os import getenv
 
@@ -68,8 +69,6 @@ ytdl = yt_dlp.YoutubeDL(YTDL_FORMAT_OPTIONS)
 SEIBARI_GUILD_ID = 889049222152871986
 # 検索欄のチャンネルID
 TWITTER_SEARCH_CHANNEL_ID = 974430034691498034
-# ギラティナのチャンネルID
-GIRATINA_CHANNEL_ID = 940610524415144036
 # mp3tomp4のチャンネルID
 WIP_CHANNEL_ID = 940966825087361025
 # ファル子☆おもしろ画像集のチャンネルID
@@ -347,10 +346,11 @@ class YTDLSource(discord.PCMVolumeTransformer):
 @bot.event
 async def on_ready():
     now_time = datetime.datetime.utcnow() + datetime.timedelta(hours=9)
-    await bot.change_presence(activity=discord.Game(name=now_time.strftime("%Y/%m/%d %H:%M:%S")))
+    await bot.change_presence(activity=discord.Game(name="ギラティナ、オォン！"))
 
-    channel = bot.get_channel(GIRATINA_CHANNEL_ID)
-    await channel.send("ギラティナ、オォン！")
+    time.sleep(5)
+
+    await bot.change_presence(activity=discord.Game(name=f'{now_time.strftime("%Y/%m/%d %H:%M:%S")} - オォン'))
 
 
 # メッセージ送信時に実行される関数
@@ -535,7 +535,7 @@ async def anime(ctx):
     annict_works_season_name_text = annict_works["season_name_text"]
     annict_works_episodes_count = annict_works["episodes_count"]
     annict_works_images_recommended_url = annict_works["images"]["recommended_url"]
-    await ctx.send(f"{annict_works_title}({annict_works_season_name_text}-{annict_works_episodes_count}話)\nhttps://annict.com/works/{random_id}")
+    await ctx.channel.send(f"{annict_works_title}({annict_works_season_name_text}-{annict_works_episodes_count}話)\nhttps://annict.com/works/{random_id}")
 
 
 # bokuseku.mp3 流し逃げ - https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
@@ -556,7 +556,7 @@ async def bokuseku(ctx):
 # チーバくんの、なのはな体操
 @bot.command()
 async def chiibakun(ctx):
-    await ctx.send("https://www.youtube.com/watch?v=dC0eie-WQss")
+    await ctx.channel.send("https://www.youtube.com/watch?v=dC0eie-WQss")
 
 
 # ファルコおもしろ画像を送信
@@ -567,14 +567,10 @@ async def falco(ctx):
     channel = guild.get_channel(FALCON_CHANNEL_ID)
 
     falco_channel_messages = [message async for message in channel.history(limit=None)]
-    # falco_channel_messages = await channel.messages.fetch({ limit: 100 })
 
     random_falco = random.choice(falco_channel_messages)
 
-    # print(random_falco)
-    content = random_falco.content
-    if content == "":
-        content = random_falco.attachments[0].url
+    content = random_falco.attachments[0].url if random_falco.content == "" else random_falco.content
 
     # メッセージが送られてきたチャンネルに送る
     await ctx.channel.send(content)
@@ -588,13 +584,13 @@ async def genshin(ctx):
         media = tweet.extended_entities["media"]
         for m in media:
             origin = m["media_url"]
-            await ctx.send(origin)
+            await ctx.channel.send(origin)
 
 
 # ギラティナの画像を送る
 @bot.command()
 async def giratina(ctx):
-    await ctx.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
+    await ctx.channel.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
 
 
 # Twitterから#胡桃の1000いいね以上を探して送信
@@ -605,13 +601,13 @@ async def hutao(ctx):
         media = tweet.extended_entities["media"]
         for m in media:
             origin = m["media_url"]
-            await ctx.send(origin)
+            await ctx.channel.send(origin)
 
 
 # イキス
 @bot.command()
 async def inm(ctx):
-    await ctx.send(
+    await ctx.channel.send(
         "聖バリ「イキスギィイクイク！！！ンアッー！！！マクラがデカすぎる！！！」\n\n"
         f"{ctx.author.name}「聖なるバリア －ミラーフォース－、淫夢はもうやめてよ！淫夢ごっこは恥ずかしいよ！」\n\n"
         f"聖バリ「{ctx.author.name}、おっ大丈夫か大丈夫か〜？？？バッチェ冷えてるぞ〜淫夢が大好きだってはっきりわかんだね」"
@@ -621,8 +617,15 @@ async def inm(ctx):
 # マノム
 @bot.command(aliases=["mano"])
 async def manomu(ctx):
-    await ctx.send(
-        "家で飼ってるピーちゃんを\n　　　　使ったお料理も好きです。\n\n　　　　　あ　ら　ま\n\n動物性たんぱくパク　たべるルル\n\n　　　　＼内臓もっと／\n\n頂戴な　　　　　　　　　頂戴な\nねぇ　　　　　　　　　　　ねぇ\n\n　　灯織ちゃんもおいでって"
+    await ctx.channel.send(
+        "家で飼ってるピーちゃんを\n" +
+        "　　　　使ったお料理も好きです。\n\n" +
+        "　　　　　あ　ら　ま\n\n" +
+        "動物性たんぱくパク　たべるルル\n\n" +
+        "　　　　＼内臓もっと／\n\n" +
+        "頂戴な　　　　　　　　　頂戴な\n" +
+        "ねぇ　　　　　　　　　　　ねぇ\n\n" +
+        "　　灯織ちゃんもおいでって"
     )
 
 
@@ -634,7 +637,7 @@ async def kaosu(ctx):
         media = tweet.entities["media"]
         for m in media:
             origin = m["media_url"]
-            await ctx.send(origin)
+            await ctx.channel.send(origin)
 
 
 # こまちゃんを送信
@@ -645,7 +648,7 @@ async def komachan(ctx):
         media = tweet.entities["media"]
         for m in media:
             origin = m["media_url"]
-            await ctx.send(origin)
+            await ctx.channel.send(origin)
 
 
 # らきすたを送信
@@ -662,15 +665,15 @@ async def lucky(ctx):
                     for variants in video_info:
                         for url in variants[0]:
                             origin = url
-                            await ctx.send(origin)
+                            await ctx.channel.send(origin)
             else:
                 origin = m["media_url"]
-                await ctx.send(origin)
+                await ctx.channel.send(origin)
 
 
 @bot.command()
 async def ma(ctx):
-    await ctx.send("https://cdn.discordapp.com/attachments/964831309627289620/982691239025598494/long_ver.___feat._0s_screenshot.png")
+    await ctx.channel.send("https://cdn.discordapp.com/attachments/964831309627289620/982691239025598494/long_ver.___feat._0s_screenshot.png")
 
 
 # アニクトから取得したキャラクターをランダムで表示
@@ -717,7 +720,7 @@ async def odai(ctx):
         # 送信するメッセージの変数にシリーズを入れたテキストを代入
         annict_character_msg = f"{annict_character_name}({annict_character_series}) - ファン数{annict_character_fan}人\nhttps://annict.com/characters/{annict_character_id}"
 
-    await ctx.send(annict_character_msg)
+    await ctx.channel.send(annict_character_msg)
 
 
 # ピンポン
@@ -725,13 +728,13 @@ async def odai(ctx):
 async def ping(ctx):
     latency = bot.latency
     latency_milli = round(latency * 1000)
-    await ctx.send(f"Pong!: {latency_milli}ms")
+    await ctx.channel.send(f"Pong!: {latency_milli}ms")
 
 
 # Raika
 @bot.command()
 async def raika(ctx):
-    await ctx.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
+    await ctx.channel.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
 
 
 # サターニャを送信
@@ -742,7 +745,7 @@ async def satanya(ctx):
         media = tweet.entities["media"]
         for m in media:
             origin = m["media_url"]
-            await ctx.send(origin)
+            await ctx.channel.send(origin)
 
 
 # https://zenn.dev/zakiii/articles/7ada80144c9db0
@@ -755,7 +758,7 @@ async def twitter(ctx, *, arg):
         media = tweet.extended_entities["media"]
         for m in media:
             origin = m["media_url"]
-            await ctx.send(origin)
+            await ctx.channel.send(origin)
 
 
 # ウマ娘ガチャシミュレーター
@@ -859,7 +862,7 @@ async def uma(ctx):
     width = 400
     height = 222
     # 項目の間隔
-    margin = 46
+    margin = 45
     # 画像の背景色
     bg = (54, 57, 63)
     # 画像の初期化
@@ -868,10 +871,8 @@ async def uma(ctx):
     font = ImageFont.truetype(".fonts/meiryo.ttf", 16)
 
     for i in range(10):
-        if i < 9:
-            w = weights
-        else:
-            w = weights_10
+        w = weights if i < 9 else weights_10
+
         # レア度ごとに選出
         uma_results_by_rarity = [
             random.choice([i for i in uma_list if i[1] == 1]),
@@ -879,23 +880,25 @@ async def uma(ctx):
             random.choice([i for i in uma_list if i[1] == 3]),
             random.choice([i for i in uma_list if i[1] > 10])
         ]
+
         # 最終的な排出ウマ娘を決定
         uma_result = random.choices(uma_results_by_rarity, weights=w)[0]
+
         # レア度が3なら文字色を変える
-        if uma_result[1] % 10 == 3:
-            color = (214, 204, 107)
-        else:
-            color = (255, 255, 255)
+        color = (214, 204, 107) if uma_result[1] % 10 == 3 else (255, 255, 255)
+
         # 原寸で表示される最大の画像サイズが400x300(10連だと見切れる)なので5連ずつ2枚の画像に分ける
         if i == 5:
             draw.rectangle((0, 0, width, height), fill=bg)
+
         # アイコン画像をuma_iconフォルダから読み込み&貼り付け(URLから読み込むと遅かった)
         uma_image = Image.open(f"resources/uma_icon/i_{uma_list.index(uma_result) + 1}.png")
-        img.paste(uma_image, (0, margin * (i % 5)))
+        img.paste(uma_image, (3, margin * (i % 5) + 5))
+
         # テキストを描画(星マーク)
-        draw.text((40, -4 + margin * (i % 5)), "★" * (uma_result[1] % 10) + "　" * (3 - uma_result[1] % 10), color, font=font)
+        draw.text((40, margin * (i % 5)), "★" * (uma_result[1] % 10), color, font=font)
         # テキストを描画(ウマ娘名称)
-        draw.text((40, 12 + margin * (i % 5)), uma_result[0], color, font=font)
+        draw.text((40, 15 + margin * (i % 5)), uma_result[0], color, font=font)
 
         # 5連ごとに画像を書き出し
         if i % 5 == 4:
@@ -907,7 +910,7 @@ async def uma(ctx):
     for file in get_uma_gacha_images:
         uma_gacha_images.append(discord.File(file))
 
-    await ctx.send(files=uma_gacha_images)
+    await ctx.channel.send(files=uma_gacha_images)
 
     for file in get_uma_gacha_images:
         if os.path.isfile(file):
@@ -922,7 +925,7 @@ async def yuruyuri(ctx):
         media = tweet.entities["media"]
         for m in media:
             origin = m["media_url"]
-            await ctx.send(origin)
+            await ctx.channel.send(origin)
 
 
 bot.add_cog(Music(bot_arg=bot))
