@@ -658,17 +658,23 @@ async def komachan(ctx):
 async def lucky(ctx):
     tweets = twapi.search_tweets(q="from:@LuckyStarPicBot", tweet_mode="extended", include_entities=True, count=1)
     for tweet in tweets:
-        media = tweet.extended_entities["media"]
+        media = tweet.entities["media"]
         for m in media:
-            if m["type"] == "video":
-                for video_info in m:
-                    for variants in video_info:
-                        for url in variants[0]:
-                            origin = url
-                            await ctx.channel.send(origin)
-            else:
-                origin = m["media_url"]
-                await ctx.channel.send(origin)
+            origin = m["media_url"]
+            await ctx.channel.send(origin)
+
+#    for tweet in tweets:
+#        media = tweet.extended_entities["media"]
+#        for m in media:
+#            if m["type"] == "video":
+#                for video_info in m:
+#                    for variants in video_info:
+#                        for url in variants[0]:
+#                            origin = url
+#                            await ctx.channel.send(origin)
+#            else:
+#                origin = m["media_url"]
+#                await ctx.channel.send(origin)
 
 
 @bot.command()
