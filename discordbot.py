@@ -680,12 +680,8 @@ async def ma(ctx):
 @bot.command()
 async def odai(ctx):
     while 1:
-        # リスト
-        random_ids = []
         # 10個のランダムな数を生成
-        for i in range(10):
-            random_id = random.randint(1, 41767)
-            random_ids.append(str(random_id))
+        random_ids = [str(random.randint(1, 41767)) for _ in range(10)]
         # リストの中の要素を結合する
         filter_ids = ",".join(random_ids)
         # エンドポイント
@@ -764,7 +760,7 @@ async def twitter(ctx, *, arg):
 # ウマ娘ガチャシミュレーター
 @bot.command()
 async def uma(ctx):
-    uma_list = [
+    uma_gacha_lists = [
         # [ウマ娘の名称, レア度(ピックアップは+10)]
         # ガチャ詳細サイト
         # https://umamusume.cygames.jp/#/gacha
@@ -874,45 +870,42 @@ async def uma(ctx):
         w = weights if i < 9 else weights_10
 
         # レア度ごとに選出
-        uma_results_by_rarity = [
-            random.choice([i for i in uma_list if i[1] == 1]),
-            random.choice([i for i in uma_list if i[1] == 2]),
-            random.choice([i for i in uma_list if i[1] == 3]),
-            random.choice([i for i in uma_list if i[1] > 10])
+        uma_gacha_results_by_rarity = [
+            random.choice([i for i in uma_gacha_lists if i[1] == 1]),
+            random.choice([i for i in uma_gacha_lists if i[1] == 2]),
+            random.choice([i for i in uma_gacha_lists if i[1] == 3]),
+            random.choice([i for i in uma_gacha_lists if i[1] > 10])
         ]
 
         # 最終的な排出ウマ娘を決定
-        uma_result = random.choices(uma_results_by_rarity, weights=w)[0]
+        uma_gacha_result = random.choices(uma_gacha_results_by_rarity, weights=w)[0]
 
         # レア度が3なら文字色を変える
-        color = (214, 204, 107) if uma_result[1] % 10 == 3 else (255, 255, 255)
+        color = (214, 204, 107) if uma_gacha_result[1] % 10 == 3 else (255, 255, 255)
 
         # 原寸で表示される最大の画像サイズが400x300(10連だと見切れる)なので5連ずつ2枚の画像に分ける
-        if i == 5:
+        if i % 5 == 0:
             draw.rectangle((0, 0, width, height), fill=bg)
 
         # アイコン画像をuma_iconフォルダから読み込み&貼り付け(URLから読み込むと遅かった)
-        uma_image = Image.open(f"resources/uma_icon/i_{uma_list.index(uma_result) + 1}.png")
+        uma_image = Image.open(f"resources/uma_icon/i_{uma_gacha_lists.index(uma_gacha_result) + 1}.png")
         img.paste(uma_image, (3, margin * (i % 5) + 5))
 
         # テキストを描画(星マーク)
-        draw.text((40, margin * (i % 5)), "★" * (uma_result[1] % 10), color, font=font)
+        draw.text((40, margin * (i % 5)), "★" * (uma_gacha_result[1] % 10), color, font=font)
         # テキストを描画(ウマ娘名称)
-        draw.text((40, 15 + margin * (i % 5)), uma_result[0], color, font=font)
+        draw.text((40, margin * (i % 5) + 15), uma_gacha_result[0], color, font=font)
 
         # 5連ごとに画像を書き出し
         if i % 5 == 4:
             img.save(f"resources/temporally/uma_gacha_{ctx.channel.id}_{int(i / 5) + 1}.png")
 
-    uma_gacha_images = []
-    get_uma_gacha_images = glob.glob(f"resources/temporally/uma_gacha_{ctx.channel.id}_*.png")
+    glob_uma_gacha_result_images = glob.glob(f"resources/temporally/uma_gacha_{ctx.channel.id}_*.png")
 
-    for file in get_uma_gacha_images:
-        uma_gacha_images.append(discord.File(file))
+    uma_gacha_result_images = list(map(lambda n: discord.File(n), glob_uma_gacha_result_images))
+    await ctx.channel.send(files=uma_gacha_result_images)
 
-    await ctx.channel.send(files=uma_gacha_images)
-
-    for file in get_uma_gacha_images:
+    for file in glob_uma_gacha_result_images:
         if os.path.isfile(file):
             os.remove(file)
 
