@@ -663,6 +663,7 @@ async def lucky(ctx):
             origin = m["media_url"]
             await ctx.channel.send(origin)
 
+# 動画も取得して送信できるようにしたかったけど、うまくいってません
 #    for tweet in tweets:
 #        media = tweet.extended_entities["media"]
 #        for m in media:
