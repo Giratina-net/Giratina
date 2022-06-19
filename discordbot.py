@@ -72,7 +72,9 @@ TWITTER_SEARCH_CHANNEL_ID = 974430034691498034
 # mp3tomp4のチャンネルID
 WIP_CHANNEL_ID = 940966825087361025
 # ファル子☆おもしろ画像集のチャンネルID
-FALCON_CHANNEL_ID = 955809774849646603
+FALCO_CHANNEL_ID = 955809774849646603
+# まちカドたんほいざのチャンネルID
+MACHITAN_CHANNEL_ID = 987930969040355361
 # あるくおすしのユーザーID
 WALKINGSUSHIBOX_USER_ID = 575588255647399958
 # 野獣先輩のユーザーID
@@ -564,13 +566,30 @@ async def chiibakun(ctx):
 async def falco(ctx):
     guild = bot.get_guild(SEIBARI_GUILD_ID)
 
-    channel = guild.get_channel(FALCON_CHANNEL_ID)
+    channel = guild.get_channel(FALCO_CHANNEL_ID)
 
     falco_channel_messages = [message async for message in channel.history(limit=None)]
 
     random_falco = random.choice(falco_channel_messages)
 
     content = random_falco.attachments[0].url if random_falco.content == "" else random_falco.content
+
+    # メッセージが送られてきたチャンネルに送る
+    await ctx.channel.send(content)
+
+
+    # マチカネタンホイザの画像を送信
+@bot.command(aliases=["matitan", "matikanetanhoiza"])
+async def machitan(ctx):
+    guild = bot.get_guild(SEIBARI_GUILD_ID)
+
+    channel = guild.get_channel(MACHITAN_CHANNEL_ID)
+
+    machitan_channel_messages = [message async for message in channel.history(limit=None)]
+
+    random_machitan = random.choice(machitan_channel_messages)
+
+    content = random_machitan.attachments[0].url if random_machitan.content == "" else random_machitan.content
 
     # メッセージが送られてきたチャンネルに送る
     await ctx.channel.send(content)
