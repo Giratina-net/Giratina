@@ -578,23 +578,6 @@ async def falco(ctx):
     await ctx.channel.send(content)
 
 
-    # マチカネタンホイザの画像を送信
-@bot.command(aliases=["matitan", "matikanetanhoiza"])
-async def machitan(ctx):
-    guild = bot.get_guild(SEIBARI_GUILD_ID)
-
-    channel = guild.get_channel(MACHITAN_CHANNEL_ID)
-
-    machitan_channel_messages = [message async for message in channel.history(limit=None)]
-
-    random_machitan = random.choice(machitan_channel_messages)
-
-    content = random_machitan.attachments[0].url if random_machitan.content == "" else random_machitan.content
-
-    # メッセージが送られてきたチャンネルに送る
-    await ctx.channel.send(content)
-
-
 # Twitterから#GenshinImpactの1000いいね以上を探して送信
 @bot.command(aliases=["gennshinn", "gensin", "gennsinn", "gs"])
 async def genshin(ctx):
@@ -633,21 +616,6 @@ async def inm(ctx):
     )
 
 
-# マノム
-@bot.command(aliases=["mano"])
-async def manomu(ctx):
-    await ctx.channel.send(
-        "家で飼ってるピーちゃんを\n" +
-        "　　　　使ったお料理も好きです。\n\n" +
-        "　　　　　あ　ら　ま\n\n" +
-        "動物性たんぱくパク　たべるルル\n\n" +
-        "　　　　＼内臓もっと／\n\n" +
-        "頂戴な　　　　　　　　　頂戴な\n" +
-        "ねぇ　　　　　　　　　　　ねぇ\n\n" +
-        "　　灯織ちゃんもおいでって"
-    )
-
-
 # かおすちゃんを送信
 @bot.command()
 async def kaosu(ctx):
@@ -682,6 +650,7 @@ async def lucky(ctx):
             origin = m["media_url"]
             await ctx.channel.send(origin)
 
+
 # 動画も取得して送信できるようにしたかったけど、うまくいってません
 #    for tweet in tweets:
 #        media = tweet.extended_entities["media"]
@@ -700,6 +669,38 @@ async def lucky(ctx):
 @bot.command()
 async def ma(ctx):
     await ctx.channel.send("https://cdn.discordapp.com/attachments/964831309627289620/982691239025598494/long_ver.___feat._0s_screenshot.png")
+
+
+# マチカネタンホイザの画像を送信
+@bot.command(aliases=["matitan", "matikanetanhoiza"])
+async def machitan(ctx):
+    guild = bot.get_guild(SEIBARI_GUILD_ID)
+
+    channel = guild.get_channel(MACHITAN_CHANNEL_ID)
+
+    machitan_channel_messages = [message async for message in channel.history(limit=None)]
+
+    random_machitan = random.choice(machitan_channel_messages)
+
+    content = random_machitan.attachments[0].url if random_machitan.content == "" else random_machitan.content
+
+    # メッセージが送られてきたチャンネルに送る
+    await ctx.channel.send(content)
+
+
+# マノム
+@bot.command(aliases=["mano"])
+async def manomu(ctx):
+    await ctx.channel.send(
+        "家で飼ってるピーちゃんを\n" +
+        "　　　　使ったお料理も好きです。\n\n" +
+        "　　　　　あ　ら　ま\n\n" +
+        "動物性たんぱくパク　たべるルル\n\n" +
+        "　　　　＼内臓もっと／\n\n" +
+        "頂戴な　　　　　　　　　頂戴な\n" +
+        "ねぇ　　　　　　　　　　　ねぇ\n\n" +
+        "　　灯織ちゃんもおいでって"
+    )
 
 
 # アニクトから取得したキャラクターをランダムで表示
