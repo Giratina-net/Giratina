@@ -650,20 +650,19 @@ async def lucky(ctx):
             origin = m["media_url"]
             await ctx.channel.send(origin)
 
-
-# 動画も取得して送信できるようにしたかったけど、うまくいってません
-#    for tweet in tweets:
-#        media = tweet.extended_entities["media"]
-#        for m in media:
-#            if m["type"] == "video":
-#                for video_info in m:
-#                    for variants in video_info:
-#                        for url in variants[0]:
-#                            origin = url
-#                            await ctx.channel.send(origin)
-#            else:
-#                origin = m["media_url"]
-#                await ctx.channel.send(origin)
+    # 動画も取得して送信できるようにしたかったけど、うまくいってません
+    # for tweet in tweets:
+    #     media = tweet.extended_entities["media"]
+    #     for m in media:
+    #         if m["type"] == "video":
+    #             for video_info in m:
+    #                 for variants in video_info:
+    #                     for url in variants[0]:
+    #                         origin = url
+    #                         await ctx.channel.send(origin)
+    #         else:
+    #             origin = m["media_url"]
+    #             await ctx.channel.send(origin)
 
 
 @bot.command()
@@ -719,14 +718,11 @@ async def odai(ctx):
         annict_characters = annict_res.json()["characters"]
         # シャッフルする
         random.shuffle(annict_characters)
-        target_character = None
-        # 配列の中を先頭から順に舐めていく
-        for annict_character in annict_characters:
-            # お気に入り数が5以上あるときループを解除する
-            if annict_character["favorite_characters_count"] > 4:
-                target_character = annict_character
-                break
-        if target_character is not None:
+        # お気に入り数が5以上の要素のみ抽出
+        annict_characters_favorite_count = list(filter(lambda e: e["favorite_characters_count"] > 4, annict_characters))
+        # 要素が0個では無い場合にループを解除
+        if len(annict_characters_favorite_count) > 0:
+            target_character = annict_characters_favorite_count[0]
             break
 
     # 共通の要素
@@ -910,10 +906,10 @@ async def uma(ctx):
 
         # レア度ごとに選出
         uma_gacha_results_by_rarity = [
-            random.choice([i for i in uma_gacha_lists if i[1] == 1]),
-            random.choice([i for i in uma_gacha_lists if i[1] == 2]),
-            random.choice([i for i in uma_gacha_lists if i[1] == 3]),
-            random.choice([i for i in uma_gacha_lists if i[1] > 10])
+            random.choice(list(filter(lambda e: e[1] == 1, uma_gacha_lists))),
+            random.choice(list(filter(lambda e: e[1] == 2, uma_gacha_lists))),
+            random.choice(list(filter(lambda e: e[1] == 3, uma_gacha_lists))),
+            random.choice(list(filter(lambda e: e[1] > 10, uma_gacha_lists)))
         ]
 
         # 最終的な排出ウマ娘を決定
@@ -941,7 +937,7 @@ async def uma(ctx):
 
     glob_uma_gacha_result_images = glob.glob(f"resources/temporally/uma_gacha_{ctx.channel.id}_*.png")
 
-    uma_gacha_result_images = list(map(lambda n: discord.File(n), glob_uma_gacha_result_images))
+    uma_gacha_result_images = list(map(lambda e: discord.File(e), glob_uma_gacha_result_images))
     await ctx.channel.send(files=uma_gacha_result_images)
 
     for file in glob_uma_gacha_result_images:
