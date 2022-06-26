@@ -771,6 +771,17 @@ async def satanya(ctx):
             await ctx.channel.send(origin)
 
 
+# おすしを送信
+@bot.command(aliases=["osushi"])
+async def sushi(ctx):
+    tweets = twapi.search_tweets(q="from:@kasakioiba", tweet_mode="extended", include_entities=True, count=1)
+    for tweet in tweets:
+        media = tweet.entities["media"]
+        for m in media:
+            origin = m["media_url"]
+            await ctx.channel.send(origin)
+
+
 # https://zenn.dev/zakiii/articles/7ada80144c9db0
 # https://qiita.com/soma_sekimoto/items/65c664f00573284b0b74
 # TwitterのIDを指定して最新の画像を送信
