@@ -67,6 +67,9 @@ ytdl = yt_dlp.YoutubeDL(YTDL_FORMAT_OPTIONS)
 # 定数 - 基本的に大文字
 # 聖バリ鯖のサーバーID
 SEIBARI_GUILD_ID = 889049222152871986
+# 白猫ハウスのサーバーID
+SIRONEKO_GUILD_ID = 733998377074688050
+
 # 検索欄のチャンネルID
 TWITTER_SEARCH_CHANNEL_ID = 974430034691498034
 # mp3tomp4のチャンネルID
@@ -75,6 +78,9 @@ WIP_CHANNEL_ID = 940966825087361025
 FALCO_CHANNEL_ID = 955809774849646603
 # まちカドたんほいざのチャンネルID
 MACHITAN_CHANNEL_ID = 987930969040355361
+# no context hentai imgのチャンネルID
+NO_CONTEXT_HENTAI_IMG_CHANNEL_ID =  988071456430760006
+
 # あるくおすしのユーザーID
 WALKINGSUSHIBOX_USER_ID = 575588255647399958
 # 野獣先輩のユーザーID
@@ -593,6 +599,23 @@ async def genshin(ctx):
 @bot.command()
 async def giratina(ctx):
     await ctx.channel.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
+
+
+# no context hentai imgの画像を送信
+@bot.command()
+async def hentai(ctx):
+    guild = bot.get_guild(SIRONEKO_GUILD_ID)
+
+    channel = guild.get_channel(NO_CONTEXT_HENTAI_IMG_CHANNEL_ID)
+
+    hentai_channel_messages = [message async for message in channel.history(limit=None)]
+
+    random_hentai = random.choice(hentai_channel_messages)
+
+    content = random_hentai.attachments[0].url if random_hentai.content == "" else random_hentai.content
+
+    # メッセージが送られてきたチャンネルに送る
+    await ctx.channel.send(content)
 
 
 # Twitterから#胡桃の1000いいね以上を探して送信
