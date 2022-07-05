@@ -4,6 +4,6 @@ yt-dlp==2022.6.29
 google-api-python-client==2.52.0
 tweepy==4.10.0
 niconico.py==1.2.3
-Pillow==9.1.1
+Pillow==9.2.0
 # mecab-python3
 # unidic-lite
