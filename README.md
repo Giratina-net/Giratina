@@ -13,10 +13,16 @@
 なのはな体操の動画のリンクを貼ります。
 ### !falco, !syai, !faruko
 ファル子☆面白画像集チャンネルに貼られた画像やテキストをランダムで返します。
+### !genshin
+Twitterから#GenshinImpactのついた1000いいね以上のツイートの画像を貼ります。
 ### !giratina
 テスト用コマンドです。ギラティナの画像が返ってきます。
 ### !help
 コマンド一覧を表示します。
+### !hentai
+no context hentai imgチャンネルに貼られた画像やテキストをランダムで返します。
+### !hutao
+Twitterから#胡桃のついた1000いいね以上のツイートの画像を貼ります。
 ### !inm
 聖バリさんが未だに淫夢ごっこをします。
 ### !kaosu
@@ -25,6 +31,10 @@
 [@komachan_pic](https://twitter.com/komachan_pic)から最新の画像を貼ります。
 ### !lucky
 [@LuckyStarPicBot](https://twitter.com/LuckyStarPicBot)から最新の画像を貼ります。
+### !ma
+ま
+### !machitan
+まちカドたんほいざチャンネルに貼られた画像やテキストをランダムで返します。
 ### !manomu, !mano
 家で飼ってるピーちゃんを使ったお料理も好きです。
 ### !odai
@@ -36,6 +46,8 @@ BotサーバーとDiscordサーバー間のPingを表示します。
 Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません
 ### !satanya
 [@satanya_gazobot](https://twitter.com/satanya_gazobot)から最新の画像を貼ります。
+### !sushi
+[@kasakioiba](https://twitter.com/kasakioiba)から最新の画像を貼ります。
 ### !twitter, !tw
 Twitterの検索を使って画像を返します。  
 たとえば`!twitter 猫`と打つと、Twitterで猫と検索した時に表示されるツイートの画像を送信します。  
