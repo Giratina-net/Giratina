@@ -19,8 +19,11 @@ from niconico import NicoNico
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True
 # Botの接頭辞を ! にする
-bot = commands.Bot(command_prefix="!")
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Annict
 ANNICT_API_KEY = getenv("ANNICT_API_KEY")
