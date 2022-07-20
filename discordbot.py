@@ -16,6 +16,7 @@ from PIL import Image, ImageFont, ImageDraw
 from discord.ext import commands
 from googleapiclient.discovery import build
 from niconico import NicoNico
+import spotdl
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
@@ -107,8 +108,8 @@ def after_play_niconico(source, e, guild, f):
 class Music(commands.Cog):
     def __init__(self, bot_arg):
         self.bot = bot_arg
-        self.player: typing.Union[YTDLSource, NicoNicoDLSource, None] = None
-        self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource]] = []
+        self.player: typing.Union[YTDLSource, NicoNicoDLSource, spotDLSource, None] = None
+        self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource, spotDLSource]] = []
 
     def after_play(self, guild):
         if len(self.queue) <= 0:
@@ -188,12 +189,21 @@ class Music(commands.Cog):
         embed = discord.Embed(colour=0xff00ff)
         embed.set_author(name="処理中です...")
         play_msg: discord.Message = await ctx.channel.send(embed=embed)
-
+        
+#        if エラーが出たとき
+#            embed = discord.Embed(colour=0xff00ff)
+#            embed.set_author(name="再生できません")
+#            play_msg: discord.Message = await ctx.channel.send(embed=embed)
+        
         # niconico.py は短縮URLも取り扱えるっぽいので信じてみる
         # https://github.com/tasuren/niconico.py/blob/b4d9fcb1d0b80e83f2d8635dd85987d1fa2d84fc/niconico/video.py#L367
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
+        is_spotify = url.startswith("https://open.spotify.com/")
         if is_niconico:
             source = await NicoNicoDLSource.from_url(url)
+        # https://spotdl.readthedocs.io/en/latest/reference/providers/audio/ytmusic/
+        elif is_spotify:
+            source = await spotDLSource.from_url(url, loop=client.loop, stream=True)
         else:
             source = await YTDLSource.from_url(url, loop=client.loop, stream=True)
 
@@ -329,6 +339,30 @@ class NicoNicoDLSource(discord.PCMVolumeTransformer):
 # もしniconicoDLをいれるなら参考になるかも
 # https://github.com/akomekagome/SmileMusic/blob/dd94c342fed5301c790ce64360ad33f7c0d46208/python/smile_music.py
 class YTDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, *, data, volume=0.5):
+        super().__init__(source, volume)
+
+        self.data = data
+        self.id = data.get("id")
+        self.original_url = data.get("original_url")
+        self.title = data.get("title")
+        self.url = data.get("url")
+
+    @classmethod
+    async def from_url(cls, url, *, loop=None, stream=False):
+        loop = loop or asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
+
+        if "entries" in data:
+            # take first item from a playlist
+            data = data["entries"][0]
+
+        filename = data["url"] if stream else ytdl.prepare_filename(data)
+
+        source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
+        return cls(source, data=data)
+
+class spotDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
         super().__init__(source, volume)
 
@@ -557,9 +591,13 @@ async def bokuseku(ctx):
         return
 
     # ボイスチャンネルに接続する
-    await ctx.author.voice.channel.connect()
+    if ctx.guild.voice_client is None:
+        await ctx.author.voice.channel.connect()
     # 音声を再生する
-    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("resources/bokuseku.mp3"), after=lambda e: ctx.guild.voice_client.disconnect())
+    ctx.guild.voice_client.play(discord.FFmpegPCMAudio("resources/bokuseku.mp3"))
+    # 音声が再生中か確認する
+    while ctx.guild.voice_client.is_playing():
+        await asyncio.sleep(1)
     # 切断する
     await ctx.guild.voice_client.disconnect()
 
