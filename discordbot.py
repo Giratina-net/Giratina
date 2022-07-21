@@ -16,7 +16,12 @@ from PIL import Image, ImageFont, ImageDraw
 from discord.ext import commands
 from googleapiclient.discovery import build
 from niconico import NicoNico
-import spotdl
+from spotdl import Spotdl
+
+# spotdl
+SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET")
+spotdl = Spotdl(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET)
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
@@ -108,8 +113,8 @@ def after_play_niconico(source, e, guild, f):
 class Music(commands.Cog):
     def __init__(self, bot_arg):
         self.bot = bot_arg
-        self.player: typing.Union[YTDLSource, NicoNicoDLSource, spotDLSource, None] = None
-        self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource, spotDLSource]] = []
+        self.player: typing.Union[YTDLSource, NicoNicoDLSource, None] = None
+        self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource]] = []
 
     def after_play(self, guild):
         if len(self.queue) <= 0:
@@ -201,9 +206,10 @@ class Music(commands.Cog):
         is_spotify = url.startswith("https://open.spotify.com/")
         if is_niconico:
             source = await NicoNicoDLSource.from_url(url)
-        # https://spotdl.readthedocs.io/en/latest/reference/providers/audio/ytmusic/
         elif is_spotify:
-            source = await spotDLSource.from_url(url, loop=client.loop, stream=True)
+            songs = spotdl.search([url])
+            urls = spotdl.get_download_urls(songs)
+            source = await YTDLSource.from_url(urls[0], loop=client.loop, stream=True)
         else:
             source = await YTDLSource.from_url(url, loop=client.loop, stream=True)
 
@@ -361,31 +367,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
         return cls(source, data=data)
-
-class spotDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume=0.5):
-        super().__init__(source, volume)
-
-        self.data = data
-        self.id = data.get("id")
-        self.original_url = data.get("original_url")
-        self.title = data.get("title")
-        self.url = data.get("url")
-
-    @classmethod
-    async def from_url(cls, url, *, loop=None, stream=False):
-        loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-
-        if "entries" in data:
-            # take first item from a playlist
-            data = data["entries"][0]
-
-        filename = data["url"] if stream else ytdl.prepare_filename(data)
-
-        source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
-        return cls(source, data=data)
-
 
 # Bot起動時に実行される関数
 @bot.event
