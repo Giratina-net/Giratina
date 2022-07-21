@@ -204,14 +204,31 @@ class Music(commands.Cog):
         # https://github.com/tasuren/niconico.py/blob/b4d9fcb1d0b80e83f2d8635dd85987d1fa2d84fc/niconico/video.py#L367
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
         is_spotify = url.startswith("https://open.spotify.com/")
+        other_sources = []
         if is_niconico:
             source = await NicoNicoDLSource.from_url(url)
         elif is_spotify:
             songs = spotdl.search([url])
             urls = spotdl.get_download_urls(songs)
             source = await YTDLSource.from_url(urls[0], loop=client.loop, stream=True)
+            for u in urls[1:]:
+                other_sources.append(await YTDLSource.from_url(u, loop=client.loop, stream=True))
         else:
-            source = await YTDLSource.from_url(url, loop=client.loop, stream=True)
+            data = await client.loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+            # もしプレイリストだった場合
+            if "entries" in data:
+                datafirst = data["entries"][0]
+                original_url = datafirst.get("original_url")
+                source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
+                # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
+                datalist = data["entries"][1:]
+                for data in datalist:
+                    original_url = data.get("original_url")
+                    other_sources.append(await YTDLSource.from_url(original_url, loop=client.loop, stream=True))
+            else:
+                original_url = data.get("original_url")
+                source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
+
 
         if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
             # self.playerに追加すると再生中の曲と衝突する
@@ -227,7 +244,9 @@ class Music(commands.Cog):
             embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
             embed.set_author(name="再生を開始します")
             await play_msg.edit(embed=embed)
-
+        
+        self.queue.extend(other_sources)
+        print(self.queue)
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
 
@@ -358,9 +377,10 @@ class YTDLSource(discord.PCMVolumeTransformer):
     async def from_url(cls, url, *, loop=None, stream=False):
         loop = loop or asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-
+        
+        # もしプレイリストだった場合
         if "entries" in data:
-            # take first item from a playlist
+            # プレイリストの1曲目をとる
             data = data["entries"][0]
 
         filename = data["url"] if stream else ytdl.prepare_filename(data)
