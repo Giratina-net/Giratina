@@ -63,8 +63,9 @@ YTDL_FORMAT_OPTIONS = {
     "source_address": "0.0.0.0"  # bind to ipv4 since ipv6 addresses cause issues sometimes
 }
 
+# https://stackoverflow.com/questions/58892635/discord-py-and-youtube-dl-read-error-and-the-session-has-been-invalidated-fo
 FFMPEG_OPTIONS = {
-    "options": "-vn"
+    "options": "-vn -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 4962 -timeout 2000000000"
 }
 
 # https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
@@ -246,7 +247,6 @@ class Music(commands.Cog):
             await play_msg.edit(embed=embed)
         
         self.queue.extend(other_sources)
-        print(self.queue)
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
 
