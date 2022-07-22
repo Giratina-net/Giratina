@@ -207,6 +207,7 @@ class Music(commands.Cog):
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
         is_spotify = url.startswith("https://open.spotify.com/")
         other_sources = []
+
         if is_niconico_mylist:
             niconico_client = NicoNico()
             for m in niconico_client.video.get_mylist(url):
@@ -214,11 +215,10 @@ class Music(commands.Cog):
                 urlfirst = mylistitemfirst.video.url
                 source = await NicoNicoDLSource.from_url(urlfirst)
                 # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
-                mylistitemothers = mylist.items[1:]
+                mylistitemothers = m.items[1:]
                 for m in mylistitemothers:
                     urlother = m.video.url
                     other_sources.append(await NicoNicoDLSource.from_url(urlother))
-
         elif is_niconico:
             source = await NicoNicoDLSource.from_url(url)
         elif is_spotify:

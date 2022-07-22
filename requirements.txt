@@ -1,5 +1,5 @@
 py-cord[voice]==2.0
-ffmpeg==1.4
+ffmpeg-python==0.2.0
 yt-dlp==2022.7.18
 google-api-python-client==2.54.0
 tweepy==4.10.0
