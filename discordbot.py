@@ -444,6 +444,11 @@ async def on_message(ctx):
     if "おはよう" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png")
+        
+    # メッセージの本文が クワガタ だった場合
+    if "くわがた" in str(ctx.content) or "クワガタ" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://cdn.discordapp.com/attachments/959475816209739796/1000340129703006218/14C3BEA6-F0E3-4046-97E7-2D37732A3F75.png")
 
     # ドナルドの言葉狩り - https://qiita.com/sizumita/items/9d44ae7d1ce007391699
     # メッセージの本文が ドナルド だった場合
