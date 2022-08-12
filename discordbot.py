@@ -25,7 +25,7 @@ spotdl = Spotdl(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
-intents = discord.Intents.default()
+intents = discord.Intents
 intents.members = True
 intents.message_content = True
 # Botの接頭辞を ! にする
@@ -84,14 +84,14 @@ SIRONEKO_GUILD_ID = 733998377074688050
 
 # 検索欄のチャンネルID
 TWITTER_SEARCH_CHANNEL_ID = 974430034691498034
-# mp3tomp4のチャンネルID
+# mp3_to_mp4のチャンネルID
 WIP_CHANNEL_ID = 940966825087361025
 # ファル子☆おもしろ画像集のチャンネルID
 FALCO_CHANNEL_ID = 955809774849646603
 # まちカドたんほいざのチャンネルID
 MACHITAN_CHANNEL_ID = 987930969040355361
 # no context hentai imgのチャンネルID
-NO_CONTEXT_HENTAI_IMG_CHANNEL_ID =  988071456430760006
+NO_CONTEXT_HENTAI_IMG_CHANNEL_ID = 988071456430760006
 
 # あるくおすしのユーザーID
 WALKINGSUSHIBOX_USER_ID = 575588255647399958
@@ -106,16 +106,64 @@ def after_play_niconico(source, e, guild, f):
     if type(source) == NicoNicoDLSource:
         source.close_connection()
 
-    if e:
-        print(f"has error: {e}")
-    else:
-        f(guild)
+    print(f"has error: {e}") if e else f(guild)
+
+
+class NicoNicoDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, url, original_url, video, volume=0.5):
+        super().__init__(source, volume)
+
+        self.url = url
+        self.original_url = original_url
+        self.video = video
+        self.title = video.video.title
+
+    @classmethod
+    async def from_url(cls, url):
+        # とりあえず毎回clientを作っておく
+        niconico_client = NicoNico()
+        video = niconico_client.video.get_video(url)
+        # 必ずあとでコネクションを切る
+        video.connect()
+
+        source = discord.FFmpegPCMAudio(video.download_link, **FFMPEG_OPTIONS)
+        return cls(source, video.download_link, url, video)
+
+    def close_connection(self):
+        self.video.close()
+
+
+class YTDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, *, data, volume=0.5):
+        super().__init__(source, volume)
+
+        self.data = data
+        self.id = data.get("id")
+        self.original_url = data.get("original_url")
+        self.title = data.get("title")
+        self.url = data.get("url")
+
+    @classmethod
+    async def from_url(cls, url, *, loop=None, stream=False):
+        loop = loop or asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
+
+        # もしプレイリストだった場合
+        if "entries" in data:
+            # プレイリストの1曲目をとる
+            data = data["entries"][0]
+
+        filename = data["url"] if stream else ytdl.prepare_filename(data)
+
+        source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
+        return cls(source, data=data)
 
 
 # Cog とは: コマンドとかの機能をひとまとめにできる
 class Music(commands.Cog):
     def __init__(self, bot_arg):
         self.bot = bot_arg
+        self.loop: bool = False
         self.player: typing.Union[YTDLSource, NicoNicoDLSource, None] = None
         self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource]] = []
 
@@ -123,7 +171,7 @@ class Music(commands.Cog):
         if len(self.queue) <= 0:
             return
 
-        self.player = self.queue.pop(0)
+        self.player = self.player if self.loop else self.queue.pop(0)
         guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, guild, self.after_play))
 
     @commands.command()
@@ -153,6 +201,26 @@ class Music(commands.Cog):
         await ctx.guild.voice_client.disconnect()
         await ctx.channel.send("切断しました。")
 
+    @commands.command(aliases=["l"])
+    async def loop(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+            return
+
+        # Botがボイスチャンネルに居ない場合
+        if ctx.guild.voice_client is None:
+            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
+            return
+
+        # 再生中ではない場合は実行しない
+        if not ctx.guild.voice_client.is_playing():
+            await ctx.channel.send("再生していません。")
+            return
+
+        self.loop = not self.loop
+        await ctx.channel.send(f'ループを {"有効" if self.loop else "無効"} にしました。')
+
     @commands.command(aliases=["np"])
     async def nowplaying(self, ctx):
         # コマンドを送ったユーザーがボイスチャンネルに居ない場合
@@ -172,13 +240,14 @@ class Music(commands.Cog):
 
         embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
         embed.set_author(name="現在再生中")
+        embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {":green_circle:" if self.loop else ":x:"}')
 
         # YouTube再生時にサムネイルも一緒に表示できるであろう構文
         # if "youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url:
         #     np_youtube_video = youtube.videos().list(part="snippet", id=id).execute()
         #     np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
         #     np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-        # 
+        #
         #     embed.set_image(url=np_thumbnail[np_highres_thumbnail]["url"])
 
         await ctx.channel.send(embed=embed)
@@ -197,55 +266,65 @@ class Music(commands.Cog):
         embed = discord.Embed(colour=0xff00ff)
         embed.set_author(name="処理中です...")
         play_msg: discord.Message = await ctx.channel.send(embed=embed)
-        
-#        if エラーが出たとき
-#            embed = discord.Embed(colour=0xff00ff)
-#            embed.set_author(name="再生できません")
-#            play_msg: discord.Message = await ctx.channel.send(embed=embed)
-        
+
         # niconico.py は短縮URLも取り扱えるっぽいので信じてみる
         # https://github.com/tasuren/niconico.py/blob/b4d9fcb1d0b80e83f2d8635dd85987d1fa2d84fc/niconico/video.py#L367
         is_niconico_mylist = url.startswith("https://www.nicovideo.jp/mylist") or url.startswith("https://nico.ms/mylist")
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
         is_spotify = url.startswith("https://open.spotify.com/")
+        is_youtube = url.startwith("https://www.youtube.com/") or url.startwith("https://youtube.com/") or url.startwith("https://youtu.be/")
         other_sources = []
 
+        # 各サービスごとに振り分け
         if is_niconico_mylist:
             niconico_client = NicoNico()
-            for m in niconico_client.video.get_mylist(url):
-                mylistitemfirst = m.items[0]
-                urlfirst = mylistitemfirst.video.url
-                source = await NicoNicoDLSource.from_url(urlfirst)
-                # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
-                mylistitemothers = m.items[1:]
-                for m in mylistitemothers:
-                    urlother = m.video.url
-                    other_sources.append(await NicoNicoDLSource.from_url(urlother))
+            for item in niconico_client.video.get_mylist(url):
+                item_first = item.items[0]
+                item_first_url = item_first.video.url
+                source = await NicoNicoDLSource.from_url(item_first_url)
+
+                # マイリストの2曲目以降のURLを変換してother_sourcesに入れる
+                item_others = item.items[1:]
+                for item_others_item in item_others:
+                    item_others_item_url = item_others_item.video.url
+                    other_sources.append(await NicoNicoDLSource.from_url(item_others_item_url))
+
         elif is_niconico:
             source = await NicoNicoDLSource.from_url(url)
+
         elif is_spotify:
             songs = spotdl.search([url])
             urls = spotdl.get_download_urls(songs)
             source = await YTDLSource.from_url(urls[0], loop=client.loop, stream=True)
-            for u in urls[1:]:
-                other_sources.append(await YTDLSource.from_url(u, loop=client.loop, stream=True))
-        else:
+            for url in urls[1:]:
+                other_sources.append(await YTDLSource.from_url(url, loop=client.loop, stream=True))
+
+        elif is_youtube:
             data = await client.loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+
             # もしプレイリストだった場合
             if "entries" in data:
-                datafirst = data["entries"][0]
-                original_url = datafirst.get("original_url")
+                datalist_first = data["entries"][0]
+                original_url = datalist_first.get("original_url")
                 source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
+
                 # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
-                datalist = data["entries"][1:]
-                for data in datalist:
-                    original_url = data.get("original_url")
+                datalist_others = data["entries"][1:]
+                for item in datalist_others:
+                    original_url = item.get("original_url")
                     other_sources.append(await YTDLSource.from_url(original_url, loop=client.loop, stream=True))
+
             else:
                 original_url = data.get("original_url")
                 source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
 
+        else:
+            embed = discord.Embed(colour=0xff0000, title="このサービスには対応していません")
+            embed.set_author(name="エラーが発生しました")
+            await play_msg.edit(embed=embed)
+            return
 
+        # キューへの追加
         if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
             # self.playerに追加すると再生中の曲と衝突する
             self.queue.append(source)
@@ -260,34 +339,31 @@ class Music(commands.Cog):
             embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
             embed.set_author(name="再生を開始します")
             await play_msg.edit(embed=embed)
-        
+
         self.queue.extend(other_sources)
+
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
-
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
             await ctx.channel.send("Botがボイスチャンネルに接続していません。")
             return
 
-        # 再生中ではない場合は実行しない
         if not ctx.guild.voice_client.is_playing():
-            embed = discord.Embed(colour=0xff00ff, title="現在のキュー", description="再生されていません")
-            await ctx.channel.send(embed=embed)
-            return
+            embed = discord.Embed(colour=0xff00ff, title="キュー", description="再生されていません")
 
-        queue_embed = [f"__現在再生中__:\n[{self.player.title}]({self.player.original_url})"]
+        else:
+            queue_embed = [f"__現在再生中__:\n[{self.player.title}]({self.player.original_url})"]
 
-        if len(self.queue) > 0:
             for i in range(min(len(self.queue), 10)):
                 if i == 0:
                     queue_embed.append(f"__次に再生__:\n`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
                 else:
                     queue_embed.append(f"`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
 
-        queue_embed.append(f"**残りのキュー: {len(self.queue) + 1} 個**")
+            embed = discord.Embed(colour=0xff00ff, title="キュー", description="\n\n".join(queue_embed))
 
-        embed = discord.Embed(colour=0xff00ff, title="現在のキュー", description="\n\n".join(queue_embed))
+        embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {":green_circle:" if self.loop else ":x:"}')
         await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["s"])
@@ -352,57 +428,6 @@ class Music(commands.Cog):
         await ctx.channel.send("再生を停止し、キューをリセットしました。")
 
 
-class NicoNicoDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, url, original_url, video, volume=0.5):
-        super().__init__(source, volume)
-
-        self.url = url
-        self.original_url = original_url
-        self.video = video
-        self.title = video.video.title
-
-    @classmethod
-    async def from_url(cls, url):
-        # とりあえず毎回clientを作っておく
-        niconico_client = NicoNico()
-        video = niconico_client.video.get_video(url)
-        # 必ずあとでコネクションを切る
-        video.connect()
-
-        source = discord.FFmpegPCMAudio(video.download_link, **FFMPEG_OPTIONS)
-        return cls(source, video.download_link, url, video)
-
-    def close_connection(self):
-        self.video.close()
-
-
-# もしniconicoDLをいれるなら参考になるかも
-# https://github.com/akomekagome/SmileMusic/blob/dd94c342fed5301c790ce64360ad33f7c0d46208/python/smile_music.py
-class YTDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume=0.5):
-        super().__init__(source, volume)
-
-        self.data = data
-        self.id = data.get("id")
-        self.original_url = data.get("original_url")
-        self.title = data.get("title")
-        self.url = data.get("url")
-
-    @classmethod
-    async def from_url(cls, url, *, loop=None, stream=False):
-        loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-        
-        # もしプレイリストだった場合
-        if "entries" in data:
-            # プレイリストの1曲目をとる
-            data = data["entries"][0]
-
-        filename = data["url"] if stream else ytdl.prepare_filename(data)
-
-        source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
-        return cls(source, data=data)
-
 # Bot起動時に実行される関数
 @bot.event
 async def on_ready():
@@ -447,7 +472,7 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png")
 
-     # メッセージの本文が カニ だった場合
+    # メッセージの本文が カニ だった場合
     if "かに" in str(ctx.content) or "カニ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1006257985846263808/6C4D7AD5-ADBA-4BC7-824C-5A118E09A43A.png")

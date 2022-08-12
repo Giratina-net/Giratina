@@ -1,8 +1,7 @@
 # Giratina
-[![Check Syntax](https://github.com/SehataKuro/Giratina/actions/workflows/check_syntax.yml/badge.svg?branch=master)](https://github.com/SehataKuro/Giratina/actions/workflows/check_syntax.yml)
-[![badge](https://github.com/neko252222/GIF/blob/main/badge.svg)](https://github.com/SehataKuro/Shaymin)
-- 身内のサーバーで使うことを目的としたDiscord向けのBotです。
-- 開発段階のためバグや唐突な仕様変更があります。
+[![Check Syntax](https://github.com/SehataKuro/Giratina/actions/workflows/check_syntax.yml/badge.svg?branch=master)](https://github.com/SehataKuro/Giratina/actions/workflows/check_syntax.yml)  
+身内のサーバーで使うことを目的としたDiscord向けのBotです。  
+開発段階のためバグや唐突な仕様変更があります。
 
 ## メインコマンド
 ### !anime, !ani
@@ -12,7 +11,7 @@
 ### !chiibakun
 なのはな体操の動画のリンクを貼ります。
 ### !falco, !syai, !faruko
-ファル子☆面白画像集チャンネルに貼られた画像やテキストをランダムで返します。
+`ファル子☆面白画像集`チャンネルに貼られた画像やテキストをランダムで返します。
 ### !genshin
 Twitterから#GenshinImpactのついた1000いいね以上のツイートの画像を貼ります。
 ### !giratina
@@ -20,9 +19,9 @@ Twitterから#GenshinImpactのついた1000いいね以上のツイートの画�
 ### !help
 コマンド一覧を表示します。
 ### !hentai
-no context hentai imgチャンネルに貼られた画像やテキストをランダムで返します。
+`no context hentai img`チャンネルに貼られた画像やテキストをランダムで返します。
 ### !hutao
-Twitterから#胡桃のついた1000いいね以上のツイートの画像を貼ります。
+Twitterから`#胡桃`のついた1000いいね以上のツイートの画像を貼ります。
 ### !inm
 聖バリさんが未だに淫夢ごっこをします。
 ### !kaosu
@@ -34,7 +33,7 @@ Twitterから#胡桃のついた1000いいね以上のツイートの画像を�
 ### !ma
 ま
 ### !machitan
-まちカドたんほいざチャンネルに貼られた画像やテキストをランダムで返します。
+`まちカドたんほいざ`チャンネルに貼られた画像やテキストをランダムで返します。
 ### !manomu, !mano
 家で飼ってるピーちゃんを使ったお料理も好きです。
 ### !odai
@@ -80,6 +79,9 @@ TwitterのJSONの仕様がよくわかってなくて、画像が返ってこな
 コマンドを使う人がボイスチャンネルに参加している必要があります。
 ### !leave
 ボイスチャンネルからBotを退出させるコマンドです。
+### !loop, !l
+再生中の曲をループさせるコマンドです。  
+実行する毎に有効と無効を切り替えられます。
 ### !nowplaying, !np
 再生している曲の情報とリンクを表示するコマンドです。
 ### !play, !p
@@ -88,9 +90,9 @@ TwitterのJSONの仕様がよくわかってなくて、画像が返ってこな
 再生中に曲を追加するとキューに追加されます。
 ### !queue, !q
 キューを表示するコマンドです。  
-現在再生中の曲と以降再生される10個の曲を表示します。
+再生中の曲と以降再生される10個の曲を表示します。
 ### !skip, !s
-現在再生中の曲をスキップするコマンドです。  
+再生中の曲をスキップするコマンドです。  
 キューが残っている場合には次の曲を再生します。
 ### !shuffle
 キューをシャッフルします。
@@ -120,5 +122,5 @@ TwitterのJSONの仕様がよくわかってなくて、画像が返ってこな
 
 ## その他の機能
 - 音声ファイルを動画に変換する機能があります。  
-mp3_to_mp4チャンネルに音声を投げると自動で変換されます。  
-スマホアプリで音声を聴くのに使えます。
+`mp3_to_mp4`チャンネルに音声を投げると自動で変換されます。  
+スマートフォン版Discordで音声を聴くのに使えます。
