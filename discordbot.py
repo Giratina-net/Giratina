@@ -272,7 +272,7 @@ class Music(commands.Cog):
         is_niconico_mylist = url.startswith("https://www.nicovideo.jp/mylist") or url.startswith("https://nico.ms/mylist")
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
         is_spotify = url.startswith("https://open.spotify.com/")
-        is_youtube = url.startwith("https://www.youtube.com/") or url.startwith("https://youtube.com/") or url.startwith("https://youtu.be/")
+        is_youtube = url.startswith("https://www.youtube.com/") or url.startswith("https://youtube.com/") or url.startswith("https://youtu.be/")
         other_sources = []
 
         # 各サービスごとに振り分け
