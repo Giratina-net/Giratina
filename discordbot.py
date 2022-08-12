@@ -168,7 +168,7 @@ class Music(commands.Cog):
         self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource]] = []
 
     def after_play(self, guild):
-        if len(self.queue) <= 0:
+        if len(self.queue) <= 0 and not self.loop:
             return
 
         self.player = self.player if self.loop else self.queue.pop(0)
@@ -240,7 +240,7 @@ class Music(commands.Cog):
 
         embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
         embed.set_author(name="現在再生中")
-        embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {":green_circle:" if self.loop else ":x:"}')
+        embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
 
         # YouTube再生時にサムネイルも一緒に表示できるであろう構文
         # if "youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url:
@@ -363,7 +363,7 @@ class Music(commands.Cog):
 
             embed = discord.Embed(colour=0xff00ff, title="キュー", description="\n\n".join(queue_embed))
 
-        embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {":green_circle:" if self.loop else ":x:"}')
+        embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
         await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["s"])
