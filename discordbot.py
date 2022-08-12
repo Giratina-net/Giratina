@@ -25,7 +25,7 @@ spotdl = Spotdl(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
-intents = discord.Intents
+intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 # Botの接頭辞を ! にする
