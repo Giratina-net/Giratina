@@ -110,7 +110,7 @@ def after_play_niconico(source, e, guild, f):
 
 
 # Botがボイスチャンネルに居ない もしくは再生中ではない時のメッセージ関数
-def unplayable_message(ctx, not_bot_connect: bool, not_playing: bool):
+async def unplayable_message(ctx, not_bot_connect: bool, not_playing: bool):
     # Botがボイスチャンネルに居ない場合
     if ctx.guild.voice_client is None and not_bot_connect:
         embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
