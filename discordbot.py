@@ -101,14 +101,6 @@ TADOKOROKOUJI_USER_ID = 1145141919810364364
 client = discord.Client()
 
 
-# NicoNicoDLSourceのためにちゃんと閉じる必要があるので、Sourceのあと voice_client.play の最後にこれを実行してやってください
-def after_play_niconico(source, e, guild, f):
-    if type(source) == NicoNicoDLSource:
-        source.close_connection()
-
-    print(f"has error: {e}") if e else f(guild)
-
-
 class NicoNicoDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, url, original_url, video, volume=0.5):
         super().__init__(source, volume)
@@ -174,24 +166,20 @@ class Music(commands.Cog):
         if err:
             return print(f"has error: {err}")
 
-        if len(self.queue) <= 0 and not self.loop:
+        if len(self.queue) <= 0:
             return
 
-        if not self.loop:
-            self.player = self.queue.pop(0)
+        self.player = self.queue.pop(0)
 
         guild.voice_client.play(self.player, after=lambda e: self.after_play(guild, e))
 
-    @commands.Cog.listeners("on_message")
-    async def on_message(self, ctx):
+    @commands.command()
+    async def join(self, ctx):
         # コマンドを送ったユーザーがボイスチャンネルに居ない場合
         if ctx.author.voice is None:
             embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
-            await ctx.channel.send(embed=embed)
-            return
+            return await ctx.channel.send(embed=embed)
 
-    @commands.command()
-    async def join(self, ctx):
         # ボイスチャンネルに接続する
         await ctx.author.voice.channel.connect()
 
@@ -200,6 +188,11 @@ class Music(commands.Cog):
 
     @commands.command()
     async def leave(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
+            return await ctx.channel.send(embed=embed)
+
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
             embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
@@ -212,21 +205,31 @@ class Music(commands.Cog):
         embed = discord.Embed(colour=0xff00ff, title="切断しました")
         await ctx.channel.send(embed=embed)
 
-    @commands.command(aliases=["l"])
-    async def loop(self, ctx):
-        # Botがボイスチャンネルに居ない場合
-        if ctx.guild.voice_client is None:
-            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
-            await ctx.channel.send(embed=embed)
-            return
-
-        self.loop = not self.loop
-
-        embed = discord.Embed(colour=0xff00ff, title=f'ループを {"`有効`" if self.loop else "`無効`"} にしました。')
-        await ctx.channel.send(embed=embed)
+    # @commands.command(aliases=["l"])
+    # async def loop(self, ctx):
+    #     # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+    #     if ctx.author.voice is None:
+    #         embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
+    #         return await ctx.channel.send(embed=embed)
+    #
+    #     # Botがボイスチャンネルに居ない場合
+    #     if ctx.guild.voice_client is None:
+    #         embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
+    #         await ctx.channel.send(embed=embed)
+    #         return
+    #
+    #     self.loop = not self.loop
+    #
+    #     embed = discord.Embed(colour=0xff00ff, title=f'ループを {"`有効`" if self.loop else "`無効`"} にしました')
+    #     await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["np"])
     async def nowplaying(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
+            return await ctx.channel.send(embed=embed)
+
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
             embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
@@ -234,7 +237,8 @@ class Music(commands.Cog):
             return
 
         embed = discord.Embed(colour=0xff00ff, title="現在再生中", description=f"[{self.player.title}]({self.player.original_url})" if ctx.guild.voice_client.is_playing() else "再生していません")
-        embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
+        embed.set_footer(text=f'残りキュー: {len(self.queue)}')
+        # embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
 
         # YouTube再生時にサムネイルも一緒に表示できるであろう構文
         # if ctx.guild.voice_client.is_playing() and ("youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url):
@@ -247,6 +251,11 @@ class Music(commands.Cog):
 
     @commands.command(aliases=["p"])
     async def play(self, ctx, *, url):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
+            return await ctx.channel.send(embed=embed)
+
         # ボイスチャンネルにBotが未接続の場合はボイスチャンネルに接続する
         if ctx.guild.voice_client is None:
             await ctx.author.voice.channel.connect()
@@ -328,6 +337,11 @@ class Music(commands.Cog):
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
+            return await ctx.channel.send(embed=embed)
+
         embed = discord.Embed(colour=0xff00ff, title="キュー")
 
         if not ctx.guild.voice_client.is_playing():
@@ -341,11 +355,17 @@ class Music(commands.Cog):
 
             embed.description = "\n\n".join(queue_embed)
 
-        embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
+        embed.set_footer(text=f'残りキュー: {len(self.queue)}')
+        # embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
         await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["s"])
     async def skip(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
+            return await ctx.channel.send(embed=embed)
+
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
             embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
@@ -364,6 +384,11 @@ class Music(commands.Cog):
 
     @commands.command()
     async def shuffle(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
+            return await ctx.channel.send(embed=embed)
+
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
             embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
@@ -382,6 +407,11 @@ class Music(commands.Cog):
 
     @commands.command()
     async def stop(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
+            return await ctx.channel.send(embed=embed)
+
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
             embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
