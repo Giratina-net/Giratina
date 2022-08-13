@@ -268,7 +268,6 @@ class Music(commands.Cog):
         is_niconico_mylist = url.startswith("https://www.nicovideo.jp/mylist") or url.startswith("https://nico.ms/mylist")
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
         is_spotify = url.startswith("https://open.spotify.com/")
-        is_youtube = url.startswith("https://www.youtube.com/") or url.startswith("https://youtube.com/") or url.startswith("https://youtu.be/")
         other_sources = []
 
         # 各サービスごとに振り分け
@@ -295,7 +294,7 @@ class Music(commands.Cog):
             for url in urls[1:]:
                 other_sources.append(await YTDLSource.from_url(url, loop=client.loop, stream=True))
 
-        elif is_youtube:
+        else:
             data = await client.loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
 
             # もしプレイリストだった場合
@@ -314,10 +313,6 @@ class Music(commands.Cog):
                 original_url = data.get("original_url")
                 source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
 
-        else:
-            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="このサービスには対応していません")
-            await play_msg.edit(embed=embed)
-            return
 
         # キューへの追加
         if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
