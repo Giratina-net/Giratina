@@ -109,6 +109,23 @@ def after_play_niconico(source, e, guild, f):
     print(f"has error: {e}") if e else f(guild)
 
 
+# Botがボイスチャンネルに居ない もしくは再生中ではない時のメッセージ関数
+def unplayable_message(ctx, not_bot_connect: bool, not_playing: bool):
+    # Botがボイスチャンネルに居ない場合
+    if ctx.guild.voice_client is None and not_bot_connect:
+        embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
+        await ctx.channel.send(embed=embed)
+        return True
+
+    # 再生中ではない場合は実行しない
+    if not ctx.guild.voice_client.is_playing() and not_playing:
+        embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="再生していません")
+        await ctx.channel.send(embed=embed)
+        return True
+
+    return False
+
+
 class NicoNicoDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, url, original_url, video, volume=0.5):
         super().__init__(source, volume)
@@ -167,104 +184,82 @@ class Music(commands.Cog):
         self.player: typing.Union[YTDLSource, NicoNicoDLSource, None] = None
         self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource]] = []
 
-    def after_play(self, guild):
+    def after_play(self, guild, err):
+        if type(self.player) == NicoNicoDLSource:
+            self.player.close_connection()
+
+        if err:
+            return print(f"has error: {err}")
+
         if len(self.queue) <= 0 and not self.loop:
             return
 
-        self.player = self.player if self.loop else self.queue.pop(0)
-        guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, guild, self.after_play))
+        if not self.loop:
+            self.player = self.queue.pop(0)
+
+        guild.voice_client.play(self.player, after=lambda e: self.after_play(guild, e))
+
+    @commands.Cog.listeners("on_message")
+    async def on_message(self, ctx):
+        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
+        if ctx.author.voice is None:
+            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
+            await ctx.channel.send(embed=embed)
+            return
 
     @commands.command()
     async def join(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
-            return
-
         # ボイスチャンネルに接続する
         await ctx.author.voice.channel.connect()
-        await ctx.channel.send("接続しました。")
+
+        embed = discord.Embed(colour=0xff00ff, title="接続しました")
+        await ctx.channel.send(embed=embed)
 
     @commands.command()
     async def leave(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
-            return
-
-        # Botがボイスチャンネルに居ない場合
-        if ctx.guild.voice_client is None:
-            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
+        if unplayable_message(ctx, not_bot_connect=True, not_playing=False):
             return
 
         # 切断する
         await ctx.guild.voice_client.disconnect()
-        await ctx.channel.send("切断しました。")
+
+        embed = discord.Embed(colour=0xff00ff, title="切断しました")
+        await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["l"])
     async def loop(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
-            return
-
-        # Botがボイスチャンネルに居ない場合
-        if ctx.guild.voice_client is None:
-            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
-            return
-
-        # 再生中ではない場合は実行しない
-        if not ctx.guild.voice_client.is_playing():
-            await ctx.channel.send("再生していません。")
+        if unplayable_message(ctx, not_bot_connect=True, not_playing=False):
             return
 
         self.loop = not self.loop
-        await ctx.channel.send(f'ループを {"有効" if self.loop else "無効"} にしました。')
+
+        embed = discord.Embed(colour=0xff00ff, title=f'ループを {"`有効`" if self.loop else "`無効`"} にしました。')
+        await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["np"])
     async def nowplaying(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
+        if unplayable_message(ctx, not_bot_connect=True, not_playing=False):
             return
 
-        # Botがボイスチャンネルに居ない場合
-        if ctx.guild.voice_client is None:
-            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
-            return
-
-        # 再生中ではない場合は実行しない
-        if not ctx.guild.voice_client.is_playing():
-            await ctx.channel.send("再生していません。")
-            return
-
-        embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
-        embed.set_author(name="現在再生中")
+        embed = discord.Embed(colour=0xff00ff, title="現在再生中", description=f"[{self.player.title}]({self.player.original_url})" if ctx.guild.voice_client.is_playing() else "再生していません")
         embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
 
         # YouTube再生時にサムネイルも一緒に表示できるであろう構文
-        # if "youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url:
+        # if ctx.guild.voice_client.is_playing() and ("youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url):
         #     np_youtube_video = youtube.videos().list(part="snippet", id=id).execute()
         #     np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
         #     np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-        #
         #     embed.set_image(url=np_thumbnail[np_highres_thumbnail]["url"])
 
         await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["p"])
     async def play(self, ctx, *, url):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
-            return
-
         # ボイスチャンネルにBotが未接続の場合はボイスチャンネルに接続する
         if ctx.guild.voice_client is None:
             await ctx.author.voice.channel.connect()
 
-        embed = discord.Embed(colour=0xff00ff)
-        embed.set_author(name="処理中です...")
+        embed = discord.Embed(colour=0xff00ff, title="処理中です...")
         play_msg: discord.Message = await ctx.channel.send(embed=embed)
 
         # niconico.py は短縮URLも取り扱えるっぽいので信じてみる
@@ -319,8 +314,7 @@ class Music(commands.Cog):
                 source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
 
         else:
-            embed = discord.Embed(colour=0xff0000, title="このサービスには対応していません")
-            embed.set_author(name="エラーが発生しました")
+            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="このサービスには対応していません")
             await play_msg.edit(embed=embed)
             return
 
@@ -328,104 +322,63 @@ class Music(commands.Cog):
         if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
             # self.playerに追加すると再生中の曲と衝突する
             self.queue.append(source)
-            embed = discord.Embed(colour=0xff00ff, title=source.title, url=source.original_url)
-            embed.set_author(name="キューに追加しました")
+            embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
             await play_msg.edit(embed=embed)
 
         else:  # 他の曲を再生していない場合
             # self.playerにURLを追加し再生する
             self.player = source
-            ctx.guild.voice_client.play(self.player, after=lambda e: after_play_niconico(self.player, e, ctx.guild, self.after_play))
-            embed = discord.Embed(colour=0xff00ff, title=self.player.title, url=self.player.original_url)
-            embed.set_author(name="再生を開始します")
+            ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
+            embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
             await play_msg.edit(embed=embed)
 
         self.queue.extend(other_sources)
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
-        # Botがボイスチャンネルに居ない場合
-        if ctx.guild.voice_client is None:
-            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
-            return
+        embed = discord.Embed(colour=0xff00ff, title="キュー")
 
         if not ctx.guild.voice_client.is_playing():
-            embed = discord.Embed(colour=0xff00ff, title="キュー", description="再生されていません")
+            embed.description = "再生していません"
 
         else:
             queue_embed = [f"__現在再生中__:\n[{self.player.title}]({self.player.original_url})"]
 
             for i in range(min(len(self.queue), 10)):
-                if i == 0:
-                    queue_embed.append(f"__次に再生__:\n`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
-                else:
-                    queue_embed.append(f"`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
+                queue_embed.append(("__次に再生__:\n" if i == 0 else "") + f"`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
 
-            embed = discord.Embed(colour=0xff00ff, title="キュー", description="\n\n".join(queue_embed))
+            embed.description = "\n\n".join(queue_embed)
 
         embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
         await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["s"])
     async def skip(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
-            return
-
-        # Botがボイスチャンネルに居ない場合
-        if ctx.guild.voice_client is None:
-            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
-            return
-
-        # 再生中ではない場合は実行しない
-        if not ctx.guild.voice_client.is_playing():
-            await ctx.channel.send("再生していません。")
+        if unplayable_message(ctx, not_bot_connect=True, not_playing=True):
             return
 
         ctx.guild.voice_client.stop()
-        await ctx.channel.send("次の曲を再生します。")
+        embed = discord.Embed(colour=0xff00ff, title="スキップします")
+        await ctx.channel.send(embed=embed)
 
     @commands.command()
     async def shuffle(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
-            return
-
-        # Botがボイスチャンネルに居ない場合
-        if ctx.guild.voice_client is None:
-            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
-            return
-
-        # 再生中ではない場合は実行しない
-        if not ctx.guild.voice_client.is_playing():
-            await ctx.channel.send("再生していません。")
+        if unplayable_message(ctx, not_bot_connect=True, not_playing=True):
             return
 
         random.shuffle(self.queue)
-        await ctx.channel.send("キューをシャッフルしました。")
+        embed = discord.Embed(colour=0xff00ff, title="キューをシャッフルしました")
+        await ctx.channel.send(embed=embed)
 
     @commands.command()
     async def stop(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            await ctx.channel.send("操作する前にボイスチャンネルに接続してください。")
-            return
-
-        # Botがボイスチャンネルに居ない場合
-        if ctx.guild.voice_client is None:
-            await ctx.channel.send("Botがボイスチャンネルに接続していません。")
-            return
-
-        # 再生中ではない場合は実行しない
-        if not ctx.guild.voice_client.is_playing():
-            await ctx.channel.send("再生していません。")
+        if unplayable_message(ctx, not_bot_connect=True, not_playing=True):
             return
 
         self.queue.clear()
         ctx.guild.voice_client.stop()
-        await ctx.channel.send("再生を停止し、キューをリセットしました。")
+        embed = discord.Embed(colour=0xff00ff, title="再生を停止します")
+        await ctx.channel.send(embed=embed)
 
 
 # Bot起動時に実行される関数
