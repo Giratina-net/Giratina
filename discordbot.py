@@ -278,6 +278,20 @@ class Music(commands.Cog):
                 item_first_url = item_first.video.url
                 source = await NicoNicoDLSource.from_url(item_first_url)
 
+            # キューへの追加
+            if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
+                # self.playerに追加すると再生中の曲と衝突する
+                self.queue.append(source)
+                embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
+                await play_msg.edit(embed=embed)
+
+            else:  # 他の曲を再生していない場合
+                # self.playerにURLを追加し再生する
+                self.player = source
+                ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
+                embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
+                await play_msg.edit(embed=embed)
+
                 # マイリストの2曲目以降のURLを変換してother_sourcesに入れる
                 item_others = item.items[1:]
                 for item_others_item in item_others:
@@ -287,10 +301,39 @@ class Music(commands.Cog):
         elif is_niconico:
             source = await NicoNicoDLSource.from_url(url)
 
+            # キューへの追加
+            if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
+                # self.playerに追加すると再生中の曲と衝突する
+                self.queue.append(source)
+                embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
+                await play_msg.edit(embed=embed)
+
+            else:  # 他の曲を再生していない場合
+                # self.playerにURLを追加し再生する
+                self.player = source
+                ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
+                embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
+                await play_msg.edit(embed=embed)            
+
         elif is_spotify:
             songs = spotdl.search([url])
             urls = spotdl.get_download_urls(songs)
             source = await YTDLSource.from_url(urls[0], loop=client.loop, stream=True)
+
+            # キューへの追加
+            if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
+                # self.playerに追加すると再生中の曲と衝突する
+                self.queue.append(source)
+                embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
+                await play_msg.edit(embed=embed)
+
+            else:  # 他の曲を再生していない場合
+                # self.playerにURLを追加し再生する
+                self.player = source
+                ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
+                embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
+                await play_msg.edit(embed=embed)
+
             for url in urls[1:]:
                 other_sources.append(await YTDLSource.from_url(url, loop=client.loop, stream=True))
 
@@ -303,6 +346,20 @@ class Music(commands.Cog):
                 original_url = datalist_first.get("original_url")
                 source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
 
+                # キューへの追加
+                if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
+                    # self.playerに追加すると再生中の曲と衝突する
+                    self.queue.append(source)
+                    embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
+                    await play_msg.edit(embed=embed)
+
+                else:  # 他の曲を再生していない場合
+                    # self.playerにURLを追加し再生する
+                    self.player = source
+                    ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
+                    embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
+                    await play_msg.edit(embed=embed)            
+
                 # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
                 datalist_others = data["entries"][1:]
                 for item in datalist_others:
@@ -313,20 +370,19 @@ class Music(commands.Cog):
                 original_url = data.get("original_url")
                 source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
 
+                # キューへの追加
+                if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
+                    # self.playerに追加すると再生中の曲と衝突する
+                    self.queue.append(source)
+                    embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
+                    await play_msg.edit(embed=embed)
 
-        # キューへの追加
-        if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
-            # self.playerに追加すると再生中の曲と衝突する
-            self.queue.append(source)
-            embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
-            await play_msg.edit(embed=embed)
-
-        else:  # 他の曲を再生していない場合
-            # self.playerにURLを追加し再生する
-            self.player = source
-            ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
-            embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
-            await play_msg.edit(embed=embed)
+                else:  # 他の曲を再生していない場合
+                    # self.playerにURLを追加し再生する
+                    self.player = source
+                    ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
+                    embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
+                    await play_msg.edit(embed=embed)
 
         self.queue.extend(other_sources)
 
