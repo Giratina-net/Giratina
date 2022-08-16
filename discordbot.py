@@ -188,11 +188,6 @@ class Music(commands.Cog):
 
     @commands.command()
     async def leave(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
-            return await ctx.channel.send(embed=embed)
-
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
             embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
@@ -225,11 +220,6 @@ class Music(commands.Cog):
 
     @commands.command(aliases=["np"])
     async def nowplaying(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
-            return await ctx.channel.send(embed=embed)
-
         # Botがボイスチャンネルに居ない場合
         if ctx.guild.voice_client is None:
             embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません")
@@ -240,12 +230,12 @@ class Music(commands.Cog):
         embed.set_footer(text=f'残りキュー: {len(self.queue)}')
         # embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
 
-        # YouTube再生時にサムネイルも一緒に表示できるであろう構文
-        # if ctx.guild.voice_client.is_playing() and ("youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url):
-        #     np_youtube_video = youtube.videos().list(part="snippet", id=id).execute()
-        #     np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
-        #     np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-        #     embed.set_image(url=np_thumbnail[np_highres_thumbnail]["url"])
+        # サムネイルをAPIで取得
+        if ctx.guild.voice_client.is_playing() and ("youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url):
+            np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
+            np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
+            np_highres_thumbnail = list(np_thumbnail.keys())[-1]
+            embed.set_image(url=np_thumbnail[np_highres_thumbnail]["url"])
 
         await ctx.channel.send(embed=embed)
 
@@ -316,6 +306,7 @@ class Music(commands.Cog):
                 await play_msg.edit(embed=embed)            
 
         elif is_spotify:
+            # プレイリストの1曲目のURLを変換してsourceに入れる
             songs = spotdl.search([url])
             urls = spotdl.get_download_urls(songs)
             source = await YTDLSource.from_url(urls[0], loop=client.loop, stream=True)
@@ -334,6 +325,7 @@ class Music(commands.Cog):
                 embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
                 await play_msg.edit(embed=embed)
 
+            # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
             for url in urls[1:]:
                 other_sources.append(await YTDLSource.from_url(url, loop=client.loop, stream=True))
 
