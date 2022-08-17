@@ -1,6 +1,6 @@
 py-cord[voice]==2.0.1
 ffmpeg-python==0.2.0
-yt-dlp==2022.8.8
+yt-dlp==2022.8.14
 google-api-python-client==2.57.0
 tweepy==4.10.0
 niconico.py==1.2.3
