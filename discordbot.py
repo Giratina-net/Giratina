@@ -503,10 +503,11 @@ async def on_voice_state_update(member, before, after):
             if len(before.channel.members) == 0:
                 embed = discord.Embed(colour=0xff00ff, title="通知", description="**" + before.channel.name + "** の通話が終了しました")
                 await notification_channel.send(embed=embed)
-        # 入室通知0
+        # 開始通知
         if after.channel is not None and after.channel.id in SEIBARI_VOICE_CHANNEL_IDs:
-            embed = discord.Embed(colour=0xff00ff, title="通知", description="**" + after.channel.name + "** に、__" + member.name + "__  が参加しました！")
-            await notification_channel.send(embed=embed)
+            if len(after.channel.members) == 1:
+                embed = discord.Embed(colour=0xff00ff, title="通知", description="**" + after.channel.name + "** の通話が開始しました")
+                await notification_channel.send(embed=embed)
 
 # メッセージ送信時に実行される関数
 @bot.event
