@@ -92,6 +92,8 @@ FALCO_CHANNEL_ID = 955809774849646603
 MACHITAN_CHANNEL_ID = 987930969040355361
 # no context hentai imgのチャンネルID
 NO_CONTEXT_HENTAI_IMG_CHANNEL_ID = 988071456430760006
+# ボイスチャット通知のチャンネルID
+VOICECHAT_NOTIFICATION_CHANNEL_ID = 1009127020518707201
 
 # あるくおすしのユーザーID
 WALKINGSUSHIBOX_USER_ID = 575588255647399958
@@ -483,6 +485,28 @@ async def on_ready():
 
     await bot.change_presence(activity=discord.Game(name=f'{now_time.strftime("%Y/%m/%d %H:%M:%S")} - オォン'))
 
+# https://riottechblog.cartaholdings.co.jp/entry/archives/6412
+# チャンネル入退室時の通知処理
+@bot.event
+async def on_voice_state_update(member, before, after):
+
+    # チャンネルへの入室ステータスが変更されたとき（ミュートON、OFFに反応しないように分岐）
+    if before.channel != after.channel:
+        # 通知メッセージを書き込むテキストチャンネル（チャンネルIDを指定）
+        notification_channel = bot.get_channel(VOICECHAT_NOTIFICATION_CHANNEL_ID)
+
+        # 入退室を監視する対象のボイスチャンネル（チャンネルIDを指定）
+        SEIBARI_VOICE_CHANNEL_IDs = [889049222152871990, 889251836312309800, 938212082363539526, 889312365466775582, 934783864226844682, 934783998935302214, 938212160075628624, 956176543850311700, 988470466249359461, 1005195693465538591, 1001860023917477908, 937319677162565672, 890539305276174357]
+
+        # 終了通知
+        if before.channel is not None and before.channel.id in SEIBARI_VOICE_CHANNEL_IDs:
+            if len(before.channel.members) == 0:
+                embed = discord.Embed(colour=0xff00ff, title="通知", description="**" + before.channel.name + "** の通話が終了しました")
+                await notification_channel.send(embed=embed)
+        # 入室通知0
+        if after.channel is not None and after.channel.id in SEIBARI_VOICE_CHANNEL_IDs:
+            embed = discord.Embed(colour=0xff00ff, title="通知", description="**" + after.channel.name + "** に、__" + member.name + "__  が参加しました！")
+            await notification_channel.send(embed=embed)
 
 # メッセージ送信時に実行される関数
 @bot.event
