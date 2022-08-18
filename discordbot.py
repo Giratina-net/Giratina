@@ -2,6 +2,7 @@
 import asyncio
 import datetime
 import glob
+from ntpath import join
 import os
 import random
 import time
@@ -237,7 +238,7 @@ class Music(commands.Cog):
             np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
             np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
             np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-            embed.set_image(url=np_thumbnail[np_highres_thumbnail]["url"])
+            embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
 
         await ctx.channel.send(embed=embed)
 
@@ -325,6 +326,11 @@ class Music(commands.Cog):
                 self.player = source
                 ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
                 embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
+                # サムネイルをAPIで取得
+                np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
+                np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
+                np_highres_thumbnail = list(np_thumbnail.keys())[-1]
+                embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])                      
                 await play_msg.edit(embed=embed)
 
             # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
@@ -352,6 +358,11 @@ class Music(commands.Cog):
                     self.player = source
                     ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
                     embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
+                    # サムネイルをAPIで取得
+                    np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
+                    np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
+                    np_highres_thumbnail = list(np_thumbnail.keys())[-1]
+                    embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
                     await play_msg.edit(embed=embed)            
 
                 # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
@@ -376,16 +387,16 @@ class Music(commands.Cog):
                     self.player = source
                     ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
                     embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
+                    np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
+                    np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
+                    np_highres_thumbnail = list(np_thumbnail.keys())[-1]
+                    embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])                 
                     await play_msg.edit(embed=embed)
 
         self.queue.extend(other_sources)
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
-        # コマンドを送ったユーザーがボイスチャンネルに居ない場合
-        if ctx.author.voice is None:
-            embed = discord.Embed(colour=0xff0000, title="エラーが発生しました", description="操作する前にボイスチャンネルに接続してください")
-            return await ctx.channel.send(embed=embed)
 
         embed = discord.Embed(colour=0xff00ff, title="キュー")
 
@@ -485,7 +496,7 @@ async def on_ready():
 
     await bot.change_presence(activity=discord.Game(name=f'{now_time.strftime("%Y/%m/%d %H:%M:%S")} - オォン'))
 
-# https://riottechblog.cartaholdings.co.jp/entry/archives/6412
+# https://techblog.cartaholdings.co.jp/entry/archives/6412
 # チャンネル入退室時の通知処理
 @bot.event
 async def on_voice_state_update(member, before, after):
