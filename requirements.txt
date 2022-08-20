@@ -6,5 +6,5 @@ tweepy==4.10.0
 niconico.py==1.2.3
 Pillow==9.2.0
 spotdl==4.0.0rc2
-# mecab-python3
-# unidic-lite
+# mecab-python3==1.0.5
+# unidic-lite==1.0.8
