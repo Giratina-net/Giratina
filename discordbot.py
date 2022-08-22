@@ -698,6 +698,7 @@ async def on_message(ctx):
 # 
 #         return False
         
+    await bot.process_commands(ctx)
 
 # アニクトから取得したアニメをランダムで表示
 @bot.command(aliases=["ani"])
