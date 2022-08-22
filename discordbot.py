@@ -575,6 +575,14 @@ async def on_message(ctx):
     if "バキ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/934792442178306108/942106647927595008/unknown.png")
+    
+    if 'おひる' in str(ctx.content) or '昼' in str(ctx.content):
+        images = [
+            'https://cdn.discordapp.com/attachments/1002875196522381325/1003699645458944011/FTakxQUaIAAoyn3CUnetnoise_scaleLevel2x4.000000.png',
+            'https://cdn.discordapp.com/attachments/1002875196522381325/1008245051077443664/FZmJ06EUIAAcZNi.jpg'
+        ]
+        image_pickup = random.choice(images)
+        await ctx.channel.send(image_pickup)
 
     # メッセージの本文が メタ だった場合
     if "メタ" in str(ctx.content):
