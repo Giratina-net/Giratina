@@ -962,6 +962,44 @@ async def raika(ctx):
     await ctx.channel.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
 
 
+# removebg
+@bot.command()
+async def removebg(ctx):
+    removebg_apikey = os.getenv('REMOVEBG_APIKEY')
+
+    if ctx.message.reference is None:
+        await ctx.reply('加工したい画像に返信してください', mention_author=False)
+        return
+
+    mes = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+
+    if mes.attachments is None:
+        await ctx.reply('返信元のメッセージにファイルが添付されていません', mention_author=False)
+        return
+
+    await mes.attachments[0].save('temp_removebg_input.png')
+
+    mes_pros = await ctx.reply('処理中です…', mention_author=False)
+
+    #RemoveBgAPI
+    response = requests.post(
+        'https://api.remove.bg/v1.0/removebg',
+        files={'image_file': open('temp_removebg_input.png', 'rb')},
+        data={'size': 'auto'},
+        headers={'X-Api-Key': removebg_apikey},
+    )
+    await mes_pros.delete()
+
+    if response.status_code == requests.codes.ok:
+        with open('removebg_temp_output.png', 'wb') as out:
+            out.write(response.content)
+            await ctx.send(file=discord.File('removebg_temp_output.png'))
+            os.remove('temp_removebg_input.png')
+            os.remove('removebg_temp_output.png')
+    else:
+        await ctx.send(f"Error:{response.status_code} {response.text}")
+
+        
 # サターニャを送信
 @bot.command()
 async def satanya(ctx):

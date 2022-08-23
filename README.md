@@ -43,6 +43,8 @@ Twitterから`#胡桃`のついた1000いいね以上のツイートの画像を
 BotサーバーとDiscordサーバー間のPingを表示します。
 ### !raika
 Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません
+### !removebg
+remove.bg APIを用いて画像の背景を透過します。
 ### !satanya
 [@satanya_gazobot](https://twitter.com/satanya_gazobot)から最新の画像を貼ります。
 ### !sushi
