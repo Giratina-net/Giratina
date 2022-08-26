@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import csv
 import datetime
 import glob
 # import MeCab
@@ -1095,107 +1096,36 @@ async def twitter(ctx, *, arg):
 # ウマ娘ガチャシミュレーター
 @bot.command()
 async def uma(ctx):
-    uma_gacha_lists = [
-        # [ウマ娘の名称, レア度(ピックアップは+10)]
-        # ガチャ詳細サイト
-        # https://umamusume.cygames.jp/#/gacha
-        ["[スペシャルドリーマー]スペシャルウィーク", 3],
-        ["[サイレントイノセンス]サイレンススズカ", 3],
-        ["[トップ・オブ・ジョイフル]トウカイテイオー", 3],
-        ["[フォーミュラオブルージュ]マルゼンスキー", 3],
-        ["[スターライトビート]オグリキャップ", 3],
-        ["[ワイルド・フロンティア]タイキシャトル", 3],
-        ["[エレガンス・ライン]メジロマックイーン", 3],
-        ["[ロード・オブ・エンペラー]シンボリルドルフ", 3],
-        ["[ローゼスドリーム]ライスシャワー", 3],
-        ["[レッドストライフ]ゴールドシップ", 2],
-        ["[ワイルドトップギア]ウオッカ", 2],
-        ["[トップ・オブ・ブルー]ダイワスカーレット", 2],
-        ["[石穿つ者]グラスワンダー", 2],
-        ["[エル☆Número１]エルコンドルパサー", 2],
-        ["[エンプレスロード]エアグルーヴ", 2],
-        ["[すくらんぶる☆ゾーン]マヤノトップガン", 2],
-        ["[マーマリングストリーム]スーパークリーク", 2],
-        ["[ストレート・ライン]メジロライアン", 1],
-        ["[tach-nology]アグネスタキオン", 1],
-        ["[Go To Winning]ウイニングチケット", 1],
-        ["[サクラ、すすめ！]サクラバクシンオー", 1],
-        ["[うららん一等賞♪]ハルウララ", 1],
-        ["[運気上昇☆幸福万来]マチカネフクキタル", 1],
-        ["[ポインセチア・リボン]ナイスネイチャ", 1],
-        ["[キング・オブ・エメラルド]キングヘイロー", 1],
-        ["[オー・ソレ・スーオ！]テイエムオペラオー", 3],
-        ["[MB-19890425]ミホノブルボン", 3],
-        ["[pf.Victory formula...]ビワハヤヒデ", 3],
-        ["[ビヨンド・ザ・ホライズン]トウカイテイオー", 3],
-        ["[エンド・オブ・スカイ]メジロマックイーン", 3],
-        ["[フィーユ・エクレール]カレンチャン", 3],
-        ["[Nevertheless]ナリタタイシン", 3],
-        ["[あぶそりゅーと☆LOVE]スマートファルコン", 3],
-        ["[Maverick]ナリタブライアン", 13],
-        ["[サンライト・ブーケ]マヤノトップガン", 3],
-        ["[クエルクス・キウィーリス]エアグルーヴ", 3],
-        ["[あおぐもサミング]セイウンスカイ", 13],
-        ["[アマゾネス・ラピス]ヒシアマゾン", 3],
-        ["[ククルカン・モンク]エルコンドルパサー", 3],
-        ["[セイントジェード・ヒーラー]グラスワンダー", 3],
-        ["[シューティングスタァ・ルヴュ]フジキセキ", 3],
-        ["[オーセンティック/1928]ゴールドシチー", 3],
-        ["[ほっぴん♪ビタミンハート]スペシャルウィーク", 3],
-        ["[ぶっとび☆さまーナイト]マルゼンスキー", 3],
-        ["[ブルー/レイジング]メイショウドトウ", 3],
-        ["[Meisterscaft]エイシンフラッシュ", 3],
-        ["[吉兆・初あらし]マチカネフクキタル", 3],
-        ["[ボーノ☆アラモーダ]ヒシアケボノ", 3],
-        ["[超特急！フルカラー特殊PP]アグネスデジタル", 3],
-        ["[Make up Vampire!]ライスシャワー", 3],
-        ["[シフォンリボンマミー]スーパークリーク", 3],
-        ["[プリンセス・オブ・ピンク]カワカミプリンセス", 3],
-        ["[Creeping Black]マンハッタンカフェ", 3],
-        ["[皓月の弓取り]シンボリルドルフ", 3],
-        ["[秋桜ダンツァトリーチェ]ゴールドシチー", 3],
-        ["[ポップス☆ジョーカー]トーセンジョーダン", 3],
-        ["[ツイステッド・ライン]メジロドーベル", 3],
-        ["[キセキの白星]オグリキャップ", 3],
-        ["[ノエルージュ・キャロル]ビワハヤヒデ", 3],
-        ["[Noble Seamair]ファインモーション", 3],
-        ["[疾風迅雷]タマモクロス", 3],
-        ["[初うらら♪さくさくら]ハルウララ", 3],
-        ["[初晴・青き絢爛]テイエムオペラオー", 3],
-        ["[日下開山・花あかり]サクラチヨノオー", 3],
-        ["[CODE：グラサージュ]ミホノブルボン", 3],
-        ["[コレクト・ショコラティエ]エイシンフラッシュ", 3],
-        ["[クリノクロア・ライン]メジロアルダン", 3],
-        ["[Starry Nocturne]アドマイヤベガ", 3],
-        ["[錦上・大判御輿]キタサンブラック", 3],
-        ["[ぱんぱかティルトット]マチカネタンホイザ", 2],
-        ["[Natural Brilliance]サトノダイヤモンド", 3],
-        ["[ブリュニサージュ・ライン]メジロブライト", 3],
-        ["[ソワレ・ド・シャトン]セイウンスカイ", 3],
-        ["[シュクセ・エトワーレ]フジキセキ", 3],
-        ["[ティアード・ペタル]ニシノフラワー", 3],
-        ["[四白流星の襲]ヤエノムテキ", 3],
-        ["[RUN&WIN]ナイスネイチャ", 3],
-        ["[白く気高き激励の装]キングヘイロー", 3],
-        ["[オールタイム・フィーバー]アイネスフウジン", 3],
-        ["[Like Breakthrough]メジロパーマー", 3],
-        ["[朔月のマ・シェリ]カレンチャン", 3],
-        ["[Titania]ファインモーション", 3],
-        ["[稲荷所縁江戸紫]イナリワン", 3],
-        ["[プラタナス・ウィッチ]スイープトウショウ", 3],
-        ["[Bubblegum☆Memories]タイキシャトル", 3],
-        ["[バカンス・サフィール]メジロドーベル", 3],
-        ["[unsigned]エアシャカール", 3]
-    ]
+    class Uma_Chara:
+        #アイコン画像の数字に一致
+        id = 0
+        name = ""
+        rarity = 0
+        is_pickup = 0
 
-    # 確率比[★1, ★2, ★3, ピックアップ]
-    weights = [79, 18, 1.5, 1.5]
+        def __init__(self, id, name, rarity, is_pickup):
+            self.id = id
+            self.name = name
+            self.rarity = rarity
+            self.is_pickup = is_pickup
+    
+    chara_list = []
+
+    # CSVファイルからキャラ情報を読み込み
+    with open('resources/uma_chara_info.csv', encoding="utf-8") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            chara = Uma_Chara(int(row[0]), row[1], int(row[2]), int(row[3]))
+            chara_list.append(chara)
+
+    # 確率比[★1, ★2, ★3]
+    weights = [79, 18, 3]
     # 確率比(10回目)
-    weights_10 = [0, 97, 1.5, 1.5]
+    weights_10 = [0, 97, 3]
 
     # 画像サイズ
     width = 400
-    height = 222
+    height = 221
     # 項目の間隔
     margin = 45
     # 画像の背景色
@@ -1208,32 +1138,49 @@ async def uma(ctx):
     for i in range(10):
         w = weights if i < 9 else weights_10
 
-        # レア度ごとに選出
-        uma_gacha_results_by_rarity = [
-            random.choice(list(filter(lambda e: e[1] == 1, uma_gacha_lists))),
-            random.choice(list(filter(lambda e: e[1] == 2, uma_gacha_lists))),
-            random.choice(list(filter(lambda e: e[1] == 3, uma_gacha_lists))),
-            random.choice(list(filter(lambda e: e[1] > 10, uma_gacha_lists)))
-        ]
+        chara_results_by_rarity = []
+
+        # レア度1はピックアップが存在しないため等確率で選出
+        chara_results_by_rarity.append(random.choice([ch for ch in chara_list if ch.rarity == 1]))
+
+        # レア度2以降はピックアップの有無ごとに選出
+        for r in range(2, 4):
+            list_pickup = [ch for ch in chara_list if ch.rarity == r and ch.is_pickup]
+            list_not_pickup = [ch for ch in chara_list if ch.rarity == r and not ch.is_pickup]
+            # ピックアップ1体ごとの確率
+            prob_pickup = 0.75 if r == 3 else 2.25
+            # ピックアップが存在する場合
+            if len(list_pickup):
+                chara_results_by_pickup = random.choices(
+                    [list_pickup, list_not_pickup],
+                    weights=[
+                        len(list_pickup) * prob_pickup,
+                        w[r - 1] - len(list_pickup) * prob_pickup
+                    ]
+                    )[0]
+                chara_results_by_rarity.append(random.choice(chara_results_by_pickup))
+            # ピックアップが存在しない場合
+            else:
+                chara_results_by_rarity.append(random.choice([ch for ch in chara_list if ch.rarity == r]))
 
         # 最終的な排出ウマ娘を決定
-        uma_gacha_result = random.choices(uma_gacha_results_by_rarity, weights=w)[0]
+        chara_result = random.choices(chara_results_by_rarity, weights=w)[0]
 
         # レア度が3なら文字色を変える
-        color = (214, 204, 107) if uma_gacha_result[1] % 10 == 3 else (255, 255, 255)
+        color = (214, 204, 107) if chara_result.rarity == 3 else (255, 255, 255)
 
         # 原寸で表示される最大の画像サイズが400x300(10連だと見切れる)なので5連ずつ2枚の画像に分ける
         if i % 5 == 0:
             draw.rectangle((0, 0, width, height), fill=bg)
 
         # アイコン画像をuma_iconフォルダから読み込み&貼り付け(URLから読み込むと遅かった)
-        uma_image = Image.open(f"resources/uma_icon/i_{uma_gacha_lists.index(uma_gacha_result) + 1}.png")
-        img.paste(uma_image, (3, margin * (i % 5) + 5))
+        uma_image = Image.open(f"resources/uma_icon/i_{chara_result.id}.png")
+        img.paste(uma_image, (0, margin * (i % 5) + 5))
 
         # テキストを描画(星マーク)
-        draw.text((40, margin * (i % 5)), "★" * (uma_gacha_result[1] % 10), color, font=font)
+        draw.text((40, margin * (i % 5)), "★" * chara_result.rarity, color, font=font)
         # テキストを描画(ウマ娘名称)
-        draw.text((40, margin * (i % 5) + 15), uma_gacha_result[0], color, font=font)
+        draw.text((40, margin * (i % 5) + 15), chara_result.name, color, font=font)
 
         # 5連ごとに画像を書き出し
         if i % 5 == 4:
