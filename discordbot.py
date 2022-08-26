@@ -565,6 +565,32 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1006257985846263808/6C4D7AD5-ADBA-4BC7-824C-5A118E09A43A.png")
 
+    if "君しかいないんだよ" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        ydl_opts_you = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+            }],
+            'outtmpl':'you.mp3',
+            }
+        with YoutubeDL(ydl_opts_you) as ydl:
+            ydl.download(['https://soundcloud.com/kejiramikitanai/h9jsjiorr7ln'])
+        # ボイスチャンネルに接続する
+        if ctx.author.voice is None:
+            return
+        if ctx.guild.voice_client is None:
+            await ctx.author.voice.channel.connect()
+        # 音声を再生する
+        ctx.guild.voice_client.play(discord.FFmpegPCMAudio("you.mp3"))
+        # 音声が再生中か確認する
+        while ctx.guild.voice_client.is_playing():
+            await asyncio.sleep(1)
+        # 切断する
+        await ctx.guild.voice_client.disconnect()
+
     # メッセージの本文が クワガタ だった場合
     if "くわがた" in str(ctx.content) or "クワガタ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
