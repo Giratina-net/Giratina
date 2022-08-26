@@ -1,4 +1,4 @@
-py-cord[voice]==2.0.1
+py-cord[voice]==2.1.1
 ffmpeg-python==0.2.0
 yt-dlp==2022.8.19
 google-api-python-client==2.58.0
