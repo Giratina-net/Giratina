@@ -15,6 +15,7 @@ import discord
 import requests
 import tweepy
 import yt_dlp
+from yt_dlp import YoutubeDL
 from PIL import Image, ImageFont, ImageDraw
 from discord.ext import commands
 from googleapiclient.discovery import build
@@ -530,7 +531,7 @@ async def on_message(ctx):
     if ctx.author.bot:
         return
 
-    # メッセージの本文がアーメンだった場合
+    # メッセージの本文が アーメン だった場合
     if "アーメン" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1012764896900956281/unknown.png")
@@ -564,7 +565,8 @@ async def on_message(ctx):
     if "かに" in str(ctx.content) or "カニ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1006257985846263808/6C4D7AD5-ADBA-4BC7-824C-5A118E09A43A.png")
-
+    
+    # メッセージの本文が 君しかいないんだよ だった場合
     if "君しかいないんだよ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         ydl_opts_you = {
@@ -594,7 +596,12 @@ async def on_message(ctx):
     # メッセージの本文が クワガタ だった場合
     if "くわがた" in str(ctx.content) or "クワガタ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/959475816209739796/1000340129703006218/14C3BEA6-F0E3-4046-97E7-2D37732A3F75.png")
+        images_kuwagata = [
+            'https://cdn.discordapp.com/attachments/959475816209739796/1000340129703006218/14C3BEA6-F0E3-4046-97E7-2D37732A3F75.png',
+            'https://media.discordapp.net/attachments/991551726308048896/1012775482955145347/Fa_-bj2aUAALUIr.png'
+        ]
+        image_pickup = random.choice(images_kuwagata)
+        await ctx.channel.send(image_pickup)
 
     # ドナルドの言葉狩り - https://qiita.com/sizumita/items/9d44ae7d1ce007391699
     # メッセージの本文が ドナルド だった場合
