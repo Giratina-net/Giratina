@@ -530,6 +530,11 @@ async def on_message(ctx):
     if ctx.author.bot:
         return
 
+    # メッセージの本文がアーメンだった場合
+    if "アーメン" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1012764896900956281/unknown.png")
+
     # メッセージの本文が big brother だった場合
     if "big brother" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
