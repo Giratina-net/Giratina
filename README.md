@@ -49,6 +49,8 @@ remove.bg APIを用いて画像の背景を透過します。
 [@satanya_gazobot](https://twitter.com/satanya_gazobot)から最新の画像を貼ります。
 ### !sushi
 [@kasakioiba](https://twitter.com/kasakioiba)から最新の画像を貼ります。
+### !toukaiteiou, !teiou, !teio-, !teio
+`ﾎﾞｸはﾃｲｵｰ！ちゃんねる`に貼られた画像やテキストをランダムで返します。
 ### !twitter, !tw
 Twitterの検索を使って画像を返します。  
 たとえば`!twitter 猫`と打つと、Twitterで猫と検索した時に表示されるツイートの画像を送信します。  
@@ -99,7 +101,7 @@ TwitterのJSONの仕様がよくわかってなくて、画像が返ってこな
 曲を止めるコマンドです。キューもリセットされます。
 
 ## 言葉狩り機能
-言葉狩りをして画像やテキストを返します。   
+言葉狩りをして画像や音声、テキストを返します。   
 以下の言葉に反応します。
 - big brother
 - DJ
@@ -117,6 +119,7 @@ TwitterのJSONの仕様がよくわかってなくて、画像が返ってこな
 - ランキング
 - 一週間
 - 死んだ
+- 君しかいないんだよ
 - 昼
 - 風呂
 

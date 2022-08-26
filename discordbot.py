@@ -96,6 +96,8 @@ FALCO_CHANNEL_ID = 955809774849646603
 MACHITAN_CHANNEL_ID = 987930969040355361
 # no context hentai imgのチャンネルID
 NO_CONTEXT_HENTAI_IMG_CHANNEL_ID = 988071456430760006
+# ﾎﾞｸはﾃｲｵｰ!ちゃんねる
+TEIOU_CHANNEL_ID = 1012808118469677148
 # ボイスチャット通知のチャンネルID
 VOICECHAT_NOTIFICATION_CHANNEL_ID = 1009127020518707201
 
@@ -1058,6 +1060,23 @@ async def sushi(ctx):
         for m in media:
             origin = m["media_url"]
             await ctx.channel.send(origin)
+
+
+# ファルコおもしろ画像を送信
+@bot.command(aliases=["teiou", "teio", "teio-"])
+async def toukaiteiou(ctx):
+    guild = bot.get_guild(SEIBARI_GUILD_ID)
+
+    channel = guild.get_channel(TEIOU_CHANNEL_ID)
+
+    teiou_channel_messages = [message async for message in channel.history(limit=None)]
+
+    random_teiou = random.choice(teiou_channel_messages)
+
+    content = random_teiou.attachments[0].url if random_teiou.content == "" else random_teiou.content
+
+    # メッセージが送られてきたチャンネルに送る
+    await ctx.channel.send(content)
 
 
 # https://zenn.dev/zakiii/articles/7ada80144c9db0
