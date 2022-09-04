@@ -7,6 +7,7 @@ import glob
 from ntpath import join
 import os
 import random
+import re
 # import sys
 import time
 import typing
@@ -1007,12 +1008,18 @@ async def ping(ctx):
     latency_milli = round(latency * 1000)
     await ctx.channel.send(f"Pong!: {latency_milli}ms")
 
-
 # Raika
 @bot.command()
 async def raika(ctx):
-    await ctx.channel.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
-
+    txtfile = open("resources/Wonderful_Raika_Tweet.txt","r", encoding="utf-8")
+    word = ",".join(list(map(lambda s:s.rstrip("\n"), random.sample(txtfile.readlines(),1)))).replace("['","").replace("']","")
+    url = [word]
+    pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
+    for url in url:
+        if re.match(pattern, url):
+            await ctx.channel.send(requests.get(url).url)
+        else:  
+            await ctx.channel.send(word)
 
 # removebg
 @bot.command()
