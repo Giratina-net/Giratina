@@ -807,6 +807,17 @@ async def falco(ctx):
     # メッセージが送られてきたチャンネルに送る
     await ctx.channel.send(content)
 
+# ファミ通
+@bot.command(aliases=["fami", "famitu", "fami2"])
+async def famitsu(ctx):
+    texts = []
+    tweets = twapi.search_tweets(q="from:@fami2repo_bot", count=10)
+    for tweet in tweets:
+        text = tweet.text
+        texts.append(text)
+    text_pickup = random.choice(texts)
+    await ctx.channel.send(text_pickup)
+
 
 # Twitterから#GenshinImpactの1000いいね以上を探して送信
 @bot.command(aliases=["gennshinn", "gensin", "gennsinn", "gs"])
