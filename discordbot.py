@@ -1088,47 +1088,22 @@ async def hiroyuki(ctx, *arg):
         await ctx.send(f"{text}を生成開始")
         headers = {
             'authority': 'tgeedx93af.execute-api.ap-northeast-1.amazonaws.com',
-            'accept': 'application/json, text/plain, */*',
-            'accept-language': 'en-US,en;q=0.9,ja;q=0.8',
-            'origin': 'https://hiroyuki.coefont.cloud',
-            'referer': 'https://hiroyuki.coefont.cloud/',
-            'sec-ch-ua': '"Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'cross-site',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+            'accept': 'application/json, text/plain, */*'
         }
-
         json_data = {
             'coefont': '19d55439-312d-4a1d-a27b-28f0f31bedc5',
             'text':  f'{text}',
         }
-
         response = requests.post('https://tgeedx93af.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki/text2speech', headers=headers, json=json_data)
         await ctx.send(f"{response}で音声生成終了")
         key = response.json()["body"]["wav_key"]
-        
         headers2 = {
             'authority': 'johwruw0ic.execute-api.ap-northeast-1.amazonaws.com',
-            'accept': 'application/json, text/plain, */*',
-            'accept-language': 'en-US,en;q=0.9,ja;q=0.8',
-            'origin': 'https://hiroyuki.coefont.cloud',
-            'referer': 'https://hiroyuki.coefont.cloud/',
-            'sec-ch-ua': '"Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'cross-site',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+            'accept': 'application/json, text/plain, */*'
         }
-
         json_data2 = {
         'voice_key': f'{key}',
         }
-
         response2 = requests.post('https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video', headers=headers2, json=json_data2)
         url = response2.json()["body"]["url"]
         await ctx.send(f"{url}")
