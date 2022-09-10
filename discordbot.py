@@ -1103,6 +1103,35 @@ async def twitter(ctx, *, arg):
             origin = m["media_url"]
             await ctx.channel.send(origin)
 
+@bot.command(aliases=["twdl"])
+async def twitterdl(ctx, *, arg):
+    tweet_url = f"{arg}"
+    # URLからツイートIDを取得する正規表現
+    # https://stackoverflow.com/questions/45282238/getting-a-tweet-id-from-a-tweet-link-using-tweepy
+    tweet_id = tweet_url.split('/')[-1].split('?')[0]
+    is_twitter = tweet_url.startswith("https://twitter.com")
+
+    if is_twitter:
+        tweet_status = twapi.get_status(id=int(tweet_id), tweet_mode="extended", include_entities=True)
+
+        status = tweet_status
+        for media in status.extended_entities.get('media', [{}]):
+            if media.get('type', None) == 'video':
+                video = media['video_info']['variants']
+                sorted_video = sorted(
+                    video,
+                    key = lambda x: x.get('bitrate',0), #bitrateの値がない場合にエラーが出るので0を代入して大きい順にソートする
+                    reverse = True #降順にする
+                )
+                video_url = sorted_video[0]['url']
+        await ctx.channel.send(video_url)
+
+
+    else:
+        embed = discord.Embed(colour=0xff00ff, title="TwitterのURLを貼ってください")
+        discord.Message = await ctx.channel.send(embed=embed)
+
+
 
 # ウマ娘ガチャシミュレーター
 @bot.command()
