@@ -1085,7 +1085,8 @@ async def mraika(ctx):
 async def hiroyuki(ctx, *arg):
     if arg:
         text = arg[0]
-        await ctx.send(f"{text}を生成開始")
+        embed = discord.Embed(colour=0xff00ff, title=f"{text}を生成中です...")
+        hiroyuki_msg: discord.Message = await ctx.channel.send(embed=embed)
         headers = {
             'authority': 'tgeedx93af.execute-api.ap-northeast-1.amazonaws.com',
             'accept': 'application/json, text/plain, */*'
@@ -1095,21 +1096,29 @@ async def hiroyuki(ctx, *arg):
             'text':  f'{text}',
         }
         response = requests.post('https://tgeedx93af.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki/text2speech', headers=headers, json=json_data)
-        await ctx.send(f"{response}で音声生成終了")
-        key = response.json()["body"]["wav_key"]
-        headers2 = {
-            'authority': 'johwruw0ic.execute-api.ap-northeast-1.amazonaws.com',
-            'accept': 'application/json, text/plain, */*'
-        }
-        json_data2 = {
-        'voice_key': f'{key}',
-        }
-        response2 = requests.post('https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video', headers=headers2, json=json_data2)
-        url = response2.json()["body"]["url"]
-        await ctx.send(f"{url}")
-        return
+        print(response)
+        if str(response) == "<Response [200]>":
+            key = response.json()["body"]["wav_key"]
+            headers2 = {
+                'authority': 'johwruw0ic.execute-api.ap-northeast-1.amazonaws.com',
+                'accept': 'application/json, text/plain, */*'
+            }
+            json_data2 = {
+            'voice_key': f'{key}',
+            }
+            response2 = requests.post('https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video', headers=headers2, json=json_data2)
+            url = response2.json()["body"]["url"]
+            await hiroyuki_msg.delete()
+            await ctx.send(f"{url}")
+            return
+        else:
+            embed = discord.Embed(colour=0xff0000, title="生成に失敗しました")
+            await hiroyuki_msg.edit(embed=embed)
+            return
     if not arg:
-        await ctx.send(f"文字を入力してください")
+        embed = discord.Embed(colour=0xff0000, title=f"文字を入力してください")
+        hiroyuki_msg: discord.Message = await ctx.channel.send(embed=embed)
+
 
 # removebg
 @bot.command()
