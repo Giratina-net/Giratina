@@ -3,25 +3,27 @@ import asyncio
 import csv
 import datetime
 import glob
-# import MeCab
+import MeCab
+from nltk import ngrams
 from ntpath import join
 import os
 import random
+import re
 # import sys
 import time
 import typing
-from os import getenv
-
 import discord
 import requests
 import tweepy
 import yt_dlp
-from yt_dlp import YoutubeDL
-from PIL import Image, ImageFont, ImageDraw
+from collections import Counter, defaultdict
 from discord.ext import commands
 from googleapiclient.discovery import build
 from niconico import NicoNico
+from os import getenv
+from PIL import Image, ImageFont, ImageDraw
 from spotdl import Spotdl
+from yt_dlp import YoutubeDL
 
 # spotdl
 SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID")
@@ -1007,12 +1009,107 @@ async def ping(ctx):
     latency_milli = round(latency * 1000)
     await ctx.channel.send(f"Pong!: {latency_milli}ms")
 
-
 # Raika
 @bot.command()
 async def raika(ctx):
-    await ctx.channel.send("Twitterをやってるときの指の動作またはスマートフォンを凝視するという行動が同じだけなのであって容姿がこのような姿であるという意味ではありません")
+    txtfile = open("resources/Wonderful_Raika_Tweet.txt","r", encoding="utf-8")
+    word = ",".join(list(map(lambda s:s.rstrip("\n"), random.sample(txtfile.readlines(),1)))).replace("['","").replace("']","")
+    url = [word]
+    pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
+    for url in url:
+        if re.match(pattern, url):
+            await ctx.channel.send(requests.get(url).url)
+        else:  
+            await ctx.channel.send(word)
 
+#raikaマルコフ
+#https://monachanpapa-scripting.com/marukofu-python/ほぼ丸コピですすみません...
+@bot.command()
+async def mraika(ctx):
+    def parse_words(test_data):
+        with open('resources/Wonderful_Raika_Tweet.txt', 'r', encoding="utf-8") as f:
+            lines = f.readlines()
+        t = MeCab.Tagger('-Owakati')
+        datas = []
+        for line in lines:
+            data = t.parse(line).strip()
+            datas.append(data)
+        datas = [f'__BEGIN__ {data} __END__' for data in datas]
+        datas = [data.split() for data in datas]    
+        return datas
+    def create_words_cnt_dic(datas):
+        words = []
+        for data in datas:
+            words.extend(list(ngrams(data, 3)))
+        words_cnt_dic = Counter(words)
+        return words_cnt_dic    
+    def create_m_dic(words_cnt_dic):
+        m_dic = {}
+        for k, v in words_cnt_dic.items():
+            two_words, next_word = k[:2], k[2]
+            if two_words not in m_dic:
+                m_dic[two_words] = {'words': [], 'weights': []}
+            m_dic[two_words]['words'].append(next_word)
+            m_dic[two_words]['weights'].append(v)
+        return m_dic    
+    def create_begin_words_weights(words_cnt_dic):
+        begin_words_dic = defaultdict(int) 
+        for k, v in words_cnt_dic.items():
+            if k[0] == '__BEGIN__':
+                next_word = k[1]
+                begin_words_dic[next_word] = v
+        begin_words = [k for k in begin_words_dic.keys()]
+        begin_weights = [v for v in begin_words_dic.values()]
+        return begin_words, begin_weights
+    def create_sentences(m_dic, begin_words, begin_weights):
+        begin_word = random.choices(begin_words, weights=begin_weights, k=1)[0]
+        sentences = ['__BEGIN__', begin_word]
+        while True:
+            back_words = tuple(sentences[-2:])
+            words, weights = m_dic[back_words]['words'], m_dic[back_words]['weights']
+            next_word = random.choices(words, weights=weights, k=1)[0]
+            if next_word == '__END__':
+                break
+            sentences.append(next_word)
+        return ''.join(sentences[1:])    
+    datas = parse_words('osake.txt')
+    words_cnt_dic = create_words_cnt_dic(datas)
+    m_dic = create_m_dic(words_cnt_dic)
+    begin_words, begin_weights = create_begin_words_weights(words_cnt_dic)
+    for i in range(1):
+        text = create_sentences(m_dic, begin_words, begin_weights)
+        await ctx.channel.send(text)
+
+#おしゃべりひろゆきメーカーの実装。リリース半日クオリティーなので許してください
+@bot.command()
+async def hiroyuki(ctx, *arg):
+    if arg:
+        text = arg[0]
+        await ctx.send(f"{text}を生成開始")
+        headers = {
+            'authority': 'tgeedx93af.execute-api.ap-northeast-1.amazonaws.com',
+            'accept': 'application/json, text/plain, */*'
+        }
+        json_data = {
+            'coefont': '19d55439-312d-4a1d-a27b-28f0f31bedc5',
+            'text':  f'{text}',
+        }
+        response = requests.post('https://tgeedx93af.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki/text2speech', headers=headers, json=json_data)
+        await ctx.send(f"{response}で音声生成終了")
+        key = response.json()["body"]["wav_key"]
+        headers2 = {
+            'authority': 'johwruw0ic.execute-api.ap-northeast-1.amazonaws.com',
+            'accept': 'application/json, text/plain, */*'
+        }
+        json_data2 = {
+        'voice_key': f'{key}',
+        }
+        response2 = requests.post('https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video', headers=headers2, json=json_data2)
+        url = response2.json()["body"]["url"]
+        await ctx.send(f"{url}")
+        return
+    if not arg:
+        await ctx.send(f"文字を入力してください")
 
 # removebg
 @bot.command()
