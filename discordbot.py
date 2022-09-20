@@ -1096,8 +1096,10 @@ async def hiroyuki(ctx, *arg):
             'text':  f'{text}',
         }
         response = requests.post('https://tgeedx93af.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki/text2speech', headers=headers, json=json_data)
-        print(response)
-        if str(response) == "<Response [200]>":
+        status = response.json()["statusCode"]
+        if status == 200:
+            embed = discord.Embed(colour=0x4db56a, title=f"音声の生成に成功しました")
+            await hiroyuki_msg.edit(embed=embed)
             key = response.json()["body"]["wav_key"]
             headers2 = {
                 'authority': 'johwruw0ic.execute-api.ap-northeast-1.amazonaws.com',
@@ -1108,7 +1110,8 @@ async def hiroyuki(ctx, *arg):
             }
             response2 = requests.post('https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video', headers=headers2, json=json_data2)
             url = response2.json()["body"]["url"]
-            await hiroyuki_msg.delete()
+            embed = discord.Embed(colour=0x4db56a, title=f"動画の生成に成功しました")
+            await hiroyuki_msg.edit(embed=embed)
             await ctx.send(f"{url}")
             return
         else:
