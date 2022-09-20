@@ -9,3 +9,4 @@ spotdl==4.0.0rc3
 mecab-python3==1.0.5
 nltk==3.7
 unidic-lite==1.0.8
+gdshortener==1.0.1

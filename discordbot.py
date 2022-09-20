@@ -2,6 +2,7 @@
 import asyncio
 import csv
 import datetime
+import gdshortener
 import glob
 import MeCab
 from nltk import ngrams
@@ -10,6 +11,7 @@ import os
 import random
 import re
 # import sys
+import ffmpeg
 import time
 import typing
 import discord
@@ -1098,8 +1100,6 @@ async def hiroyuki(ctx, *arg):
         response = requests.post('https://tgeedx93af.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki/text2speech', headers=headers, json=json_data)
         status = response.json()["statusCode"]
         if status == 200:
-            embed = discord.Embed(colour=0x4db56a, title=f"音声の生成に成功しました")
-            await hiroyuki_msg.edit(embed=embed)
             key = response.json()["body"]["wav_key"]
             headers2 = {
                 'authority': 'johwruw0ic.execute-api.ap-northeast-1.amazonaws.com',
@@ -1110,9 +1110,21 @@ async def hiroyuki(ctx, *arg):
             }
             response2 = requests.post('https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video', headers=headers2, json=json_data2)
             url = response2.json()["body"]["url"]
-            embed = discord.Embed(colour=0x4db56a, title=f"動画の生成に成功しました")
+            embed = discord.Embed(colour=0x4db56a, title=f"音声の生成に成功しました")
             await hiroyuki_msg.edit(embed=embed)
-            await ctx.send(f"{url}")
+            response = requests.get(url)
+            file = open("temp.mp4","wb")
+            for chunk in response.iter_content(100000):
+                file.write(chunk)
+            file.close()
+            stream = ffmpeg.input("temp.mp4") 
+            stream = ffmpeg.output(stream, "hiroyuki.mp3") 
+            ffmpeg.run(stream)
+            await ctx.channel.send(file=discord.File("hiroyuki.mp3"))
+            embed0 = discord.Embed(colour=0x4db56a, title=f"動画 {gdshortener.ISGDShortener().shorten(url=url)[0]}")
+            hiroyuki0_msg: discord.Message = await ctx.channel.send(embed=embed0)
+            os.remove('temp.mp4')
+            os.remove('hiroyuki.mp3')
             return
         else:
             embed = discord.Embed(colour=0xff0000, title="生成に失敗しました")
