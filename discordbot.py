@@ -1204,6 +1204,28 @@ async def htalk(ctx, *arg):
         embed = discord.Embed(colour=0xff0000, title=f"文字を入力してください")
         hiroyuki_msg: discord.Message = await ctx.channel.send(embed=embed)
 
+# mp4
+@bot.command()
+async def mp4(ctx):
+    if ctx.message.reference is None:
+        await ctx.reply('動画にしたい音声に返信してください', mention_author=False)
+        return
+    
+    mes = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+
+    if mes.attachments is None:
+        await ctx.reply('返信元のメッセージにファイルが添付されていません', mention_author=False)
+        return
+        
+    await mes.attachments[0].save("resources/temporally/wip_input.mp3")
+    mes_pros = await ctx.reply('処理中です…', mention_author=False)
+    command = "ffmpeg -y -loop 1 -i resources/wip_input.jpg -i resources/temporally/wip_input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest resources/temporally/wip_output.mp4"
+    proc = await asyncio.create_subprocess_exec(*command.split(" "), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    stdout, stderr = await proc.communicate()
+    await mes_pros.delete()
+    await ctx.channel.send(file=discord.File("resources/temporally/wip_output.mp4"))
+    os.remove("resources/temporally/wip_input.mp3")
+    os.remove("resources/temporally/wip_output.mp4")
 
 # removebg
 @bot.command()
