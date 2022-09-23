@@ -398,10 +398,15 @@ class Music(commands.Cog):
                     ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
                     embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
                     np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
-                    np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
-                    np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-                    embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])                 
-                    await play_msg.edit(embed=embed)
+                    # サムネイル情報が入っている場合
+                    if np_youtube_video["items"]:
+                        np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
+                        np_highres_thumbnail = list(np_thumbnail.keys())[-1]
+                        embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])                 
+                        await play_msg.edit(embed=embed)
+                    else:
+                        await play_msg.edit(embed=embed)
+
 
         self.queue.extend(other_sources)
 
