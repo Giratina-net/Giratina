@@ -228,7 +228,7 @@ class Music(commands.Cog):
     #
     #     self.loop = not self.loop
     #
-    #     embed = discord.Embed(colour=0xff00ff, title=f'ループを {"`有効`" if self.loop else "`無効`"} にしました')
+    #     embed = discord.Embed(colour=0xff00ff, title=f"ループを {"`有効`" if self.loop else "`無効`"} にしました")
     #     await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["np"])
@@ -240,8 +240,8 @@ class Music(commands.Cog):
             return
 
         embed = discord.Embed(colour=0xff00ff, title="現在再生中", description=f"[{self.player.title}]({self.player.original_url})" if ctx.guild.voice_client.is_playing() else "再生していません")
-        embed.set_footer(text=f'残りキュー: {len(self.queue)}')
-        # embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
+        embed.set_footer(text=f"残りキュー: {len(self.queue)}")
+        # embed.set_footer(text=f"残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}")
 
         # サムネイルをAPIで取得
         if ctx.guild.voice_client.is_playing() and ("youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url):
@@ -316,7 +316,7 @@ class Music(commands.Cog):
                 self.player = source
                 ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
                 embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
-                await play_msg.edit(embed=embed)            
+                await play_msg.edit(embed=embed)
 
         elif is_spotify:
             # プレイリストの1曲目のURLを変換してsourceに入れる
@@ -340,7 +340,7 @@ class Music(commands.Cog):
                 np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
                 np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
                 np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-                embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])                      
+                embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
                 await play_msg.edit(embed=embed)
 
             # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
@@ -373,9 +373,9 @@ class Music(commands.Cog):
                     np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
                     np_highres_thumbnail = list(np_thumbnail.keys())[-1]
                     embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
-                    await play_msg.edit(embed=embed)            
+                    await play_msg.edit(embed=embed)
 
-                # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
+                    # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
                 datalist_others = data["entries"][1:]
                 for item in datalist_others:
                     original_url = item.get("original_url")
@@ -402,11 +402,10 @@ class Music(commands.Cog):
                     if np_youtube_video["items"]:
                         np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
                         np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-                        embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])                 
+                        embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
                         await play_msg.edit(embed=embed)
                     else:
                         await play_msg.edit(embed=embed)
-
 
         self.queue.extend(other_sources)
 
@@ -426,8 +425,8 @@ class Music(commands.Cog):
 
             embed.description = "\n\n".join(queue_embed)
 
-        embed.set_footer(text=f'残りキュー: {len(self.queue)}')
-        # embed.set_footer(text=f'残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}')
+        embed.set_footer(text=f"残りキュー: {len(self.queue)}")
+        # embed.set_footer(text=f"残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}")
         await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["s"])
@@ -509,20 +508,21 @@ async def on_ready():
 
     time.sleep(5)
 
-    await bot.change_presence(activity=discord.Game(name=f'{now_time.strftime("%Y/%m/%d %H:%M:%S")} - オォン'))
+    await bot.change_presence(activity=discord.Game(name=f"{now_time.strftime('%Y/%m/%d %H:%M:%S')} - オォン"))
+
 
 # https://techblog.cartaholdings.co.jp/entry/archives/6412
 # チャンネル入退室時の通知処理
 @bot.event
 async def on_voice_state_update(member, before, after):
-
     # チャンネルへの入室ステータスが変更されたとき（ミュートON、OFFに反応しないように分岐）
     if before.channel != after.channel:
         # 通知メッセージを書き込むテキストチャンネル（チャンネルIDを指定）
         notification_channel = bot.get_channel(VOICECHAT_NOTIFICATION_CHANNEL_ID)
 
         # 入退室を監視する対象のボイスチャンネル（チャンネルIDを指定）
-        SEIBARI_VOICE_CHANNEL_IDs = [889049222152871990, 889251836312309800, 938212082363539526, 889312365466775582, 934783864226844682, 934783998935302214, 938212160075628624, 956176543850311700, 988470466249359461, 1005195693465538591, 1001860023917477908, 937319677162565672, 890539305276174357]
+        SEIBARI_VOICE_CHANNEL_IDs = [889049222152871990, 889251836312309800, 938212082363539526, 889312365466775582, 934783864226844682, 934783998935302214, 938212160075628624, 956176543850311700,
+                                     988470466249359461, 1005195693465538591, 1001860023917477908, 937319677162565672, 890539305276174357]
 
         # 終了通知
         if before.channel is not None and before.channel.id in SEIBARI_VOICE_CHANNEL_IDs:
@@ -535,6 +535,7 @@ async def on_voice_state_update(member, before, after):
                 embed = discord.Embed(colour=0xff00ff, title="通知", description="**" + after.channel.name + "** の通話が開始しました")
                 await notification_channel.send(embed=embed)
 
+
 # メッセージ送信時に実行される関数
 @bot.event
 async def on_message(ctx):
@@ -542,11 +543,6 @@ async def on_message(ctx):
     # ここで弾けば以降は書かなくて良さそう
     if ctx.author.bot:
         return
-
-    # メッセージの本文が アーメン だった場合
-    if "アーメン" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1012764896900956281/unknown.png")
 
     # メッセージの本文が big brother だった場合
     if "big brother" in str(ctx.content):
@@ -563,6 +559,11 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://twitter.com/aaruaika/status/1518874935024054272")
 
+    # メッセージの本文が アーメン だった場合
+    if "アーメン" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1012764896900956281/unknown.png")
+
     # メッセージの本文が いい曲 だった場合
     if "いい曲" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
@@ -577,40 +578,13 @@ async def on_message(ctx):
     if "かに" in str(ctx.content) or "カニ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1006257985846263808/6C4D7AD5-ADBA-4BC7-824C-5A118E09A43A.png")
-    
-    # メッセージの本文が 君しかいないんだよ だった場合
-    if "君しかいないんだよ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        ydl_opts_you = {
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-            }],
-            'outtmpl':'you.mp3',
-            }
-        with YoutubeDL(ydl_opts_you) as ydl:
-            ydl.download(['https://soundcloud.com/kejiramikitanai/h9jsjiorr7ln'])
-        # ボイスチャンネルに接続する
-        if ctx.author.voice is None:
-            return
-        if ctx.guild.voice_client is None:
-            await ctx.author.voice.channel.connect()
-        # 音声を再生する
-        ctx.guild.voice_client.play(discord.FFmpegPCMAudio("you.mp3"))
-        # 音声が再生中か確認する
-        while ctx.guild.voice_client.is_playing():
-            await asyncio.sleep(1)
-        # 切断する
-        await ctx.guild.voice_client.disconnect()
 
     # メッセージの本文が クワガタ だった場合
     if "くわがた" in str(ctx.content) or "クワガタ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         images_kuwagata = [
-            'https://cdn.discordapp.com/attachments/959475816209739796/1000340129703006218/14C3BEA6-F0E3-4046-97E7-2D37732A3F75.png',
-            'https://media.discordapp.net/attachments/991551726308048896/1012775482955145347/Fa_-bj2aUAALUIr.png'
+            "https://cdn.discordapp.com/attachments/959475816209739796/1000340129703006218/14C3BEA6-F0E3-4046-97E7-2D37732A3F75.png",
+            "https://media.discordapp.net/attachments/991551726308048896/1012775482955145347/Fa_-bj2aUAALUIr.png"
         ]
         image_pickup = random.choice(images_kuwagata)
         await ctx.channel.send(image_pickup)
@@ -625,14 +599,6 @@ async def on_message(ctx):
     if "バキ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/934792442178306108/942106647927595008/unknown.png")
-    
-    if 'おひる' in str(ctx.content) or '昼' in str(ctx.content):
-        images = [
-            'https://cdn.discordapp.com/attachments/1002875196522381325/1003699645458944011/FTakxQUaIAAoyn3CUnetnoise_scaleLevel2x4.000000.png',
-            'https://cdn.discordapp.com/attachments/1002875196522381325/1008245051077443664/FZmJ06EUIAAcZNi.jpg'
-        ]
-        image_pickup = random.choice(images)
-        await ctx.channel.send(image_pickup)
 
     # メッセージの本文が メタ だった場合
     if "メタ" in str(ctx.content):
@@ -678,10 +644,46 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send(yamadahouse_random_thumb)
 
+    # メッセージの本文が 君しかいないんだよ だった場合
+    if "君しかいないんだよ" in str(ctx.content):
+        # メッセージが送られてきたチャンネルに送る
+        ydl_opts_you = {
+            "format": "bestaudio/best",
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }],
+            "outtmpl": "you.mp3",
+        }
+        with YoutubeDL(ydl_opts_you) as ydl:
+            ydl.download(["https://soundcloud.com/kejiramikitanai/h9jsjiorr7ln"])
+        # ボイスチャンネルに接続する
+        if ctx.author.voice is None:
+            return
+        if ctx.guild.voice_client is None:
+            await ctx.author.voice.channel.connect()
+        # 音声を再生する
+        ctx.guild.voice_client.play(discord.FFmpegPCMAudio("you.mp3"))
+        # 音声が再生中か確認する
+        while ctx.guild.voice_client.is_playing():
+            await asyncio.sleep(1)
+        # 切断する
+        await ctx.guild.voice_client.disconnect()
+
     # メッセージの本文が 死んだ だった場合
     if "死んだ" in str(ctx.content) or "しんだ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif")
+
+    # メッセージの本文が 昼 だった場合
+    if "昼" in str(ctx.content) or "おひる" in str(ctx.content):
+        images = [
+            "https://cdn.discordapp.com/attachments/1002875196522381325/1003699645458944011/FTakxQUaIAAoyn3CUnetnoise_scaleLevel2x4.000000.png",
+            "https://cdn.discordapp.com/attachments/1002875196522381325/1008245051077443664/FZmJ06EUIAAcZNi.jpg"
+        ]
+        image_pickup = random.choice(images)
+        await ctx.channel.send(image_pickup)
 
     # メッセージの本文が 風呂 だった場合
     if "風呂" in str(ctx.content) or "ふろ" in str(ctx.content):
@@ -718,45 +720,45 @@ async def on_message(ctx):
     #     await ctx.channel.send(origin)
 
     # n575
-#     # https://gist.github.com/4geru/46f300e561374833646ffd8f4b916672
-#     if not ctx.author.bot:    
-#         m = MeCab.Tagger ()
-#         print(str(ctx.content))
-#     #     print(m.parse (str(ctx.content)))
-#         check = [5, 7, 5] # 5, 7, 5
-#         check_index = 0
-#         word_cnt = 0
-#         node = m.parseToNode(str(ctx.content))
-#         # # suggestion文の各要素の品詞を確認
-#         while node:
-#             feature = node.feature.split(",")[0]
-#             surface = node.surface.split(",")[0]
-#             print(feature)
-#             print(surface)
-#             # 記号, BOS/EOSはスルー
-#             if feature == "記号" or feature == "BOS/EOS":
-#                 node = node.next
-#                 continue
-#             # 文字数をカウント
-#             word_cnt += len(surface)
-#             # 字数チェック
-#             if word_cnt == check[check_index]:
-#                 check_index += 1
-#                 word_cnt = 0
-#                 continue
-#             # 字余りチェック
-#             elif word_cnt > check[check_index]:
-#                 return False
-#         
-#             # [5, 7, 5] の長さになっているか
-#             if check_index == len(check) - 1:
-#                 return True
-#             node = node.next
-#         print("俳句を見つけました！")
-# 
-#         return False
-        
+    # https://gist.github.com/4geru/46f300e561374833646ffd8f4b916672
+    # if not ctx.author.bot:
+    #     m = MeCab.Tagger()
+    #     print(str(ctx.content))
+    #     print(m.parse(str(ctx.content)))
+    # check = [5, 7, 5]  # 5, 7, 5
+    # check_index = 0
+    # word_cnt = 0
+    # node = m.parseToNode(str(ctx.content))
+    # # # suggestion文の各要素の品詞を確認
+    # while node:
+    #     feature = node.feature.split(",")[0]
+    #     surface = node.surface.split(",")[0]
+    #     print(feature)
+    #     print(surface)
+    #     # 記号, BOS/EOSはスルー
+    #     if feature == "記号" or feature == "BOS/EOS":
+    #         node = node.next
+    #         continue
+    #     # 文字数をカウント
+    #     word_cnt += len(surface)
+    #     # 字数チェック
+    #     if word_cnt == check[check_index]:
+    #         check_index += 1
+    #         word_cnt = 0
+    #         continue
+    #     # 字余りチェック
+    #     elif word_cnt > check[check_index]:
+    #         return False
+    #
+    #     # [5, 7, 5] の長さになっているか
+    #     if check_index == len(check) - 1:
+    #         return True
+    #     node = node.next
+    # print("俳句を見つけました！")
+    # return False
+
     await bot.process_commands(ctx)
+
 
 # アニクトから取得したアニメをランダムで表示
 @bot.command(aliases=["ani"])
@@ -815,6 +817,7 @@ async def falco(ctx):
 
     # メッセージが送られてきたチャンネルに送る
     await ctx.channel.send(content)
+
 
 # ファミ通
 @bot.command(aliases=["fami", "famitu", "fami2"])
@@ -1016,70 +1019,77 @@ async def ping(ctx):
     latency_milli = round(latency * 1000)
     await ctx.channel.send(f"Pong!: {latency_milli}ms")
 
+
 # Raika
 @bot.command()
 async def raika(ctx):
-    txtfile = open("resources/Wonderful_Raika_Tweet.txt","r", encoding="utf-8")
-    word = ",".join(list(map(lambda s:s.rstrip("\n"), random.sample(txtfile.readlines(),1)))).replace("['","").replace("']","")
+    txtfile = open("resources/Wonderful_Raika_Tweet.txt", "r", encoding="utf-8")
+    word = ",".join(list(map(lambda s: s.rstrip("\n"), random.sample(txtfile.readlines(), 1)))).replace("["", "").replace(""]", "")
     url = [word]
     pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
     for url in url:
         if re.match(pattern, url):
             await ctx.channel.send(requests.get(url).url)
-        else:  
+        else:
             await ctx.channel.send(word)
 
-#raikaマルコフ
-#https://monachanpapa-scripting.com/marukofu-python/ほぼ丸コピですすみません...
+
+# raikaマルコフ
+# https://monachanpapa-scripting.com/marukofu-python/ほぼ丸コピですすみません...
 @bot.command()
 async def mraika(ctx):
     def parse_words(test_data):
-        with open('resources/Wonderful_Raika_Tweet.txt', 'r', encoding="utf-8") as f:
+        with open("resources/Wonderful_Raika_Tweet.txt", "r", encoding="utf-8") as f:
             lines = f.readlines()
-        t = MeCab.Tagger('-Owakati')
+        t = MeCab.Tagger("-Owakati")
         datas = []
         for line in lines:
             data = t.parse(line).strip()
             datas.append(data)
-        datas = [f'__BEGIN__ {data} __END__' for data in datas]
-        datas = [data.split() for data in datas]    
+        datas = [f"__BEGIN__ {data} __END__" for data in datas]
+        datas = [data.split() for data in datas]
         return datas
+
     def create_words_cnt_dic(datas):
         words = []
         for data in datas:
             words.extend(list(ngrams(data, 3)))
         words_cnt_dic = Counter(words)
-        return words_cnt_dic    
+        return words_cnt_dic
+
     def create_m_dic(words_cnt_dic):
         m_dic = {}
         for k, v in words_cnt_dic.items():
             two_words, next_word = k[:2], k[2]
             if two_words not in m_dic:
-                m_dic[two_words] = {'words': [], 'weights': []}
-            m_dic[two_words]['words'].append(next_word)
-            m_dic[two_words]['weights'].append(v)
-        return m_dic    
+                m_dic[two_words] = {"words": [], "weights": []}
+            m_dic[two_words]["words"].append(next_word)
+            m_dic[two_words]["weights"].append(v)
+        return m_dic
+
     def create_begin_words_weights(words_cnt_dic):
-        begin_words_dic = defaultdict(int) 
+        begin_words_dic = defaultdict(int)
         for k, v in words_cnt_dic.items():
-            if k[0] == '__BEGIN__':
+            if k[0] == "__BEGIN__":
                 next_word = k[1]
                 begin_words_dic[next_word] = v
         begin_words = [k for k in begin_words_dic.keys()]
         begin_weights = [v for v in begin_words_dic.values()]
         return begin_words, begin_weights
+
     def create_sentences(m_dic, begin_words, begin_weights):
         begin_word = random.choices(begin_words, weights=begin_weights, k=1)[0]
-        sentences = ['__BEGIN__', begin_word]
+        sentences = ["__BEGIN__", begin_word]
         while True:
             back_words = tuple(sentences[-2:])
-            words, weights = m_dic[back_words]['words'], m_dic[back_words]['weights']
+            words, weights = m_dic[back_words]["words"], m_dic[back_words]["weights"]
             next_word = random.choices(words, weights=weights, k=1)[0]
-            if next_word == '__END__':
+            if next_word == "__END__":
                 break
             sentences.append(next_word)
-        return ''.join(sentences[1:])    
-    datas = parse_words('osake.txt')
+        return "".join(sentences[1:])
+
+    datas = parse_words("osake.txt")
     words_cnt_dic = create_words_cnt_dic(datas)
     m_dic = create_m_dic(words_cnt_dic)
     begin_words, begin_weights = create_begin_words_weights(words_cnt_dic)
@@ -1087,7 +1097,8 @@ async def mraika(ctx):
         text = create_sentences(m_dic, begin_words, begin_weights)
         await ctx.channel.send(text)
 
-#おしゃべりひろゆきメーカーの実装。リリース半日クオリティーなので許してください
+
+# おしゃべりひろゆきメーカーの実装。リリース半日クオリティーなので許してください
 @bot.command()
 async def hiroyuki(ctx, *arg):
     if arg:
@@ -1095,41 +1106,41 @@ async def hiroyuki(ctx, *arg):
         embed = discord.Embed(colour=0xff00ff, title=f"{text}を生成中です...")
         hiroyuki_msg: discord.Message = await ctx.channel.send(embed=embed)
         headers = {
-            'authority': 'tgeedx93af.execute-api.ap-northeast-1.amazonaws.com',
-            'accept': 'application/json, text/plain, */*'
+            "authority": "tgeedx93af.execute-api.ap-northeast-1.amazonaws.com",
+            "accept": "application/json, text/plain, */*"
         }
         json_data = {
-            'coefont': '19d55439-312d-4a1d-a27b-28f0f31bedc5',
-            'text':  f'{text}',
+            "coefont": "19d55439-312d-4a1d-a27b-28f0f31bedc5",
+            "text": f"{text}",
         }
-        response = requests.post('https://tgeedx93af.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki/text2speech', headers=headers, json=json_data)
+        response = requests.post("https://tgeedx93af.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki/text2speech", headers=headers, json=json_data)
         status = response.json()["statusCode"]
         if status == 200:
             key = response.json()["body"]["wav_key"]
             headers2 = {
-                'authority': 'johwruw0ic.execute-api.ap-northeast-1.amazonaws.com',
-                'accept': 'application/json, text/plain, */*'
+                "authority": "johwruw0ic.execute-api.ap-northeast-1.amazonaws.com",
+                "accept": "application/json, text/plain, */*"
             }
             json_data2 = {
-            'voice_key': f'{key}',
+                "voice_key": f"{key}",
             }
-            response2 = requests.post('https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video', headers=headers2, json=json_data2)
+            response2 = requests.post("https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video", headers=headers2, json=json_data2)
             url = response2.json()["body"]["url"]
             embed = discord.Embed(colour=0x4db56a, title=f"音声の生成に成功しました")
             await hiroyuki_msg.edit(embed=embed)
             response = requests.get(url)
-            file = open("temp.mp4","wb")
+            file = open("temp.mp4", "wb")
             for chunk in response.iter_content(100000):
                 file.write(chunk)
             file.close()
-            stream = ffmpeg.input("temp.mp4") 
-            stream = ffmpeg.output(stream, "hiroyuki.mp3") 
+            stream = ffmpeg.input("temp.mp4")
+            stream = ffmpeg.output(stream, "hiroyuki.mp3")
             ffmpeg.run(stream)
             await ctx.channel.send(file=discord.File("hiroyuki.mp3"))
             embed0 = discord.Embed(colour=0x4db56a, title=f"動画 {gdshortener.ISGDShortener().shorten(url=url)[0]}")
             hiroyuki0_msg: discord.Message = await ctx.channel.send(embed=embed0)
-            os.remove('temp.mp4')
-            os.remove('hiroyuki.mp3')
+            os.remove("temp.mp4")
+            os.remove("hiroyuki.mp3")
             return
         else:
             embed = discord.Embed(colour=0xff0000, title="生成に失敗しました")
@@ -1140,7 +1151,7 @@ async def hiroyuki(ctx, *arg):
         hiroyuki_msg: discord.Message = await ctx.channel.send(embed=embed)
 
 
-#hiroyuki talk
+# hiroyuki talk
 @bot.command()
 async def htalk(ctx, *arg):
     if arg:
@@ -1148,37 +1159,37 @@ async def htalk(ctx, *arg):
         embed = discord.Embed(colour=0xff00ff, title=f"{text}を生成中です...")
         hiroyuki_msg: discord.Message = await ctx.channel.send(embed=embed)
         headers = {
-            'authority': 'tgeedx93af.execute-api.ap-northeast-1.amazonaws.com',
-            'accept': 'application/json, text/plain, */*'
+            "authority": "tgeedx93af.execute-api.ap-northeast-1.amazonaws.com",
+            "accept": "application/json, text/plain, */*"
         }
         json_data = {
-            'coefont': '19d55439-312d-4a1d-a27b-28f0f31bedc5',
-            'text':  f'{text}',
+            "coefont": "19d55439-312d-4a1d-a27b-28f0f31bedc5",
+            "text": f"{text}",
         }
-        response = requests.post('https://tgeedx93af.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki/text2speech', headers=headers, json=json_data)
+        response = requests.post("https://tgeedx93af.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki/text2speech", headers=headers, json=json_data)
         status = response.json()["statusCode"]
         if status == 200:
             embed = discord.Embed(colour=0x4db56a, title=f"音声の生成に成功しました")
             await hiroyuki_msg.edit(embed=embed)
             key = response.json()["body"]["wav_key"]
             headers2 = {
-                'authority': 'johwruw0ic.execute-api.ap-northeast-1.amazonaws.com',
-                'accept': 'application/json, text/plain, */*'
+                "authority": "johwruw0ic.execute-api.ap-northeast-1.amazonaws.com",
+                "accept": "application/json, text/plain, */*"
             }
             json_data2 = {
-            'voice_key': f'{key}',
+                "voice_key": f"{key}",
             }
-            response2 = requests.post('https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video', headers=headers2, json=json_data2)
+            response2 = requests.post("https://johwruw0ic.execute-api.ap-northeast-1.amazonaws.com/production/hiroyuki_video", headers=headers2, json=json_data2)
             url = response2.json()["body"]["url"]
             embed = discord.Embed(colour=0x4db56a, title=f"動画の生成に成功しました")
             await hiroyuki_msg.edit(embed=embed)
             response = requests.get(url)
-            file = open("temp.mp4","wb")
+            file = open("temp.mp4", "wb")
             for chunk in response.iter_content(100000):
                 file.write(chunk)
             file.close()
-            stream = ffmpeg.input("temp.mp4") 
-            stream = ffmpeg.output(stream, "temp.mp3") 
+            stream = ffmpeg.input("temp.mp4")
+            stream = ffmpeg.output(stream, "temp.mp3")
             ffmpeg.run(stream)
             if ctx.author.voice is None:
                 await ctx.channel.send("なんだろう")
@@ -1193,8 +1204,8 @@ async def htalk(ctx, *arg):
                 await asyncio.sleep(1)
             # 切断する
             await ctx.guild.voice_client.disconnect()
-            os.remove('temp.mp4')
-            os.remove('temp.mp3')
+            os.remove("temp.mp4")
+            os.remove("temp.mp3")
             return
         else:
             embed = discord.Embed(colour=0xff0000, title="生成に失敗しました")
@@ -1204,21 +1215,22 @@ async def htalk(ctx, *arg):
         embed = discord.Embed(colour=0xff0000, title=f"文字を入力してください")
         hiroyuki_msg: discord.Message = await ctx.channel.send(embed=embed)
 
+
 # mp4
 @bot.command()
 async def mp4(ctx):
     if ctx.message.reference is None:
-        await ctx.reply('動画にしたい音声に返信してください', mention_author=False)
+        await ctx.reply("動画にしたい音声に返信してください", mention_author=False)
         return
-    
+
     mes = await ctx.channel.fetch_message(ctx.message.reference.message_id)
 
     if mes.attachments is None:
-        await ctx.reply('返信元のメッセージにファイルが添付されていません', mention_author=False)
+        await ctx.reply("返信元のメッセージにファイルが添付されていません", mention_author=False)
         return
-        
+
     await mes.attachments[0].save("resources/temporally/wip_input.mp3")
-    mes_pros = await ctx.reply('処理中です…', mention_author=False)
+    mes_pros = await ctx.reply("処理中です…", mention_author=False)
     command = "ffmpeg -y -loop 1 -i resources/wip_input.jpg -i resources/temporally/wip_input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest resources/temporally/wip_output.mp4"
     proc = await asyncio.create_subprocess_exec(*command.split(" "), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await proc.communicate()
@@ -1227,44 +1239,45 @@ async def mp4(ctx):
     os.remove("resources/temporally/wip_input.mp3")
     os.remove("resources/temporally/wip_output.mp4")
 
+
 # removebg
 @bot.command()
 async def removebg(ctx):
-    removebg_apikey = os.getenv('REMOVEBG_APIKEY')
+    removebg_apikey = os.getenv("REMOVEBG_APIKEY")
 
     if ctx.message.reference is None:
-        await ctx.reply('加工したい画像に返信してください', mention_author=False)
+        await ctx.reply("加工したい画像に返信してください", mention_author=False)
         return
 
     mes = await ctx.channel.fetch_message(ctx.message.reference.message_id)
 
     if mes.attachments is None:
-        await ctx.reply('返信元のメッセージにファイルが添付されていません', mention_author=False)
+        await ctx.reply("返信元のメッセージにファイルが添付されていません", mention_author=False)
         return
 
-    await mes.attachments[0].save('temp_removebg_input.png')
+    await mes.attachments[0].save("temp_removebg_input.png")
 
-    mes_pros = await ctx.reply('処理中です…', mention_author=False)
+    mes_pros = await ctx.reply("処理中です…", mention_author=False)
 
-    #RemoveBgAPI
+    # RemoveBgAPI
     response = requests.post(
-        'https://api.remove.bg/v1.0/removebg',
-        files={'image_file': open('temp_removebg_input.png', 'rb')},
-        data={'size': 'auto'},
-        headers={'X-Api-Key': removebg_apikey},
+        "https://api.remove.bg/v1.0/removebg",
+        files={"image_file": open("temp_removebg_input.png", "rb")},
+        data={"size": "auto"},
+        headers={"X-Api-Key": removebg_apikey},
     )
     await mes_pros.delete()
 
     if response.status_code == requests.codes.ok:
-        with open('removebg_temp_output.png', 'wb') as out:
+        with open("removebg_temp_output.png", "wb") as out:
             out.write(response.content)
-            await ctx.send(file=discord.File('removebg_temp_output.png'))
-            os.remove('temp_removebg_input.png')
-            os.remove('removebg_temp_output.png')
+            await ctx.send(file=discord.File("removebg_temp_output.png"))
+            os.remove("temp_removebg_input.png")
+            os.remove("removebg_temp_output.png")
     else:
         await ctx.send(f"Error:{response.status_code} {response.text}")
 
-        
+
 # サターニャを送信
 @bot.command()
 async def satanya(ctx):
@@ -1316,27 +1329,28 @@ async def twitter(ctx, *, arg):
             origin = m["media_url"]
             await ctx.channel.send(origin)
 
+
 @bot.command(aliases=["twdl"])
 async def twitterdl(ctx, *, arg):
     tweet_url = f"{arg}"
     # URLからツイートIDを取得する正規表現
     # https://stackoverflow.com/questions/45282238/getting-a-tweet-id-from-a-tweet-link-using-tweepy
-    tweet_id = tweet_url.split('/')[-1].split('?')[0]
+    tweet_id = tweet_url.split("/")[-1].split("?")[0]
     is_twitter = tweet_url.startswith("https://twitter.com")
 
     if is_twitter:
         tweet_status = twapi.get_status(id=int(tweet_id), tweet_mode="extended", include_entities=True)
 
         status = tweet_status
-        for media in status.extended_entities.get('media', [{}]):
-            if media.get('type', None) == 'video':
-                video = media['video_info']['variants']
+        for media in status.extended_entities.get("media", [{}]):
+            if media.get("type", None) == "video":
+                video = media["video_info"]["variants"]
                 sorted_video = sorted(
                     video,
-                    key = lambda x: x.get('bitrate',0), #bitrateの値がない場合にエラーが出るので0を代入して大きい順にソートする
-                    reverse = True #降順にする
+                    key=lambda x: x.get("bitrate", 0),  # bitrateの値がない場合にエラーが出るので0を代入して大きい順にソートする
+                    reverse=True  # 降順にする
                 )
-                video_url = sorted_video[0]['url']
+                video_url = sorted_video[0]["url"]
         await ctx.channel.send(video_url)
 
 
@@ -1345,12 +1359,11 @@ async def twitterdl(ctx, *, arg):
         discord.Message = await ctx.channel.send(embed=embed)
 
 
-
 # ウマ娘ガチャシミュレーター
 @bot.command()
 async def uma(ctx):
     class Uma_Chara:
-        #アイコン画像の数字に一致
+        # アイコン画像の数字に一致
         id = 0
         name = ""
         rarity = 0
@@ -1361,11 +1374,11 @@ async def uma(ctx):
             self.name = name
             self.rarity = rarity
             self.is_pickup = is_pickup
-    
+
     chara_list = []
 
     # CSVファイルからキャラ情報を読み込み
-    with open('resources/uma_chara_info.csv', encoding="utf-8") as f:
+    with open("resources/uma_chara_info.csv", encoding="utf-8") as f:
         reader = csv.reader(f)
         for row in reader:
             chara = Uma_Chara(int(row[0]), row[1], int(row[2]), int(row[3]))
@@ -1410,7 +1423,7 @@ async def uma(ctx):
                         len(list_pickup) * prob_pickup,
                         w[r - 1] - len(list_pickup) * prob_pickup
                     ]
-                    )[0]
+                )[0]
                 chara_results_by_rarity.append(random.choice(chara_results_by_pickup))
             # ピックアップが存在しない場合
             else:
