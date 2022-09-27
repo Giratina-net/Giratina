@@ -1425,8 +1425,8 @@ async def uma(ctx):
             weights_10 = [0, 97, 3]
             
             # 画像の初期化
-            m_img = modules.img.Giratina_Image()
-            m_img.load(f"{path_uma_gacha}/bg.png")
+            g_img = modules.img.Giratina_Image()
+            g_img.load(f"{path_uma_gacha}/bg.png")
 
             for i in range(10):
                 w = weights if i < 9 else weights_10
@@ -1473,7 +1473,7 @@ async def uma(ctx):
                     x = 258 + 324 * (i % 5 - 3)
                     y = 519 + 724 * (i // 5)
 
-                m_img.composit(chara_icon, (x, y))
+                g_img.composit(chara_icon, (x, y))
 
                 piece_x = 0
                 bonus_x = 0
@@ -1500,7 +1500,7 @@ async def uma(ctx):
                     # 女神像
                     megami = Image.open(f"{path_uma_gacha}/icon_megami.png")
                     megami_x = 4 if chara_result.rarity == 3 else 26
-                    m_img.composit(megami, (x + megami_x + adjust_x, y + 300))
+                    g_img.composit(megami, (x + megami_x + adjust_x, y + 300))
 
                     # ピース・おまけの位置
                     piece_x = 130 + adjust_x
@@ -1509,14 +1509,14 @@ async def uma(ctx):
 
                     # テキスト(女神像)
                     text_megami_x = 54 if chara_result.rarity == 3 else 76
-                    m_img.drawtext(f"x{num_megami}", (x + text_megami_x + adjust_x, y + 311), fill=(124, 63, 18), anchor="lt", fontpath=path_font, fontsize=fontsize, stroke_width=2, stroke_fill="white")
+                    g_img.drawtext(f"x{num_megami}", (x + text_megami_x + adjust_x, y + 311), fill=(124, 63, 18), anchor="lt", fontpath=path_font, fontsize=fontsize, stroke_width=2, stroke_fill="white")
 
                 # 未獲得の場合
                 else:
                     chara_id_list.append(chara_result.id)
                     # NEW!
                     label_new = Image.open(f"{path_uma_gacha}/label_new.png")
-                    m_img.composit(label_new, (x - 22, y))
+                    g_img.composit(label_new, (x - 22, y))
 
                     adjust_x = 11 if chara_result.rarity == 1 else 0
 
@@ -1526,20 +1526,20 @@ async def uma(ctx):
                     bonus_x = 68 + adjust_x
 
                 # テキスト(ピース)
-                m_img.drawtext(f"x{num_piece}", (x + text_piece_x, y + 311), fill=(124, 63, 18), anchor="lt", fontpath=path_font, fontsize=fontsize, stroke_width=2, stroke_fill="white")
+                g_img.drawtext(f"x{num_piece}", (x + text_piece_x, y + 311), fill=(124, 63, 18), anchor="lt", fontpath=path_font, fontsize=fontsize, stroke_width=2, stroke_fill="white")
 
                 # ピース
                 piece = Image.open(f"{path_uma_gacha}/piece_icon/{chara_result.id}.png")
-                m_img.composit(piece, (x + piece_x, y + 300))
+                g_img.composit(piece, (x + piece_x, y + 300))
 
                 # おまけ
                 label_bonus = Image.open(f"{path_uma_gacha}/label_bonus.png")
-                m_img.composit(label_bonus, (x + bonus_x, y + 286))
+                g_img.composit(label_bonus, (x + bonus_x, y + 286))
 
                 # レア度が3の場合枠を描画
                 if chara_result.rarity == 3:
                     frame = Image.open(f"{path_uma_gacha}/frame.png")
-                    m_img.composit(frame, (x - 8, y))
+                    g_img.composit(frame, (x - 8, y))
 
                 # パーティクルを描画
                 if chara_result.rarity > 1:
@@ -1550,19 +1550,19 @@ async def uma(ctx):
                         scale = random.uniform(1, 3)
                         particle_resize = particle.resize((int(particle.width // scale) ,int(particle.height // scale)))
                         particle_pos = region_particle.randompos()
-                        m_img.composit(particle_resize, (x - (particle_resize.width // 2) + particle_pos[0], y - (particle_resize.height // 2) + particle_pos[1]))
+                        g_img.composit(particle_resize, (x - (particle_resize.width // 2) + particle_pos[0], y - (particle_resize.height // 2) + particle_pos[1]))
 
                 # 星マークを貼り付け
                 stars = Image.open(f"{path_uma_gacha}/stars_{chara_result.rarity}.png")
-                m_img.composit(stars, (x + 46, y + 243))
+                g_img.composit(stars, (x + 46, y + 243))
 
             # 育成ウマ娘交換ポイント書き込み
-            m_img.drawtext(str(exchange_point), (732, 1611), fill=(124, 63, 18), anchor="rt", fontpath=path_font, fontsize=fontsize)
+            g_img.drawtext(str(exchange_point), (732, 1611), fill=(124, 63, 18), anchor="rt", fontpath=path_font, fontsize=fontsize)
             exchange_point += 10
-            m_img.drawtext(str(exchange_point), (860, 1611), fill=(255, 145, 21), anchor="rt", fontpath=path_font, fontsize=fontsize)
+            g_img.drawtext(str(exchange_point), (860, 1611), fill=(255, 145, 21), anchor="rt", fontpath=path_font, fontsize=fontsize)
 
             # リザルト画面の保存&読み込み
-            m_img.write(path_output)
+            g_img.write(path_output)
             gacha_result_image = discord.File(path_output)
             
             # ボタンのサブクラス
