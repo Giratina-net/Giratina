@@ -703,13 +703,13 @@ async def on_message(ctx):
             # Attachmentの拡張子がmp3, wavのどれかだった場合
             # https://discordpy.readthedocs.io/ja/latest/api.html#attachment
             if "audio" in attachment.content_type:
-                await attachment.save("resources/temporally/wip_input.mp3")
-                command = "ffmpeg -y -loop 1 -i resources/wip_input.jpg -i resources/temporally/wip_input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest resources/temporally/wip_output.mp4"
+                await attachment.save("resources/temporary/wip_input.mp3")
+                command = "ffmpeg -y -loop 1 -i resources/wip_input.jpg -i resources/temporary/wip_input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest resources/temporary/wip_output.mp4"
                 proc = await asyncio.create_subprocess_exec(*command.split(" "), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
                 stdout, stderr = await proc.communicate()
-                await ctx.channel.send(file=discord.File("resources/temporally/wip_output.mp4"))
-                os.remove("resources/temporally/wip_input.mp3")
-                os.remove("resources/temporally/wip_output.mp4")
+                await ctx.channel.send(file=discord.File("resources/temporary/wip_output.mp4"))
+                os.remove("resources/temporary/wip_input.mp3")
+                os.remove("resources/temporary/wip_output.mp4")
 
     # 検索欄チャンネルに投稿されたメッセージから、TwitterAPIを通してそのメッセージを検索して、チャンネルに画像を送信する
     # if ctx.content and ctx.channel.id == TWITTER_SEARCH_CHANNEL_ID:
@@ -1230,15 +1230,15 @@ async def mp4(ctx):
         await ctx.reply("返信元のメッセージにファイルが添付されていません", mention_author=False)
         return
 
-    await mes.attachments[0].save("resources/temporally/wip_input.mp3")
+    await mes.attachments[0].save("resources/temporary/wip_input.mp3")
     mes_pros = await ctx.reply("処理中です…", mention_author=False)
-    command = "ffmpeg -y -loop 1 -i resources/wip_input.jpg -i resources/temporally/wip_input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest resources/temporally/wip_output.mp4"
+    command = "ffmpeg -y -loop 1 -i resources/wip_input.jpg -i resources/temporary/wip_input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest resources/temporary/wip_output.mp4"
     proc = await asyncio.create_subprocess_exec(*command.split(" "), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await proc.communicate()
     await mes_pros.delete()
-    await ctx.channel.send(file=discord.File("resources/temporally/wip_output.mp4"))
-    os.remove("resources/temporally/wip_input.mp3")
-    os.remove("resources/temporally/wip_output.mp4")
+    await ctx.channel.send(file=discord.File("resources/temporary/wip_output.mp4"))
+    os.remove("resources/temporary/wip_input.mp3")
+    os.remove("resources/temporary/wip_output.mp4")
 
 
 # removebg
