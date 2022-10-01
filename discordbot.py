@@ -550,11 +550,6 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942107244349247488/9BD8903B-74D1-4740-8EC8-13110C0D943C.jpg")
 
-    # メッセージの本文が DJ だった場合
-    if "DJ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942107858496000010/a834912b8c8f9739.jpg")
-
     # メッセージの本文が somunia だった場合
     if "somunia" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
