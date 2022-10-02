@@ -91,6 +91,8 @@ ytdl = yt_dlp.YoutubeDL(YTDL_FORMAT_OPTIONS)
 SEIBARI_GUILD_ID = 889049222152871986
 # 白猫ハウスのサーバーID
 SIRONEKO_GUILD_ID = 733998377074688050
+# パソ人ハウスのサーバーID
+PASOJIN_GUILD_ID = 894896479804727366
 
 # 検索欄のチャンネルID
 TWITTER_SEARCH_CHANNEL_ID = 974430034691498034
@@ -543,6 +545,9 @@ async def on_message(ctx):
     # 送信者がBotである場合は弾く
     # ここで弾けば以降は書かなくて良さそう
     if ctx.author.bot:
+        return
+
+    if ctx.guild.id == PASOJIN_GUILD_ID:
         return
 
     # メッセージの本文が big brother だった場合
