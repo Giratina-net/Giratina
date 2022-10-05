@@ -76,7 +76,7 @@ YTDL_FORMAT_OPTIONS = {
 # before_optionsではなくoptionsで指定されてました。修正。様子見でお願いします。
 # https://stackoverflow.com/questions/58892635/discord-py-and-youtube-dl-read-error-and-the-session-has-been-invalidated-fo
 FFMPEG_OPTIONS = {
-    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_at_eof 1 -reconnect_delay_max 4294 -thread_queue_size 1024",
+    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_at_eof 1 -reconnect_delay_max 5",
     "options": "-vn"
 }
 
