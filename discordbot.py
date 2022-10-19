@@ -611,11 +611,6 @@ async def on_message(ctx):
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send("やんぱ2")
 
-    # メッセージの本文が ゆるゆり だった場合
-    if "ゆるゆり" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("ラブライブです")
-
     # メッセージの本文が ライカ だった場合
     if "ライカ" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
