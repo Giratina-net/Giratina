@@ -76,7 +76,7 @@ YTDL_FORMAT_OPTIONS = {
 # before_optionsではなくoptionsで指定されてました。修正。様子見でお願いします。
 # https://stackoverflow.com/questions/58892635/discord-py-and-youtube-dl-read-error-and-the-session-has-been-invalidated-fo
 FFMPEG_OPTIONS = {
-    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_at_eof 1 -reconnect_on_network_error 1 -reconnect_delay_max 5",
+    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_at_eof 1 -reconnect_delay_max 5",
     "options": "-vn"
 }
 
@@ -274,6 +274,7 @@ class Music(commands.Cog):
         is_niconico_mylist = url.startswith("https://www.nicovideo.jp/mylist") or url.startswith("https://nico.ms/mylist")
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
         is_spotify = url.startswith("https://open.spotify.com/")
+        is_youtube = url.startswith("https://www.youtube.com/") or url.startswith("https://youtu.be/")
         other_sources = []
 
         # 各サービスごとに振り分け
@@ -325,6 +326,33 @@ class Music(commands.Cog):
             # プレイリストの1曲目のURLを変換してsourceに入れる
             songs = spotdl.search([url])
             urls = spotdl.get_download_urls(songs)
+            source = await YTDLSource.from_url(urls[0], loop=client.loop, stream=True)
+
+            # キューへの追加
+            if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
+                # self.playerに追加すると再生中の曲と衝突する
+                self.queue.append(source)
+                embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
+                await play_msg.edit(embed=embed)
+
+            else:  # 他の曲を再生していない場合
+                # self.playerにURLを追加し再生する
+                self.player = source
+                ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
+                embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
+                # サムネイルをAPIで取得
+                np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
+                np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
+                np_highres_thumbnail = list(np_thumbnail.keys())[-1]
+                embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
+                await play_msg.edit(embed=embed)
+
+            # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
+            for url in urls[1:]:
+                other_sources.append(await YTDLSource.from_url(url, loop=client.loop, stream=True))
+
+        elif is_youtube:
+            # プレイリストの1曲目のURLを変換してsourceに入れる
             source = await YTDLSource.from_url(urls[0], loop=client.loop, stream=True)
 
             # キューへの追加
