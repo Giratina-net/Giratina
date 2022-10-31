@@ -16,7 +16,7 @@ import ffmpeg
 import time
 import typing
 import discord
-import modules.img
+import modules.
 import requests
 import tweepy
 import yt_dlp
