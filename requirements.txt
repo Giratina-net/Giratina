@@ -1,5 +1,4 @@
 aiohttp==3.7.4.post0
-requests==2.27.1
 py-cord[voice]==2.2.2
 ffmpeg-python==0.2.0
 yt-dlp==2022.10.4
