@@ -96,21 +96,21 @@ async def send_uma(channel, author, custom_weights):
     
     chara_list = []
     usage_list = []
-    path_uma_gacha = "data/assets/uma_gacha"
-    path_output = f"data/temp/uma_gacha_{channel.id}.png"
+    path_uma_gacha = "resources/uma_gacha"
+    path_output = f"resources/temporary/uma_gacha_{channel.id}.png"
     fontsize = 32
     region_particle = img_utils.Region([img_utils.Rect(0, 30, 32, 236), img_utils.Rect(32, 30, 207, 56), img_utils.Rect(207, 30, 240, 236)])
 
     async with channel.typing():
         # CSVファイルからキャラ情報を読み込み
-        with open("data/csv/uma_chara_info.csv") as f:
+        with open("resources/csv/uma_chara_info.csv") as f:
             reader = csv.reader(f)
             for row in reader:
                 chara = Chara(int(row[0]), int(row[1]), int(row[2]))
                 chara_list.append(chara)
 
         # CSVファイルからガチャ使用情報を読み込み
-        with open("data/csv/uma_gacha_usage.csv") as f:
+        with open("resources/csv/uma_gacha_usage.csv") as f:
             reader = csv.reader(f)
             for row in reader:
                 u = Gacha_Usage(int(row[0]), [int(s) for s in row[1].split("/")], int(row[2]))
@@ -138,7 +138,7 @@ async def send_uma(channel, author, custom_weights):
         
         # 画像の初期化
         m_img = modules.img.Giratina_Image()
-        m_img.load(f"{path_uma_gacha}/textures/bg.png")
+        m_img.load(f"{path_uma_gacha}/bg.png")
 
         for i in range(10):
             w = weights if i < 9 else weights_10
@@ -175,7 +175,7 @@ async def send_uma(channel, author, custom_weights):
             chara_result = random.choices(chara_results_by_rarity, weights=w)[0]
 
             # アイコン画像をchara_iconフォルダから読み込み&貼り付け
-            chara_icon = Image.open(f"{path_uma_gacha}/textures/chara_icon/{chara_result.id}.png")
+            chara_icon = Image.open(f"{path_uma_gacha}/chara_icon/{chara_result.id}.png")
 
             x = 0
             y = 0
@@ -213,7 +213,7 @@ async def send_uma(channel, author, custom_weights):
             if chara_result.id in chara_id_list:
                 adjust_x = -11 if chara_result.rarity == 2 else 0
                 # 女神像
-                megami = Image.open(f"{path_uma_gacha}/textures/icon_megami.png")
+                megami = Image.open(f"{path_uma_gacha}/icon_megami.png")
                 megami_x = 4 if chara_result.rarity == 3 else 26
                 m_img.composit(megami, (x + megami_x + adjust_x, y + 300))
 
@@ -230,7 +230,7 @@ async def send_uma(channel, author, custom_weights):
             else:
                 chara_id_list.append(chara_result.id)
                 # NEW!
-                label_new = Image.open(f"{path_uma_gacha}/textures/label_new.png")
+                label_new = Image.open(f"{path_uma_gacha}/label_new.png")
                 m_img.composit(label_new, (x - 22, y))
 
                 adjust_x = 11 if chara_result.rarity == 1 else 0
@@ -244,22 +244,22 @@ async def send_uma(channel, author, custom_weights):
             m_img.drawtext(f"x{num_piece}", (x + text_piece_x, y + 311), fill=(124, 63, 18), anchor="lt", fontpath=".fonts/rodin_wanpaku_eb.otf", fontsize=fontsize, stroke_width=2, stroke_fill="white")
 
             # ピース
-            piece = Image.open(f"{path_uma_gacha}/textures/piece_icon/{chara_result.id}.png")
+            piece = Image.open(f"{path_uma_gacha}/piece_icon/{chara_result.id}.png")
             m_img.composit(piece, (x + piece_x, y + 300))
 
             # おまけ
-            label_bonus = Image.open(f"{path_uma_gacha}/textures/label_bonus.png")
+            label_bonus = Image.open(f"{path_uma_gacha}/label_bonus.png")
             m_img.composit(label_bonus, (x + bonus_x, y + 286))
 
             # レア度が3の場合枠を描画
             if chara_result.rarity == 3:
-                frame = Image.open(f"{path_uma_gacha}/textures/frame.png")
+                frame = Image.open(f"{path_uma_gacha}/frame.png")
                 m_img.composit(frame, (x - 8, y))
 
             # パーティクルを描画
             if chara_result.rarity > 1:
                 num_stars = 7 if chara_result.rarity == 3 else 5
-                particle = Image.open(f"{path_uma_gacha}/textures/particle_{chara_result.rarity}.png")
+                particle = Image.open(f"{path_uma_gacha}/particle_{chara_result.rarity}.png")
                 particle_pos = None
                 for _ in range(num_stars):
                     scale = random.uniform(1, 3)
@@ -268,7 +268,7 @@ async def send_uma(channel, author, custom_weights):
                     m_img.composit(particle_resize, (x - (particle_resize.width // 2) + particle_pos[0], y - (particle_resize.height // 2) + particle_pos[1]))
 
             # 星マークを貼り付け
-            stars = Image.open(f"{path_uma_gacha}/textures/stars_{chara_result.rarity}.png")
+            stars = Image.open(f"{path_uma_gacha}/stars_{chara_result.rarity}.png")
             m_img.composit(stars, (x + 46, y + 243))
 
         # 育成ウマ娘交換ポイント書き込み
@@ -304,7 +304,7 @@ async def send_uma(channel, author, custom_weights):
     usage = Gacha_Usage(author.id, chara_id_list, exchange_point)
     usage_list.append(usage)
 
-    with open("data/csv/uma_gacha_usage.csv", "w") as f:
+    with open("resources/csv/uma_gacha_usage.csv", "w") as f:
         writer = csv.writer(f)
         for u in usage_list:
             writer.writerow([u.user, "/".join([str(n) for n in u.chara_id_list]), u.exchange_point])
