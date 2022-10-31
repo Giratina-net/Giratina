@@ -1236,43 +1236,37 @@ async def mp4(ctx):
     os.remove("resources/temporary/wip_input.mp3")
     os.remove("resources/temporary/wip_output.mp4")
 
-
-# removebg
+        
+        
+# 背景を除去(RemoveBG)
 @bot.command()
 async def removebg(ctx):
     removebg_apikey = os.getenv("REMOVEBG_APIKEY")
 
-    if ctx.message.reference is None:
-        await ctx.reply("加工したい画像に返信してください", mention_author=False)
+    filename_input = f"resources/temporary/temp_input_{ctx.channel.id}.png"
+    filename_output = f"resources/temporary/temp_output_{ctx.channel.id}.png"
+
+    if not await modules.funcs.attachments_proc(ctx, filename_input, "image"):
         return
 
-    mes = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+    async with ctx.typing():
+        #RemoveBgAPI
+        response = requests.post(
+            "https://api.remove.bg/v1.0/removebg",
+            files={"image_file": open(filename_input, "rb")},
+            data={"size": "auto"},
+            headers={"X-Api-Key": removebg_apikey},
+        )
 
-    if mes.attachments is None:
-        await ctx.reply("返信元のメッセージにファイルが添付されていません", mention_author=False)
-        return
-
-    await mes.attachments[0].save("temp_removebg_input.png")
-
-    mes_pros = await ctx.reply("処理中です…", mention_author=False)
-
-    # RemoveBgAPI
-    response = requests.post(
-        "https://api.remove.bg/v1.0/removebg",
-        files={"image_file": open("temp_removebg_input.png", "rb")},
-        data={"size": "auto"},
-        headers={"X-Api-Key": removebg_apikey},
-    )
-    await mes_pros.delete()
-
-    if response.status_code == requests.codes.ok:
-        with open("removebg_temp_output.png", "wb") as out:
-            out.write(response.content)
-            await ctx.send(file=discord.File("removebg_temp_output.png"))
-            os.remove("temp_removebg_input.png")
-            os.remove("removebg_temp_output.png")
-    else:
-        await ctx.send(f"Error:{response.status_code} {response.text}")
+        if response.status_code == requests.codes.ok:
+            with open(filename_output, "wb") as out:
+                out.write(response.content)
+                await ctx.send(file=discord.File(filename_output))
+                for filename in [filename_input, filename_output]:
+                    if os.path.isfile(filename):
+                        os.remove(filename)
+        else:
+            await ctx.send(f"```Error:{response.status_code} {response.text}```")
 
 
 # サターニャを送信
