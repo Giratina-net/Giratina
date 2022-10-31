@@ -137,7 +137,7 @@ async def send_uma(channel, author, custom_weights):
             weights_10 = [0, sum(custom_weights) - custom_weights[2], custom_weights[2]]
         
         # 画像の初期化
-        m_img = modules.img.Mimbot_Image()
+        m_img = modules.img.Giratina_Image()
         m_img.load(f"{path_uma_gacha}/textures/bg.png")
 
         for i in range(10):
@@ -307,4 +307,4 @@ async def send_uma(channel, author, custom_weights):
     with open("data/csv/uma_gacha_usage.csv", "w") as f:
         writer = csv.writer(f)
         for u in usage_list:
-            writer.writerow([u.user, "/".joi
+            writer.writerow([u.user, "/".join([str(n) for n in u.chara_id_list]), u.exchange_point])
