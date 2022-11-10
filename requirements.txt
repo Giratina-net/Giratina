@@ -6,7 +6,7 @@ google-api-python-client==2.65.0
 tweepy==4.11.0
 niconico.py==1.2.3
 Pillow==9.2.0
-spotdl==4.0.1
+spotdl==4.0.4
 mecab-python3==1.0.5
 nltk==3.7
 unidic-lite==1.0.8
