@@ -1,5 +1,5 @@
 aiohttp==3.8.3
-py-cord[voice]==2.2.2
+py-cord[voice]==2.3.0
 ffmpeg-python==0.2.0
 yt-dlp==2022.10.4
 google-api-python-client==2.65.0
