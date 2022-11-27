@@ -1,11 +1,11 @@
 aiohttp==3.8.3
-py-cord[voice]==2.2.2
+py-cord[voice]==2.3.0
 ffmpeg-python==0.2.0
-yt-dlp==2022.10.4
 google-api-python-client==2.66.0
+yt-dlp==2022.11.11
 tweepy==4.12.1
 niconico.py==1.2.3
-Pillow==9.2.0
+Pillow==9.3.0
 spotdl==4.0.4
 mecab-python3==1.0.5
 nltk==3.7
