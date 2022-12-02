@@ -5,3 +5,4 @@ services:
       context: .
     env_file:
      - .env
+    restart: always
