@@ -1,7 +1,7 @@
 aiohttp==3.8.3
 py-cord[voice]==2.3.2
 ffmpeg-python==0.2.0
-google-api-python-client==2.68.0
+google-api-python-client==2.69.0
 yt-dlp==2022.11.11
 tweepy==4.12.1
 niconico.py==1.2.3
