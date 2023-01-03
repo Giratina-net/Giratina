@@ -6,7 +6,7 @@ yt-dlp==2022.11.11
 tweepy==4.12.1
 niconico.py==1.2.3
 spotdl==4.0.6
-Pillow==9.3.0
+Pillow==9.4.0
 nltk==3.8
 mecab-python3==1.0.6
 unidic-lite==1.0.8
