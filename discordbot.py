@@ -548,9 +548,6 @@ async def on_message(ctx):
     if ctx.author.bot:
         return
 
-    if ctx.guild.id == PASOJIN_GUILD_ID:
-        return
-
     # メッセージの本文が big brother だった場合
     if "big brother" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
