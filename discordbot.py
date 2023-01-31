@@ -14,7 +14,6 @@ import re
 # import sys
 import ffmpeg
 import time
-from googleapiclient.discovery import build
 import discord
 import modules.funcs
 import requests
@@ -22,16 +21,11 @@ import tweepy
 from collections import Counter, defaultdict
 from discord.ext import commands
 from os import getenv
-from PIL import Image
-from yt_dlp import YoutubeDL
 
 from cogs.music import Music
+from cogs.kotobagari import Kotobagari
 
-
-# google-api-python-client / YouTube Data API v3
-YOUTUBE_API_KEY = getenv("YOUTUBE_API_KEY")
-youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
-
+from constants import VOICECHAT_NOTIFICATION_CHANNEL_ID, SEIBARI_GUILD_ID, SIRONEKO_GUILD_ID, FALCO_CHANNEL_ID, MACHITAN_CHANNEL_ID, NO_CONTEXT_HENTAI_IMG_CHANNEL_ID, TEIOU_CHANNEL_ID
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
@@ -53,34 +47,6 @@ twauth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
 twauth.set_access_token(TWITTER_ACCESS_TOKEN_KEY, TWITTER_ACCESS_TOKEN_SECRET)
 
 twapi = tweepy.API(twauth)
-
-# 定数 - 基本的に大文字
-# 聖バリ鯖のサーバーID
-SEIBARI_GUILD_ID = 889049222152871986
-# 白猫ハウスのサーバーID
-SIRONEKO_GUILD_ID = 733998377074688050
-# パソ人ハウスのサーバーID
-PASOJIN_GUILD_ID = 894896479804727366
-
-# 検索欄のチャンネルID
-TWITTER_SEARCH_CHANNEL_ID = 974430034691498034
-# mp3_to_mp4のチャンネルID
-WIP_CHANNEL_ID = 940966825087361025
-# ファル子☆おもしろ画像集のチャンネルID
-FALCO_CHANNEL_ID = 955809774849646603
-# まちカドたんほいざのチャンネルID
-MACHITAN_CHANNEL_ID = 987930969040355361
-# no context hentai imgのチャンネルID
-NO_CONTEXT_HENTAI_IMG_CHANNEL_ID = 988071456430760006
-# ﾎﾞｸはﾃｲｵｰ!ちゃんねる
-TEIOU_CHANNEL_ID = 1012808118469677148
-# ボイスチャット通知のチャンネルID
-VOICECHAT_NOTIFICATION_CHANNEL_ID = 1009127020518707201
-
-# あるくおすしのユーザーID
-WALKINGSUSHIBOX_USER_ID = 575588255647399958
-# 野獣先輩のユーザーID
-TADOKOROKOUJI_USER_ID = 1145141919810364364
 
 client = discord.Client()
 
@@ -119,223 +85,6 @@ async def on_voice_state_update(member, before, after):
             if len(after.channel.members) == 1:
                 embed = discord.Embed(colour=0xff00ff, title="通知", description="**" + after.channel.name + "** の通話が開始しました")
                 await notification_channel.send(embed=embed)
-
-
-# メッセージ送信時に実行される関数
-@bot.event
-async def on_message(ctx):
-    # 送信者がBotである場合は弾く
-    # ここで弾けば以降は書かなくて良さそう
-    if ctx.author.bot:
-        return
-
-    if ctx.guild.id == PASOJIN_GUILD_ID:
-        return
-
-    await bot.process_commands(ctx)
-
-    # メッセージの本文が big brother だった場合
-    if "big brother" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942107244349247488/9BD8903B-74D1-4740-8EC8-13110C0D943C.jpg")
-
-    # メッセージの本文が somunia だった場合
-    if "somunia" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://twitter.com/aaruaika/status/1518874935024054272")
-
-    # メッセージの本文が アーメン だった場合
-    if "アーメン" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1012764896900956281/unknown.png")
-
-    # メッセージの本文が いい曲 だった場合
-    if "いい曲" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942071776815480832/unknown.png")
-
-    # メッセージの本文が おはよう だった場合
-    if "おはよう" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942108884275982426/FJxaIJIaMAAlFYc.png")
-
-    # メッセージの本文が カニ だった場合
-    if "かに" in str(ctx.content) or "カニ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://media.discordapp.net/attachments/964831309627289620/1006257985846263808/6C4D7AD5-ADBA-4BC7-824C-5A118E09A43A.png")
-
-    # メッセージの本文が クワガタ だった場合
-    if "くわがた" in str(ctx.content) or "クワガタ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        images_kuwagata = [
-            "https://cdn.discordapp.com/attachments/959475816209739796/1000340129703006218/14C3BEA6-F0E3-4046-97E7-2D37732A3F75.png",
-            "https://media.discordapp.net/attachments/991551726308048896/1012775482955145347/Fa_-bj2aUAALUIr.png"
-        ]
-        image_pickup = random.choice(images_kuwagata)
-        await ctx.channel.send(image_pickup)
-
-    # ドナルドの言葉狩り - https://qiita.com/sizumita/items/9d44ae7d1ce007391699
-    # メッセージの本文が ドナルド だった場合
-    if "ドナルド" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://tenor.com/view/ronald-mcdonald-insanity-ronald-mcdonald-gif-21974293")
-
-    # メッセージの本文が バキ だった場合
-    if "バキ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/934792442178306108/942106647927595008/unknown.png")
-
-    # メッセージの本文が メタ だった場合
-    if "メタ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942109742782889994/GWHiBiKi_StYle_9_-_YouTube_1.png")
-
-    # メッセージの本文が やんぱ だった場合
-    if "やんぱ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("やんぱ2")
-
-    # メッセージの本文が ライカ だった場合
-    if "ライカ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("はぁ、どちら様ですか？")
-
-    # メッセージの本文が ランキング だった場合
-    if "ランキング" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942109619243864085/E8sV781VIAEtwZq.png")
-
-    # メッセージの本文が 一週間 だった場合
-    if "一週間" in str(ctx.content) or "1週間" in str(ctx.content):
-        yamadahouse_thumbnails = []
-
-        # サムネイルをAPIで取得
-        yamadahouse_response = youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
-
-        for item in yamadahouse_response.get("items", []):
-            # 一番高画質なサムネイルのキーを取得
-            yamadahouse_highres_thumb = list(item["snippet"]["thumbnails"].keys())[-1]
-            # サムネイルのURLだけを抽出して配列に突っ込む
-            yamadahouse_thumbnails.append(item["snippet"]["thumbnails"][yamadahouse_highres_thumb]["url"])
-
-        # サムネイルURLの配列内から1つランダムで選ぶ
-        yamadahouse_random_thumb = random.choice(yamadahouse_thumbnails)
-
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send(yamadahouse_random_thumb)
-
-    # メッセージの本文が 君しかいないんだよ だった場合
-    if "君しかいないんだよ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        ydl_opts_you = {
-            "format": "bestaudio/best",
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "192",
-            }],
-            "outtmpl": "you.mp3",
-        }
-        with YoutubeDL(ydl_opts_you) as ydl:
-            ydl.download(["https://soundcloud.com/kejiramikitanai/h9jsjiorr7ln"])
-        # ボイスチャンネルに接続する
-        if ctx.author.voice is None:
-            return
-        if ctx.guild.voice_client is None:
-            await ctx.author.voice.channel.connect()
-        # 音声を再生する
-        ctx.guild.voice_client.play(discord.FFmpegPCMAudio("you.mp3"))
-        # 音声が再生中か確認する
-        while ctx.guild.voice_client.is_playing():
-            await asyncio.sleep(1)
-        # 切断する
-        await ctx.guild.voice_client.disconnect()
-
-    # メッセージの本文が 死んだ だった場合
-    if "死んだ" in str(ctx.content) or "しんだ" in str(ctx.content):
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif")
-
-    # メッセージの本文が 昼 だった場合
-    if "昼" in str(ctx.content) or "おひる" in str(ctx.content):
-        images = [
-            "https://cdn.discordapp.com/attachments/1002875196522381325/1003699645458944011/FTakxQUaIAAoyn3CUnetnoise_scaleLevel2x4.000000.png",
-            "https://cdn.discordapp.com/attachments/1002875196522381325/1008245051077443664/FZmJ06EUIAAcZNi.jpg"
-        ]
-        image_pickup = random.choice(images)
-        await ctx.channel.send(image_pickup)
-
-    # メッセージの本文が 風呂 だった場合
-    if "風呂" in str(ctx.content) or "ふろ" in str(ctx.content):
-        # あるくおすしの場合
-        if ctx.author.id == WALKINGSUSHIBOX_USER_ID:
-            # メッセージが送られてきたチャンネルに送る
-            await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/942389072117256192/19ffe7f2e7464263.png")
-        # あるくおすし以外の場合
-        # 俺か俺以外か（by あるくおすし）   
-        else:
-            # メッセージが送られてきたチャンネルに送る
-            await ctx.channel.send("https://cdn.discordapp.com/attachments/889054561170522152/943155933343785040/d9ce03af4958b0b7.png")
-
-    if ctx.attachments and ctx.channel.id == WIP_CHANNEL_ID:
-        for attachment in ctx.attachments:
-            # Attachmentの拡張子がmp3, wavのどれかだった場合
-            # https://discordpy.readthedocs.io/ja/latest/api.html#attachment
-            if "audio" in attachment.content_type:
-                await attachment.save("resources/temporary/wip_input.mp3")
-                command = "ffmpeg -y -loop 1 -i resources/wip_input.jpg -i resources/temporary/wip_input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest resources/temporary/wip_output.mp4"
-                proc = await asyncio.create_subprocess_exec(*command.split(" "), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-                stdout, stderr = await proc.communicate()
-                await ctx.channel.send(file=discord.File("resources/temporary/wip_output.mp4"))
-                os.remove("resources/temporary/wip_input.mp3")
-                os.remove("resources/temporary/wip_output.mp4")
-
-    # 検索欄チャンネルに投稿されたメッセージから、TwitterAPIを通してそのメッセージを検索して、チャンネルに画像を送信する
-    # if ctx.content and ctx.channel.id == TWITTER_SEARCH_CHANNEL_ID:
-    #     tweets = twapi.search_tweets(q=f"filter:images {arg}", tweet_mode="extended", include_entities=True, count=1)
-    #     for tweet in tweets:
-    #         media = tweet.extended_entities["media"]
-    #         for m in media:
-    #             origin = m["media_url"]
-    #     await ctx.channel.send(origin)
-
-    # n575
-    # https://gist.github.com/4geru/46f300e561374833646ffd8f4b916672
-    # if not ctx.author.bot:
-    #     m = MeCab.Tagger()
-    #     print(str(ctx.content))
-    #     print(m.parse(str(ctx.content)))
-    # check = [5, 7, 5]  # 5, 7, 5
-    # check_index = 0
-    # word_cnt = 0
-    # node = m.parseToNode(str(ctx.content))
-    # # # suggestion文の各要素の品詞を確認
-    # while node:
-    #     feature = node.feature.split(",")[0]
-    #     surface = node.surface.split(",")[0]
-    #     print(feature)
-    #     print(surface)
-    #     # 記号, BOS/EOSはスルー
-    #     if feature == "記号" or feature == "BOS/EOS":
-    #         node = node.next
-    #         continue
-    #     # 文字数をカウント
-    #     word_cnt += len(surface)
-    #     # 字数チェック
-    #     if word_cnt == check[check_index]:
-    #         check_index += 1
-    #         word_cnt = 0
-    #         continue
-    #     # 字余りチェック
-    #     elif word_cnt > check[check_index]:
-    #         return False
-    #
-    #     # [5, 7, 5] の長さになっているか
-    #     if check_index == len(check) - 1:
-    #         return True
-    #     node = node.next
-    # print("俳句を見つけました！")
-    # return False
 
 
 # アニクトから取得したアニメをランダムで表示
@@ -958,4 +707,5 @@ async def yuruyuri(ctx):
 
 
 bot.add_cog(Music(bot_arg=bot))
+bot.add_cog(Kotobagari(bot=bot))
 bot.run(DISCORD_BOT_TOKEN)
