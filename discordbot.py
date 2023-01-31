@@ -548,6 +548,11 @@ async def on_message(ctx):
     if ctx.author.bot:
         return
 
+    if ctx.guild.id == PASOJIN_GUILD_ID:
+        return
+
+    await bot.process_commands(ctx)
+
     # メッセージの本文が big brother だった場合
     if "big brother" in str(ctx.content):
         # メッセージが送られてきたチャンネルに送る
@@ -750,8 +755,6 @@ async def on_message(ctx):
     #     node = node.next
     # print("俳句を見つけました！")
     # return False
-
-    await bot.process_commands(ctx)
 
 
 # アニクトから取得したアニメをランダムで表示
