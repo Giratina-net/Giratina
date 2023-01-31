@@ -272,7 +272,7 @@ class Music(commands.Cog):
 
         # niconico.py は短縮URLも取り扱えるっぽいので信じてみる
         # https://github.com/tasuren/niconico.py/blob/b4d9fcb1d0b80e83f2d8635dd85987d1fa2d84fc/niconico/video.py#L367
-        is_niconico_mylist = url.startswith("https://www.nicovideo.jp/mylist") or url.startswith("https://nico.ms/mylist")
+        is_niconico_mylist = url.startswith("https://www.nicovideo.jp/mylist") or url.startswith("https://nico.ms/mylist") or re.match(r"https://www.nicovideo.jp/user/\d+/mylist", url)
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
         is_spotify = url.startswith("https://open.spotify.com/")
         other_sources = []
