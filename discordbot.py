@@ -23,6 +23,7 @@ import yt_dlp
 from collections import Counter, defaultdict
 from discord.ext import commands
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from niconico import NicoNico
 from os import getenv
 from PIL import Image
@@ -256,6 +257,36 @@ class Music(commands.Cog):
 
         await ctx.channel.send(embed=embed)
 
+    async def queue_sources(self, ctx, sources: list, play_msg):
+        first_source = sources.pop(0)
+
+        # キューへの追加
+        if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
+            # self.playerに追加すると再生中の曲と衝突する
+            self.queue.append(first_source)
+            embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{first_source.title}]({first_source.original_url})")
+            await play_msg.edit(embed=embed)
+
+        else:  # 他の曲を再生していない場合
+            # self.playerにURLを追加し再生する
+            self.player = first_source
+            ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
+            embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{first_source.title}]({first_source.original_url})")
+            if type(first_source) == YTDLSource and ("youtube.com" in first_source.original_url or "youtu.be" in first_source.original_url):
+                # サムネイルをAPIで取得
+                try:
+                    np_youtube_video = youtube.videos().list(part="snippet", id=first_source.id).execute()
+                    if np_youtube_video["items"]:
+                        np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
+                        np_highres_thumbnail = list(np_thumbnail.keys())[-1]
+                        embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
+                # APIキーの有効期限が切れてるとここに来る
+                except HttpError:
+                    pass
+            await play_msg.edit(embed=embed)
+
+        self.queue.extend(sources)
+
     @commands.command(aliases=["p"])
     async def play(self, ctx, *, url):
         # コマンドを送ったユーザーがボイスチャンネルに居ない場合
@@ -275,143 +306,57 @@ class Music(commands.Cog):
         is_niconico_mylist = url.startswith("https://www.nicovideo.jp/mylist") or url.startswith("https://nico.ms/mylist") or re.match(r"https://www.nicovideo.jp/user/\d+/mylist", url)
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
         is_spotify = url.startswith("https://open.spotify.com/")
-        other_sources = []
+
+        target_sources = []
 
         # 各サービスごとに振り分け
         if is_niconico_mylist:
             niconico_client = NicoNico()
-            for item in niconico_client.video.get_mylist(url):
-                item_first = item.items[0]
-                item_first_url = item_first.video.url
-                source = await NicoNicoDLSource.from_url(item_first_url)
+            items = []
 
-            # キューへの追加
-            if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
-                # self.playerに追加すると再生中の曲と衝突する
-                self.queue.append(source)
-                embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
-                await play_msg.edit(embed=embed)
+            # 100件ごとに分割されているので全て取得してひとつのリストにまとめる
+            for mylist_page in niconico_client.video.get_mylist(url):
+                items.extend(mylist_page.items)
 
-            else:  # 他の曲を再生していない場合
-                # self.playerにURLを追加し再生する
-                self.player = source
-                ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
-                embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
-                await play_msg.edit(embed=embed)
-
-                # マイリストの2曲目以降のURLを変換してother_sourcesに入れる
-                item_others = item.items[1:]
-                for item_others_item in item_others:
-                    item_others_item_url = item_others_item.video.url
-                    other_sources.append(await NicoNicoDLSource.from_url(item_others_item_url))
+            for item in items:
+                try:
+                    source = await NicoNicoDLSource.from_url(item.video.url)
+                    target_sources.append(source)
+                # 400エラーだったら無視する
+                except requests.exceptions.HTTPError as e:
+                    if e.response.status_code == 400:
+                        continue
+                    else:
+                        raise e
 
         elif is_niconico:
             source = await NicoNicoDLSource.from_url(url)
-
-            # キューへの追加
-            if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
-                # self.playerに追加すると再生中の曲と衝突する
-                self.queue.append(source)
-                embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
-                await play_msg.edit(embed=embed)
-
-            else:  # 他の曲を再生していない場合
-                # self.playerにURLを追加し再生する
-                self.player = source
-                ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
-                embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
-                await play_msg.edit(embed=embed)
+            target_sources.append(source)
 
         elif is_spotify:
-            # プレイリストの1曲目のURLを変換してsourceに入れる
+            # プレイリストの場合はsongsの結果が複数返ってくる
+            # その場合は2曲目以降も存在する
             songs = spotdl.search([url])
             urls = spotdl.get_download_urls(songs)
-            source = await YTDLSource.from_url(urls[0], loop=client.loop, stream=True)
 
-            # キューへの追加
-            if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
-                # self.playerに追加すると再生中の曲と衝突する
-                self.queue.append(source)
-                embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
-                await play_msg.edit(embed=embed)
-
-            else:  # 他の曲を再生していない場合
-                # self.playerにURLを追加し再生する
-                self.player = source
-                ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
-                embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
-                # サムネイルをAPIで取得
-                np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
-                np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
-                np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-                embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
-                await play_msg.edit(embed=embed)
-
-            # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
-            for url in urls[1:]:
-                other_sources.append(await YTDLSource.from_url(url, loop=client.loop, stream=True))
+            # それぞれURLを変換してtarget_sourcesに入れる
+            for url in urls:
+                target_sources.append(await YTDLSource.from_url(url, loop=client.loop, stream=True))
 
         else:
             data = await client.loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
 
             # もしプレイリストだった場合
             if "entries" in data:
-                datalist_first = data["entries"][0]
-                original_url = datalist_first.get("original_url")
-                source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
-
-                # キューへの追加
-                if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
-                    # self.playerに追加すると再生中の曲と衝突する
-                    self.queue.append(source)
-                    embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
-                    await play_msg.edit(embed=embed)
-
-                else:  # 他の曲を再生していない場合
-                    # self.playerにURLを追加し再生する
-                    self.player = source
-                    ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
-                    embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
-                    # サムネイルをAPIで取得
-                    np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
-                    np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
-                    np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-                    embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
-                    await play_msg.edit(embed=embed)
-
-                    # プレイリストの2曲目以降のURLを変換してother_sourcesに入れる
-                datalist_others = data["entries"][1:]
-                for item in datalist_others:
+                for item in data["entries"]:
                     original_url = item.get("original_url")
-                    other_sources.append(await YTDLSource.from_url(original_url, loop=client.loop, stream=True))
-
+                    target_sources.append(await YTDLSource.from_url(original_url, loop=client.loop, stream=True))
             else:
                 original_url = data.get("original_url")
                 source = await YTDLSource.from_url(original_url, loop=client.loop, stream=True)
+                target_sources.append(source)
 
-                # キューへの追加
-                if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
-                    # self.playerに追加すると再生中の曲と衝突する
-                    self.queue.append(source)
-                    embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{source.title}]({source.original_url})")
-                    await play_msg.edit(embed=embed)
-
-                else:  # 他の曲を再生していない場合
-                    # self.playerにURLを追加し再生する
-                    self.player = source
-                    ctx.guild.voice_client.play(self.player, after=lambda e: self.after_play(ctx.guild, e))
-                    embed = discord.Embed(colour=0xff00ff, title="再生を開始します", description=f"[{source.title}]({source.original_url})")
-                    np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
-                    # サムネイル情報が入っている場合
-                    if np_youtube_video["items"]:
-                        np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
-                        np_highres_thumbnail = list(np_thumbnail.keys())[-1]
-                        embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
-                        await play_msg.edit(embed=embed)
-                    else:
-                        await play_msg.edit(embed=embed)
-
-        self.queue.extend(other_sources)
+        await self.queue_sources(ctx, target_sources, play_msg)
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
