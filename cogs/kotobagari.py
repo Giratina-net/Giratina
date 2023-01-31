@@ -10,14 +10,10 @@ from yt_dlp import YoutubeDL
 from constants import PASOJIN_GUILD_ID, WALKINGSUSHIBOX_USER_ID, WIP_CHANNEL_ID
 
 
-# google-api-python-client / YouTube Data API v3
-YOUTUBE_API_KEY = getenv("YOUTUBE_API_KEY")
-
-
 class Kotobagari(commands.Cog):
-    def __init__(self, bot, youtube_api_key):
+    def __init__(self, bot, youtube):
         self.bot = bot
-        self.youtube = build("youtube", "v3", developerKey=youtube_api_key)
+        self.youtube = youtube
 
     @commands.Cog.listener()
     async def on_message(self, ctx):

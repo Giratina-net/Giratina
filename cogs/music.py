@@ -94,15 +94,14 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
 # Cog とは: コマンドとかの機能をひとまとめにできる
 class Music(commands.Cog):
-    def __init__(self, bot, youtube_api_key, spotify_client_id, spotify_client_secret):
+    def __init__(self, bot, youtube, spotdl):
         self.bot = bot
         self.loop: bool = False
         self.player: typing.Union[YTDLSource, NicoNicoDLSource, None] = None
         self.queue: defaultdict[typing.List[typing.Union[YTDLSource, NicoNicoDLSource]]] = defaultdict(lambda: [])
 
-        self.youtube = build("youtube", "v3", developerKey=youtube_api_key)
-        self.spotdl = Spotdl(client_id=spotify_client_id, client_secret=spotify_client_secret)
-
+        self.youtube = youtube
+        self.spotdl = spotdl
 
     def after_play(self, guild, err):
         if type(self.player) == NicoNicoDLSource:

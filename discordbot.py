@@ -4,9 +4,12 @@ import datetime
 from ntpath import join
 import time
 import discord
-import tweepy
 from discord.ext import commands
 from os import getenv
+
+import tweepy
+from googleapiclient.discovery import build
+from spotdl import Spotdl
 
 from cogs.annict import Annict
 from cogs.music import Music
@@ -32,9 +35,11 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # spotdl
 SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET")
+spotdl = Spotdl(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET)
 
 # google-api-python-client / YouTube Data API v3
 YOUTUBE_API_KEY = getenv("YOUTUBE_API_KEY")
+youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
 
 # Annict
 ANNICT_API_KEY = getenv("ANNICT_API_KEY")
@@ -44,9 +49,9 @@ TWITTER_CONSUMER_KEY = getenv("CONSUMER_KEY")
 TWITTER_CONSUMER_SECRET = getenv("CONSUMER_SECRET")
 TWITTER_ACCESS_TOKEN_KEY = getenv("ACCESS_TOKEN_KEY")
 TWITTER_ACCESS_TOKEN_SECRET = getenv("ACCESS_TOKEN_SECRET")
+
 twauth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
 twauth.set_access_token(TWITTER_ACCESS_TOKEN_KEY, TWITTER_ACCESS_TOKEN_SECRET)
-
 twapi = tweepy.API(twauth)
 
 client = discord.Client()
@@ -90,9 +95,9 @@ async def on_voice_state_update(member, before, after):
 
 
 bot.add_cog(Annict(bot, ANNICT_API_KEY))
-bot.add_cog(Music(bot, YOUTUBE_API_KEY, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET))
+bot.add_cog(Music(bot, youtube, spotdl))
 bot.add_cog(Twitter(bot, twapi))
-bot.add_cog(Kotobagari(bot, YOUTUBE_API_KEY))
+bot.add_cog(Kotobagari(bot, youtube))
 bot.add_cog(Uma(bot))
 bot.add_cog(Hiroyuki(bot))
 bot.add_cog(Raika(bot))
