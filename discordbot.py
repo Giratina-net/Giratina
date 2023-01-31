@@ -35,6 +35,14 @@ intents.message_content = True
 # Botの接頭辞を ! にする
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+
+# spotdl
+SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET")
+
+# google-api-python-client / YouTube Data API v3
+YOUTUBE_API_KEY = getenv("YOUTUBE_API_KEY")
+
 # Annict
 ANNICT_API_KEY = getenv("ANNICT_API_KEY")
 
@@ -706,6 +714,6 @@ async def yuruyuri(ctx):
             await ctx.channel.send(origin)
 
 
-bot.add_cog(Music(bot_arg=bot))
-bot.add_cog(Kotobagari(bot=bot))
+bot.add_cog(Music(bot, YOUTUBE_API_KEY, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET))
+bot.add_cog(Kotobagari(bot, YOUTUBE_API_KEY))
 bot.run(DISCORD_BOT_TOKEN)

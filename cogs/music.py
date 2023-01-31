@@ -14,16 +14,6 @@ import typing
 import yt_dlp
 
 
-# spotdl
-SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID")
-SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET")
-spotdl = Spotdl(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET)
-
-# google-api-python-client / YouTube Data API v3
-YOUTUBE_API_KEY = getenv("YOUTUBE_API_KEY")
-youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
-
-
 # yt_dlp
 YTDL_FORMAT_OPTIONS = {
     "format": "bestaudio/best*[acodec=aac]",
@@ -49,7 +39,6 @@ FFMPEG_OPTIONS = {
 # https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
 # Suppress noise about console usage from errors
 yt_dlp.utils.bug_reports_message = lambda: ""
-
 ytdl = yt_dlp.YoutubeDL(YTDL_FORMAT_OPTIONS)
 
 
@@ -105,11 +94,15 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
 # Cog とは: コマンドとかの機能をひとまとめにできる
 class Music(commands.Cog):
-    def __init__(self, bot_arg):
-        self.bot = bot_arg
+    def __init__(self, bot, youtube_api_key, spotify_client_id, spotify_client_secret):
+        self.bot = bot
         self.loop: bool = False
         self.player: typing.Union[YTDLSource, NicoNicoDLSource, None] = None
         self.queue: defaultdict[typing.List[typing.Union[YTDLSource, NicoNicoDLSource]]] = defaultdict(lambda: [])
+
+        self.youtube = build("youtube", "v3", developerKey=youtube_api_key)
+        self.spotdl = Spotdl(client_id=spotify_client_id, client_secret=spotify_client_secret)
+
 
     def after_play(self, guild, err):
         if type(self.player) == NicoNicoDLSource:
@@ -184,7 +177,7 @@ class Music(commands.Cog):
 
         # サムネイルをAPIで取得
         if ctx.guild.voice_client.is_playing() and ("youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url):
-            np_youtube_video = youtube.videos().list(part="snippet", id=self.player.id).execute()
+            np_youtube_video = self.youtube.videos().list(part="snippet", id=self.player.id).execute()
             np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
             np_highres_thumbnail = list(np_thumbnail.keys())[-1]
             embed.set_thumbnail(url=np_thumbnail[np_highres_thumbnail]["url"])
@@ -209,7 +202,7 @@ class Music(commands.Cog):
             if type(first_source) == YTDLSource and ("youtube.com" in first_source.original_url or "youtu.be" in first_source.original_url):
                 # サムネイルをAPIで取得
                 try:
-                    np_youtube_video = youtube.videos().list(part="snippet", id=first_source.id).execute()
+                    np_youtube_video = self.youtube.videos().list(part="snippet", id=first_source.id).execute()
                     if np_youtube_video["items"]:
                         np_thumbnail = np_youtube_video["items"][0]["snippet"]["thumbnails"]
                         np_highres_thumbnail = list(np_thumbnail.keys())[-1]
@@ -270,8 +263,8 @@ class Music(commands.Cog):
         elif is_spotify:
             # プレイリストの場合はsongsの結果が複数返ってくる
             # その場合は2曲目以降も存在する
-            songs = spotdl.search([url])
-            urls = spotdl.get_download_urls(songs)
+            songs = self.spotdl.search([url])
+            urls = self.spotdl.get_download_urls(songs)
 
             # それぞれURLを変換してtarget_sourcesに入れる
             for url in urls:

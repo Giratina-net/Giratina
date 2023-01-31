@@ -12,12 +12,12 @@ from constants import PASOJIN_GUILD_ID, WALKINGSUSHIBOX_USER_ID, WIP_CHANNEL_ID
 
 # google-api-python-client / YouTube Data API v3
 YOUTUBE_API_KEY = getenv("YOUTUBE_API_KEY")
-youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
 
 
 class Kotobagari(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, youtube_api_key):
         self.bot = bot
+        self.youtube = build("youtube", "v3", developerKey=youtube_api_key)
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
@@ -28,8 +28,6 @@ class Kotobagari(commands.Cog):
 
         if ctx.guild.id == PASOJIN_GUILD_ID:
             return
-
-        await self.bot.process_commands(ctx)
 
         # メッセージの本文が big brother だった場合
         if "big brother" in str(ctx.content):
@@ -107,7 +105,7 @@ class Kotobagari(commands.Cog):
             yamadahouse_thumbnails = []
 
             # サムネイルをAPIで取得
-            yamadahouse_response = youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
+            yamadahouse_response = self.youtube.search().list(channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50).execute()
 
             for item in yamadahouse_response.get("items", []):
                 # 一番高画質なサムネイルのキーを取得
