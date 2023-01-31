@@ -2,10 +2,8 @@ import asyncio
 from collections import defaultdict
 import discord
 from discord.ext import commands
-from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from niconico import NicoNico
-from os import getenv
 import random
 import re
 import requests
@@ -91,6 +89,8 @@ class YTDLSource(discord.PCMVolumeTransformer):
         source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
         return cls(source, data=data)
 
+TargetSourceGenerator = typing.Optional[typing.AsyncGenerator[NicoNicoDLSource | YTDLSource, None]]
+
 
 # Cog とは: コマンドとかの機能をひとまとめにできる
 class Music(commands.Cog):
@@ -101,7 +101,7 @@ class Music(commands.Cog):
         self.queue: defaultdict[typing.List[typing.Union[YTDLSource, NicoNicoDLSource]]] = defaultdict(lambda: [])
 
         self.youtube = youtube
-        self.spotdl = spotdl
+        self.spotdl: Spotdl = spotdl
 
     def after_play(self, guild, err):
         if type(self.player) == NicoNicoDLSource:
@@ -183,8 +183,8 @@ class Music(commands.Cog):
 
         await ctx.channel.send(embed=embed)
 
-    async def queue_sources(self, ctx, sources: list, play_msg):
-        first_source = sources.pop(0)
+    async def queue_sources(self, ctx, sources: TargetSourceGenerator, play_msg):
+        first_source = await sources.__anext__()
 
         # キューへの追加
         if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
@@ -211,7 +211,8 @@ class Music(commands.Cog):
                     pass
             await play_msg.edit(embed=embed)
 
-        self.queue[ctx.guild.id].extend(sources)
+        async for source in sources:
+            self.queue[ctx.guild.id].append(source)
 
     @commands.command(aliases=["p"])
     async def play(self, ctx, *, url):
@@ -233,7 +234,7 @@ class Music(commands.Cog):
         is_niconico = url.startswith("https://www.nicovideo.jp/") or url.startswith("https://nico.ms/")
         is_spotify = url.startswith("https://open.spotify.com/")
 
-        target_sources = []
+        target_sources: TargetSourceGenerator = None
 
         # 各サービスごとに振り分け
         if is_niconico_mylist:
@@ -244,43 +245,60 @@ class Music(commands.Cog):
             for mylist_page in niconico_client.video.get_mylist(url):
                 items.extend(mylist_page.items)
 
-            for item in items:
-                try:
-                    source = await NicoNicoDLSource.from_url(item.video.url)
-                    target_sources.append(source)
-                # 400エラーだったら無視する
-                except requests.exceptions.HTTPError as e:
-                    if e.response.status_code == 400:
-                        continue
-                    else:
-                        raise e
+            async def niconico_sources_generator() -> TargetSourceGenerator:
+                for item in items:
+                    try:
+                        yield await NicoNicoDLSource.from_url(item.video.url)
+                    # 400エラーだったら無視する
+                    except requests.exceptions.HTTPError as e:
+                        if e.response.status_code == 400:
+                            continue
+                        else:
+                            raise e
+            target_sources = niconico_sources_generator()
 
         elif is_niconico:
-            source = await NicoNicoDLSource.from_url(url)
-            target_sources.append(source)
+            async def niconico_sources_generator() -> TargetSourceGenerator:
+                yield await NicoNicoDLSource.from_url(url)
+            target_sources = niconico_sources_generator()
 
         elif is_spotify:
             # プレイリストの場合はsongsの結果が複数返ってくる
             # その場合は2曲目以降も存在する
             songs = self.spotdl.search([url])
+            print(songs)
             urls = self.spotdl.get_download_urls(songs)
 
             # それぞれURLを変換してtarget_sourcesに入れる
-            for url in urls:
-                target_sources.append(await YTDLSource.from_url(url, loop=self.bot.loop, stream=True))
+            async def spotify_sources_generator() -> TargetSourceGenerator:
+                for url in urls:
+                    try:
+                        yield await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+                    except Exception as e:
+                        print(e)
+            target_sources = spotify_sources_generator()
 
         else:
-            data = await self.bot.loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+            data = await self.bot.loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False, process=False))
 
+            urls = []
             # もしプレイリストだった場合
             if "entries" in data:
                 for item in data["entries"]:
-                    original_url = item.get("original_url")
-                    target_sources.append(await YTDLSource.from_url(original_url, loop=self.bot.loop, stream=True))
+                    original_url = item.get("url") or item.get("original_url")
+                    urls.append(original_url)
             else:
-                original_url = data.get("original_url")
-                source = await YTDLSource.from_url(original_url, loop=self.bot.loop, stream=True)
-                target_sources.append(source)
+                original_url = data.get("url") or data.get("original_url")
+                urls.append(original_url)
+
+            async def youtube_sources_generator() -> TargetSourceGenerator:
+                for url in urls:
+                    try:
+                        yield await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+                    except Exception as e:
+                        print(e)
+
+            target_sources = youtube_sources_generator()
 
         await self.queue_sources(ctx, target_sources, play_msg)
 
