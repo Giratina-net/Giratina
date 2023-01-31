@@ -29,6 +29,7 @@ from os import getenv
 from PIL import Image
 from spotdl import Spotdl
 from yt_dlp import YoutubeDL
+from collections import defaultdict
 
 # spotdl
 SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID")
@@ -175,7 +176,7 @@ class Music(commands.Cog):
         self.bot = bot_arg
         self.loop: bool = False
         self.player: typing.Union[YTDLSource, NicoNicoDLSource, None] = None
-        self.queue: typing.List[typing.Union[YTDLSource, NicoNicoDLSource]] = []
+        self.queue: defaultdict[typing.List[typing.Union[YTDLSource, NicoNicoDLSource]]] = defaultdict(lambda: [])
 
     def after_play(self, guild, err):
         if type(self.player) == NicoNicoDLSource:
@@ -184,10 +185,10 @@ class Music(commands.Cog):
         if err:
             return print(f"has error: {err}")
 
-        if len(self.queue) <= 0:
+        if len(self.queue[guild.id]) <= 0:
             return
 
-        self.player = self.queue.pop(0)
+        self.player = self.queue[guild.id].pop(0)
 
         guild.voice_client.play(self.player, after=lambda e: self.after_play(guild, e))
 
@@ -245,8 +246,8 @@ class Music(commands.Cog):
             return
 
         embed = discord.Embed(colour=0xff00ff, title="現在再生中", description=f"[{self.player.title}]({self.player.original_url})" if ctx.guild.voice_client.is_playing() else "再生していません")
-        embed.set_footer(text=f"残りキュー: {len(self.queue)}")
-        # embed.set_footer(text=f"残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}")
+        embed.set_footer(text=f"残りキュー: {len(self.queue[ctx.guild.id])}")
+        # embed.set_footer(text=f"残りキュー: {len(self.queue[ctx.guild.id])} | ループ: {"有効" if self.loop else "無効"}")
 
         # サムネイルをAPIで取得
         if ctx.guild.voice_client.is_playing() and ("youtube.com" in self.player.original_url or "youtu.be" in self.player.original_url):
@@ -263,7 +264,7 @@ class Music(commands.Cog):
         # キューへの追加
         if ctx.guild.voice_client.is_playing():  # 他の曲を再生中の場合
             # self.playerに追加すると再生中の曲と衝突する
-            self.queue.append(first_source)
+            self.queue[ctx.guild.id].append(first_source)
             embed = discord.Embed(colour=0xff00ff, title="キューに追加しました", description=f"[{first_source.title}]({first_source.original_url})")
             await play_msg.edit(embed=embed)
 
@@ -285,7 +286,7 @@ class Music(commands.Cog):
                     pass
             await play_msg.edit(embed=embed)
 
-        self.queue.extend(sources)
+        self.queue[ctx.guild.id].extend(sources)
 
     @commands.command(aliases=["p"])
     async def play(self, ctx, *, url):
@@ -369,13 +370,13 @@ class Music(commands.Cog):
         else:
             queue_embed = [f"__現在再生中__:\n[{self.player.title}]({self.player.original_url})"]
 
-            for i in range(min(len(self.queue), 10)):
-                queue_embed.append(("__次に再生__:\n" if i == 0 else "") + f"`{i + 1}.` [{self.queue[i].title}]({self.queue[i].original_url})")
+            for i in range(min(len(self.queue[ctx.guild.id]), 10)):
+                queue_embed.append(("__次に再生__:\n" if i == 0 else "") + f"`{i + 1}.` [{self.queue[ctx.guild.id][i].title}]({self.queue[ctx.guild.id][i].original_url})")
 
             embed.description = "\n\n".join(queue_embed)
 
-        embed.set_footer(text=f"残りキュー: {len(self.queue)}")
-        # embed.set_footer(text=f"残りキュー: {len(self.queue)} | ループ: {"有効" if self.loop else "無効"}")
+        embed.set_footer(text=f"残りキュー: {len(self.queue[ctx.guild.id])}")
+        # embed.set_footer(text=f"残りキュー: {len(self.queue[ctx.guild.id])} | ループ: {"有効" if self.loop else "無効"}")
         await ctx.channel.send(embed=embed)
 
     @commands.command(aliases=["s"])
@@ -420,7 +421,7 @@ class Music(commands.Cog):
             await ctx.channel.send(embed=embed)
             return
 
-        random.shuffle(self.queue)
+        random.shuffle(self.queue[ctx.guild.id])
         embed = discord.Embed(colour=0xff00ff, title="キューをシャッフルしました")
         await ctx.channel.send(embed=embed)
 
@@ -443,7 +444,7 @@ class Music(commands.Cog):
             await ctx.channel.send(embed=embed)
             return
 
-        self.queue.clear()
+        self.queue[ctx.guild.id].clear()
         ctx.guild.voice_client.stop()
         embed = discord.Embed(colour=0xff00ff, title="再生を停止します")
         await ctx.channel.send(embed=embed)
