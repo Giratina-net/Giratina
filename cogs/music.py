@@ -89,8 +89,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
         source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
         return cls(source, data=data)
 
-TargetSourceGenerator = typing.Optional[typing.AsyncGenerator[NicoNicoDLSource | YTDLSource, None]]
-
 
 # Cog とは: コマンドとかの機能をひとまとめにできる
 class Music(commands.Cog):
