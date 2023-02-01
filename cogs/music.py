@@ -49,6 +49,24 @@ class NicoNicoDLSource(discord.PCMVolumeTransformer):
         self.video = video
         self.title = video.video.title
 
+    # 再生成する。生成後、このインスタンスは使用不可となる。
+    # 経緯は以下のissueを参照。
+    # see also: https://github.com/Giratina-net/Giratina/issues/161
+    def regenerate(self):
+        self.close_connection()
+
+        niconico_client = NicoNico()
+        video = niconico_client.video.get_video(url)
+        # 必ずあとでコネクションを切る
+        video.connect()
+
+        data = ytdl.extract_info(self.original_url, download=False)
+
+        filename = data["url"]
+
+        source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
+        return self.__class__(source, data=data)
+
     @classmethod
     async def from_url(cls, url):
         # とりあえず毎回clientを作っておく
@@ -73,6 +91,17 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.original_url = data.get("original_url")
         self.title = data.get("title")
         self.url = data.get("url")
+
+    # 再生成する。生成後、このインスタンスは使用不可となる。
+    # 経緯は以下のissueを参照。
+    # see also: https://github.com/Giratina-net/Giratina/issues/161
+    def regenerate(self):
+        data = ytdl.extract_info(self.original_url, download=False)
+
+        filename = data["url"]
+
+        source = discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS)
+        return self.__class__(source, data=data)
 
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
@@ -101,6 +130,9 @@ class Music(commands.Cog):
         self.youtube = youtube
         self.spotdl: Spotdl = spotdl
 
+    # coroutineの再帰で実装しようとすると結構複雑になるので一旦あきらめてる
+    # 再帰でプレイヤーを実現するんじゃなくて、別のクラスを実装したほうがよさそう
+    # いい感じの参考 https://gist.github.com/EvieePy/ab667b74e9758433b3eb806c53a19f34
     def after_play(self, guild, err):
         if type(self.player) == NicoNicoDLSource:
             self.player.close_connection()
@@ -111,7 +143,7 @@ class Music(commands.Cog):
         if len(self.queue[guild.id]) <= 0:
             return
 
-        self.player = self.queue[guild.id].pop(0)
+        self.player = self.queue[guild.id].pop(0).regenerate()
 
         guild.voice_client.play(self.player, after=lambda e: self.after_play(guild, e))
 
