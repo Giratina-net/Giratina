@@ -56,7 +56,7 @@ class NicoNicoDLSource(discord.PCMVolumeTransformer):
         self.close_connection()
 
         niconico_client = NicoNico()
-        video = niconico_client.video.get_video(url)
+        video = niconico_client.video.get_video(self.original_url)
         # 必ずあとでコネクションを切る
         video.connect()
 
