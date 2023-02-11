@@ -1,5 +1,5 @@
 # Giratina
-[![Check Syntax](https://github.com/Giratina-net/Giratina/actions/workflows/check_syntax.yml/badge.svg?branch=master)](https://github.com/Giratina-net/Giratina/actions/workflows/check_syntax.yml)  
+[![Auto Formatting](https://github.com/Giratina-net/Giratina/actions/workflows/auto_formatting.yml/badge.svg?branch=master)](https://github.com/Giratina-net/Giratina/actions/workflows/auto_formatting.yml)  
 身内のサーバーで使うことを目的としたDiscord向けのBotです。  
 開発段階のためバグや唐突な仕様変更があります。
 
