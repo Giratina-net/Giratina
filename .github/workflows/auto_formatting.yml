@@ -34,4 +34,4 @@ jobs:
       - name: Commit formatting codes
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
-          commit_message: [Actions] Code Formatting
+          commit_message: '[Actions] Code Formatting'
