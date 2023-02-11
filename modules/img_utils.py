@@ -1,6 +1,7 @@
 # 画像処理に用いる数値計算関数
 import random
 
+
 # 最小値を設定
 def minlim(val, min):
     if val < min:
@@ -65,6 +66,7 @@ class Rect:
 # 領域(矩形の集合)
 class Region:
     rects = []
+
     def __init__(self, rects):
         self.rects = rects
 

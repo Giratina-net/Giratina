@@ -1,8 +1,10 @@
-from discord.ext import commands
 import random
 
-from constants import FALCO_CHANNEL_ID, SEIBARI_GUILD_ID, TEIOU_CHANNEL_ID
+from discord.ext import commands
+
 import modules.funcs
+from constants import FALCO_CHANNEL_ID, SEIBARI_GUILD_ID, TEIOU_CHANNEL_ID
+
 
 class Uma(commands.Cog):
     def __init__(self, bot):
@@ -29,15 +31,20 @@ class Uma(commands.Cog):
 
         channel = guild.get_channel(TEIOU_CHANNEL_ID)
 
-        teiou_channel_messages = [message async for message in channel.history(limit=None)]
+        teiou_channel_messages = [
+            message async for message in channel.history(limit=None)
+        ]
 
         random_teiou = random.choice(teiou_channel_messages)
 
-        content = random_teiou.attachments[0].url if random_teiou.content == "" else random_teiou.content
+        content = (
+            random_teiou.attachments[0].url
+            if random_teiou.content == ""
+            else random_teiou.content
+        )
 
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send(content)
-
 
     # ファルコおもしろ画像を送信
     @commands.command(aliases=["syai", "faruko"])
@@ -46,11 +53,17 @@ class Uma(commands.Cog):
 
         channel = guild.get_channel(FALCO_CHANNEL_ID)
 
-        falco_channel_messages = [message async for message in channel.history(limit=None)]
+        falco_channel_messages = [
+            message async for message in channel.history(limit=None)
+        ]
 
         random_falco = random.choice(falco_channel_messages)
 
-        content = random_falco.attachments[0].url if random_falco.content == "" else random_falco.content
+        content = (
+            random_falco.attachments[0].url
+            if random_falco.content == ""
+            else random_falco.content
+        )
 
         # メッセージが送られてきたチャンネルに送る
         await ctx.channel.send(content)

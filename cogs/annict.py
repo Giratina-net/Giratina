@@ -1,6 +1,8 @@
-from discord.ext import commands
 import random
+
 import requests
+from discord.ext import commands
+
 
 class Annict(commands.Cog):
     def __init__(self, bot, annict_api_key):
@@ -20,8 +22,9 @@ class Annict(commands.Cog):
         annict_works_season_name_text = annict_works["season_name_text"]
         annict_works_episodes_count = annict_works["episodes_count"]
         annict_works_images_recommended_url = annict_works["images"]["recommended_url"]
-        await ctx.channel.send(f"{annict_works_title}({annict_works_season_name_text}-{annict_works_episodes_count}話)\nhttps://annict.com/works/{random_id}")
-
+        await ctx.channel.send(
+            f"{annict_works_title}({annict_works_season_name_text}-{annict_works_episodes_count}話)\nhttps://annict.com/works/{random_id}"
+        )
 
     # アニクトから取得したキャラクターをランダムで表示
     @commands.command()
@@ -40,7 +43,9 @@ class Annict(commands.Cog):
             # シャッフルする
             random.shuffle(annict_characters)
             # お気に入り数が5以上の要素のみ抽出
-            annict_characters_favorite_count = list(filter(lambda e: e["favorite_characters_count"] > 4, annict_characters))
+            annict_characters_favorite_count = list(
+                filter(lambda e: e["favorite_characters_count"] > 4, annict_characters)
+            )
             # 要素が0個では無い場合にループを解除
             if len(annict_characters_favorite_count) > 0:
                 target_character = annict_characters_favorite_count[0]
@@ -61,4 +66,3 @@ class Annict(commands.Cog):
             annict_character_msg = f"{annict_character_name}({annict_character_series}) - ファン数{annict_character_fan}人\nhttps://annict.com/characters/{annict_character_id}"
 
         await ctx.channel.send(annict_character_msg)
-

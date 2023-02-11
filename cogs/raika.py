@@ -1,10 +1,11 @@
-from discord.ext import commands
 import random
 import re
-import requests
-import MeCab
-from nltk import ngrams
 from collections import Counter, defaultdict
+
+import MeCab
+import requests
+from discord.ext import commands
+from nltk import ngrams
 
 
 class Raika(commands.Cog):
@@ -15,7 +16,9 @@ class Raika(commands.Cog):
     @commands.command()
     async def raika(ctx):
         txtfile = open("resources/Wonderful_Raika_Tweet.txt", "r", encoding="utf-8")
-        word = ",".join(list(map(lambda s: s.rstrip("\n"), random.sample(txtfile.readlines(), 1)))).replace("["", "").replace(""]", "")
+        word = ",".join(
+            list(map(lambda s: s.rstrip("\n"), random.sample(txtfile.readlines(), 1)))
+        ).replace("[" ", " ").replace(" "]", "")
         url = [word]
         pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
         for url in url:
@@ -24,13 +27,14 @@ class Raika(commands.Cog):
             else:
                 await ctx.channel.send(word)
 
-
     # raikaマルコフ
     # https://monachanpapa-scripting.com/marukofu-python/ほぼ丸コピですすみません...
     @commands.command()
     async def mraika(ctx):
         def parse_words(test_data):
-            with open("resources/Wonderful_Raika_Tweet.txt", "r", encoding="utf-8") as f:
+            with open(
+                "resources/Wonderful_Raika_Tweet.txt", "r", encoding="utf-8"
+            ) as f:
                 lines = f.readlines()
             t = MeCab.Tagger("-Owakati")
             datas = []
@@ -73,7 +77,10 @@ class Raika(commands.Cog):
             sentences = ["__BEGIN__", begin_word]
             while True:
                 back_words = tuple(sentences[-2:])
-                words, weights = m_dic[back_words]["words"], m_dic[back_words]["weights"]
+                words, weights = (
+                    m_dic[back_words]["words"],
+                    m_dic[back_words]["weights"],
+                )
                 next_word = random.choices(words, weights=weights, k=1)[0]
                 if next_word == "__END__":
                     break

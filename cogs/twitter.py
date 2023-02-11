@@ -1,6 +1,8 @@
+import random
+
 import discord
 from discord.ext import commands
-import random
+
 
 class Twitter(commands.Cog):
     def __init__(self, bot, twapi):
@@ -21,7 +23,12 @@ class Twitter(commands.Cog):
     # Twitterから#GenshinImpactの1000いいね以上を探して送信
     @commands.command(aliases=["gennshinn", "gensin", "gennsinn", "gs"])
     async def genshin(self, ctx):
-        tweets = self.twapi.search_tweets(q=f"filter:images min_faves:1000 #GenshinImpact", tweet_mode="extended", include_entities=True, count=1)
+        tweets = self.twapi.search_tweets(
+            q=f"filter:images min_faves:1000 #GenshinImpact",
+            tweet_mode="extended",
+            include_entities=True,
+            count=1,
+        )
         for tweet in tweets:
             media = tweet.extended_entities["media"]
             for m in media:
@@ -31,7 +38,12 @@ class Twitter(commands.Cog):
     # Twitterから#胡桃の1000いいね以上を探して送信
     @commands.command(aliases=["kisshutao"])
     async def hutao(self, ctx):
-        tweets = self.twapi.search_tweets(q=f"filter:images min_faves:1000 #胡桃", tweet_mode="extended", include_entities=True, count=1)
+        tweets = self.twapi.search_tweets(
+            q=f"filter:images min_faves:1000 #胡桃",
+            tweet_mode="extended",
+            include_entities=True,
+            count=1,
+        )
         for tweet in tweets:
             media = tweet.extended_entities["media"]
             for m in media:
@@ -41,7 +53,9 @@ class Twitter(commands.Cog):
     # かおすちゃんを送信
     @commands.command()
     async def kaosu(self, ctx):
-        tweets = self.twapi.search_tweets(q="from:@kaosu_pic", tweet_mode="extended", include_entities=True, count=1)
+        tweets = self.twapi.search_tweets(
+            q="from:@kaosu_pic", tweet_mode="extended", include_entities=True, count=1
+        )
         for tweet in tweets:
             media = tweet.entities["media"]
             for m in media:
@@ -51,7 +65,12 @@ class Twitter(commands.Cog):
     # こまちゃんを送信
     @commands.command()
     async def komachan(self, ctx):
-        tweets = self.twapi.search_tweets(q="from:@komachan_pic", tweet_mode="extended", include_entities=True, count=1)
+        tweets = self.twapi.search_tweets(
+            q="from:@komachan_pic",
+            tweet_mode="extended",
+            include_entities=True,
+            count=1,
+        )
         for tweet in tweets:
             media = tweet.entities["media"]
             for m in media:
@@ -63,7 +82,12 @@ class Twitter(commands.Cog):
     # https://syncer.jp/Web/API/Twitter/REST_API/Object/Entity/#:~:text=Filter-,%E3%83%84%E3%82%A4%E3%83%BC%E3%83%88%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88%20(%E5%8B%95%E7%94%BB),-%E5%8B%95%E7%94%BB%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%92
     @commands.command()
     async def lucky(self, ctx):
-        tweets = self.twapi.search_tweets(q="from:@LuckyStarPicBot", tweet_mode="extended", include_entities=True, count=1)
+        tweets = self.twapi.search_tweets(
+            q="from:@LuckyStarPicBot",
+            tweet_mode="extended",
+            include_entities=True,
+            count=1,
+        )
         for tweet in tweets:
             media = tweet.entities["media"]
             for m in media:
@@ -87,7 +111,12 @@ class Twitter(commands.Cog):
     # サターニャを送信
     @commands.command()
     async def satanya(self, ctx):
-        tweets = self.twapi.search_tweets(q="from:@satanya_gazobot", tweet_mode="extended", include_entities=True, count=1)
+        tweets = self.twapi.search_tweets(
+            q="from:@satanya_gazobot",
+            tweet_mode="extended",
+            include_entities=True,
+            count=1,
+        )
         for tweet in tweets:
             media = tweet.entities["media"]
             for m in media:
@@ -97,7 +126,9 @@ class Twitter(commands.Cog):
     # おすしを送信
     @commands.command(aliases=["osushi"])
     async def sushi(self, ctx):
-        tweets = self.twapi.search_tweets(q="from:@kasakioiba", tweet_mode="extended", include_entities=True, count=1)
+        tweets = self.twapi.search_tweets(
+            q="from:@kasakioiba", tweet_mode="extended", include_entities=True, count=1
+        )
         for tweet in tweets:
             media = tweet.entities["media"]
             for m in media:
@@ -109,7 +140,12 @@ class Twitter(commands.Cog):
     # TwitterのIDを指定して最新の画像を送信
     @commands.command(aliases=["tw"])
     async def twitter(self, ctx, *, arg):
-        tweets = self.twapi.search_tweets(q=f"filter:images {arg}", tweet_mode="extended", include_entities=True, count=1)
+        tweets = self.twapi.search_tweets(
+            q=f"filter:images {arg}",
+            tweet_mode="extended",
+            include_entities=True,
+            count=1,
+        )
         for tweet in tweets:
             media = tweet.extended_entities["media"]
             for m in media:
@@ -119,7 +155,12 @@ class Twitter(commands.Cog):
     # ゆるゆりを送信
     @commands.command()
     async def yuruyuri(self, ctx):
-        tweets = self.twapi.search_tweets(q="from:@YuruYuriBot1", tweet_mode="extended", include_entities=True, count=1)
+        tweets = self.twapi.search_tweets(
+            q="from:@YuruYuriBot1",
+            tweet_mode="extended",
+            include_entities=True,
+            count=1,
+        )
         for tweet in tweets:
             media = tweet.entities["media"]
             for m in media:
@@ -135,7 +176,9 @@ class Twitter(commands.Cog):
         is_twitter = tweet_url.startswith("https://twitter.com")
 
         if is_twitter:
-            tweet_status = self.twapi.get_status(id=int(tweet_id), tweet_mode="extended", include_entities=True)
+            tweet_status = self.twapi.get_status(
+                id=int(tweet_id), tweet_mode="extended", include_entities=True
+            )
 
             status = tweet_status
             for media in status.extended_entities.get("media", [{}]):
@@ -143,14 +186,14 @@ class Twitter(commands.Cog):
                     video = media["video_info"]["variants"]
                     sorted_video = sorted(
                         video,
-                        key=lambda x: x.get("bitrate", 0),  # bitrateの値がない場合にエラーが出るので0を代入して大きい順にソートする
-                        reverse=True  # 降順にする
+                        key=lambda x: x.get(
+                            "bitrate", 0
+                        ),  # bitrateの値がない場合にエラーが出るので0を代入して大きい順にソートする
+                        reverse=True,  # 降順にする
                     )
                     video_url = sorted_video[0]["url"]
             await ctx.channel.send(video_url)
 
-
         else:
-            embed = discord.Embed(colour=0xff00ff, title="TwitterのURLを貼ってください")
+            embed = discord.Embed(colour=0xFF00FF, title="TwitterのURLを貼ってください")
             discord.Message = await ctx.channel.send(embed=embed)
-

@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import datetime
-from ntpath import join
 import time
-import discord
-from discord.ext import commands
+from ntpath import join
 from os import getenv
 
+import discord
 import tweepy
+from discord.ext import commands
 from googleapiclient.discovery import build
 from spotdl import Spotdl
 
 from cogs.annict import Annict
-from cogs.music import Music
-from cogs.twitter import Twitter
-from cogs.kotobagari import Kotobagari
-from cogs.uma import Uma
 from cogs.hiroyuki import Hiroyuki
-from cogs.raika import Raika
-from cogs.utility import Utility
+from cogs.kotobagari import Kotobagari
+from cogs.music import Music
 from cogs.others import Others
-
+from cogs.raika import Raika
+from cogs.twitter import Twitter
+from cogs.uma import Uma
+from cogs.utility import Utility
 from constants import VOICECHAT_NOTIFICATION_CHANNEL_ID
 
 # DiscordBot
@@ -65,7 +64,9 @@ async def on_ready():
 
     time.sleep(5)
 
-    await bot.change_presence(activity=discord.Game(name=f"{now_time.strftime('%Y/%m/%d %H:%M:%S')} - オォン"))
+    await bot.change_presence(
+        activity=discord.Game(name=f"{now_time.strftime('%Y/%m/%d %H:%M:%S')} - オォン")
+    )
 
 
 # https://techblog.cartaholdings.co.jp/entry/archives/6412
@@ -78,20 +79,43 @@ async def on_voice_state_update(member, before, after):
         notification_channel = bot.get_channel(VOICECHAT_NOTIFICATION_CHANNEL_ID)
 
         # 入退室を監視する対象のボイスチャンネル（チャンネルIDを指定）
-        SEIBARI_VOICE_CHANNEL_IDs = [889049222152871990, 889251836312309800, 938212082363539526, 889312365466775582, 934783864226844682, 934783998935302214, 938212160075628624, 956176543850311700,
-                                     988470466249359461, 1005195693465538591, 1001860023917477908, 937319677162565672, 890539305276174357]
+        SEIBARI_VOICE_CHANNEL_IDs = [
+            889049222152871990,
+            889251836312309800,
+            938212082363539526,
+            889312365466775582,
+            934783864226844682,
+            934783998935302214,
+            938212160075628624,
+            956176543850311700,
+            988470466249359461,
+            1005195693465538591,
+            1001860023917477908,
+            937319677162565672,
+            890539305276174357,
+        ]
 
         # 終了通知
-        if before.channel is not None and before.channel.id in SEIBARI_VOICE_CHANNEL_IDs:
+        if (
+            before.channel is not None
+            and before.channel.id in SEIBARI_VOICE_CHANNEL_IDs
+        ):
             if len(before.channel.members) == 0:
-                embed = discord.Embed(colour=0xff00ff, title="通知", description="**" + before.channel.name + "** の通話が終了しました")
+                embed = discord.Embed(
+                    colour=0xFF00FF,
+                    title="通知",
+                    description="**" + before.channel.name + "** の通話が終了しました",
+                )
                 await notification_channel.send(embed=embed)
         # 開始通知
         if after.channel is not None and after.channel.id in SEIBARI_VOICE_CHANNEL_IDs:
             if len(after.channel.members) == 1:
-                embed = discord.Embed(colour=0xff00ff, title="通知", description="**" + after.channel.name + "** の通話が開始しました")
+                embed = discord.Embed(
+                    colour=0xFF00FF,
+                    title="通知",
+                    description="**" + after.channel.name + "** の通話が開始しました",
+                )
                 await notification_channel.send(embed=embed)
-
 
 
 bot.add_cog(Annict(bot, ANNICT_API_KEY))

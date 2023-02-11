@@ -1,8 +1,10 @@
-from discord.ext import commands
-import discord
 import asyncio
 import os
+
+import discord
 import requests
+from discord.ext import commands
+
 import modules.funcs
 
 
@@ -33,7 +35,11 @@ class Utility(commands.Cog):
         await mes.attachments[0].save("resources/temporary/wip_input.mp3")
         mes_pros = await ctx.reply("処理中です…", mention_author=False)
         command = "ffmpeg -y -loop 1 -i resources/wip_input.jpg -i resources/temporary/wip_input.mp3 -vcodec libx264 -vb 50k -acodec aac -strict experimental -ab 128k -ac 2 -ar 48000 -pix_fmt yuv420p -shortest resources/temporary/wip_output.mp4"
-        proc = await asyncio.create_subprocess_exec(*command.split(" "), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        proc = await asyncio.create_subprocess_exec(
+            *command.split(" "),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
         stdout, stderr = await proc.communicate()
         await mes_pros.delete()
         await ctx.channel.send(file=discord.File("resources/temporary/wip_output.mp4"))
@@ -52,7 +58,7 @@ class Utility(commands.Cog):
             return
 
         async with ctx.typing():
-            #RemoveBgAPI
+            # RemoveBgAPI
             response = requests.post(
                 "https://api.remove.bg/v1.0/removebg",
                 files={"image_file": open(filename_input, "rb")},
@@ -69,4 +75,3 @@ class Utility(commands.Cog):
                             os.remove(filename)
             else:
                 await ctx.send(f"```Error:{response.status_code} {response.text}```")
-
