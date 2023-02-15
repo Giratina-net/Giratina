@@ -4,8 +4,10 @@ import random
 import discord
 from discord.ext import commands
 
-from constants import (MACHITAN_CHANNEL_ID, NO_CONTEXT_HENTAI_IMG_CHANNEL_ID,
-                       SEIBARI_GUILD_ID, SIRONEKO_GUILD_ID)
+from constants import (
+    MACHITAN_CHANNEL_ID, NO_CONTEXT_HENTAI_IMG_CHANNEL_ID,
+    SEIBARI_GUILD_ID, SIRONEKO_GUILD_ID
+)
 
 
 class Others(commands.Cog):
@@ -15,6 +17,7 @@ class Others(commands.Cog):
     # bokuseku.mp3 流し逃げ - https://qiita.com/sizumita/items/cafd00fe3e114d834ce3
     @commands.command()
     async def bokuseku(self, ctx):
+        # 実行したユーザーがボイスチャンネルに居ない場合は拒否
         if ctx.author.voice is None:
             await ctx.channel.send("望月くん・・・ボイスチャンネルに来なさい")
             return
@@ -22,11 +25,14 @@ class Others(commands.Cog):
         # ボイスチャンネルに接続する
         if ctx.guild.voice_client is None:
             await ctx.author.voice.channel.connect()
+
         # 音声を再生する
         ctx.guild.voice_client.play(discord.FFmpegPCMAudio("resources/bokuseku.mp3"))
+
         # 音声が再生中か確認する
         while ctx.guild.voice_client.is_playing():
             await asyncio.sleep(1)
+
         # 切断する
         await ctx.guild.voice_client.disconnect()
 
@@ -38,9 +44,7 @@ class Others(commands.Cog):
     # ギラティナの画像を送る
     @commands.command()
     async def giratina(self, ctx):
-        await ctx.channel.send(
-            "https://img.gamewith.jp/article/thumbnail/rectangle/36417.png"
-        )
+        await ctx.channel.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
 
     # no context hentai imgの画像を送信
     @commands.command()
