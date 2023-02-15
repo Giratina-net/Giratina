@@ -21,16 +21,12 @@ EMBED_USER_NOT_JOIN = discord.Embed(
 
 # Botがボイスチャンネルに居ない場合
 EMBED_BOT_NOT_JOIN = discord.Embed(
-    colour=0xFF0000,
-    title="エラーが発生しました",
-    description="Botがボイスチャンネルに接続していません"
+    colour=0xFF0000, title="エラーが発生しました", description="Botがボイスチャンネルに接続していません"
 )
 
 # 再生中ではない場合
 EMBED_NOT_PLAYING = discord.Embed(
-    colour=0xFF0000,
-    title="エラーが発生しました",
-    description="再生していません"
+    colour=0xFF0000, title="エラーが発生しました", description="再生していません"
 )
 
 # yt_dlp
@@ -221,7 +217,8 @@ class Music(commands.Cog):
             colour=0xFF00FF,
             title="現在再生中",
             description=f"[{self.player.title}]({self.player.original_url})"
-            if ctx.guild.voice_client.is_playing() else "再生していません",
+            if ctx.guild.voice_client.is_playing()
+            else "再生していません",
         )
 
         embed.set_footer(text=f"残りキュー: {len(self.queue[ctx.guild.id])}")
@@ -241,7 +238,9 @@ class Music(commands.Cog):
         await ctx.channel.send(embed=embed)
 
     async def url_to_source(self, url) -> typing.Union[NicoNicoDLSource, YTDLSource]:
-        if url.startswith("https://www.nicovideo.jp/watch/") or url.startswith("https://nico.ms/"):
+        if url.startswith("https://www.nicovideo.jp/watch/") or url.startswith(
+            "https://nico.ms/"
+        ):
             return await NicoNicoDLSource.from_url(url)
         else:
             return await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)

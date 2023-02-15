@@ -4,10 +4,8 @@ import random
 import discord
 from discord.ext import commands
 
-from constants import (
-    MACHITAN_CHANNEL_ID, NO_CONTEXT_HENTAI_IMG_CHANNEL_ID,
-    SEIBARI_GUILD_ID, SIRONEKO_GUILD_ID
-)
+from constants import (MACHITAN_CHANNEL_ID, NO_CONTEXT_HENTAI_IMG_CHANNEL_ID,
+                       SEIBARI_GUILD_ID, SIRONEKO_GUILD_ID)
 
 
 class Others(commands.Cog):
@@ -44,7 +42,9 @@ class Others(commands.Cog):
     # ギラティナの画像を送る
     @commands.command()
     async def giratina(self, ctx):
-        await ctx.channel.send("https://img.gamewith.jp/article/thumbnail/rectangle/36417.png")
+        await ctx.channel.send(
+            "https://img.gamewith.jp/article/thumbnail/rectangle/36417.png"
+        )
 
     # no context hentai imgの画像を送信
     @commands.command()
