@@ -69,6 +69,15 @@ async def on_ready():
     )
 
 
+# メッセージ取得時に実行される関数
+@bot.event
+async def on_message(ctx):
+    # 送信者がBotである場合は弾く
+    # ここで弾けば以降は書かなくて良さそう
+    if ctx.author.bot:
+        return
+
+
 # https://techblog.cartaholdings.co.jp/entry/archives/6412
 # チャンネル入退室時の通知処理
 @bot.event
@@ -127,4 +136,5 @@ bot.add_cog(Hiroyuki(bot))
 bot.add_cog(Raika(bot))
 bot.add_cog(Utility(bot))
 bot.add_cog(Others(bot))
+
 bot.run(DISCORD_BOT_TOKEN)

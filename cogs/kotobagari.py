@@ -18,11 +18,6 @@ class Kotobagari(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        # 送信者がBotである場合は弾く
-        # ここで弾けば以降は書かなくて良さそう
-        if ctx.author.bot:
-            return
-
         if ctx.guild.id == PASOJIN_GUILD_ID:
             return
 
