@@ -77,6 +77,8 @@ async def on_message(ctx):
     if ctx.author.bot:
         return
 
+    await bot.process_commands(ctx)
+
 
 # https://techblog.cartaholdings.co.jp/entry/archives/6412
 # チャンネル入退室時の通知処理
