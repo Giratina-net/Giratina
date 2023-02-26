@@ -78,55 +78,6 @@ async def on_message(ctx):
         return
 
 
-# https://techblog.cartaholdings.co.jp/entry/archives/6412
-# チャンネル入退室時の通知処理
-@bot.event
-async def on_voice_state_update(member, before, after):
-    # チャンネルへの入室ステータスが変更されたとき（ミュートON、OFFに反応しないように分岐）
-    if before.channel != after.channel:
-        # 通知メッセージを書き込むテキストチャンネル（チャンネルIDを指定）
-        notification_channel = bot.get_channel(VOICECHAT_NOTIFICATION_CHANNEL_ID)
-
-        # 入退室を監視する対象のボイスチャンネル（チャンネルIDを指定）
-        SEIBARI_VOICE_CHANNEL_IDs = [
-            889049222152871990,
-            889251836312309800,
-            938212082363539526,
-            889312365466775582,
-            934783864226844682,
-            934783998935302214,
-            938212160075628624,
-            956176543850311700,
-            988470466249359461,
-            1005195693465538591,
-            1001860023917477908,
-            937319677162565672,
-            890539305276174357,
-        ]
-
-        # 終了通知
-        if (
-            before.channel is not None
-            and before.channel.id in SEIBARI_VOICE_CHANNEL_IDs
-        ):
-            if len(before.channel.members) == 0:
-                embed = discord.Embed(
-                    colour=0xFF00FF,
-                    title="通知",
-                    description="**" + before.channel.name + "** の通話が終了しました",
-                )
-                await notification_channel.send(embed=embed)
-        # 開始通知
-        if after.channel is not None and after.channel.id in SEIBARI_VOICE_CHANNEL_IDs:
-            if len(after.channel.members) == 1:
-                embed = discord.Embed(
-                    colour=0xFF00FF,
-                    title="通知",
-                    description="**" + after.channel.name + "** の通話が開始しました",
-                )
-                await notification_channel.send(embed=embed)
-
-
 bot.add_cog(Annict(bot, ANNICT_API_KEY))
 bot.add_cog(Music(bot, youtube, spotdl))
 bot.add_cog(Twitter(bot, twapi))
