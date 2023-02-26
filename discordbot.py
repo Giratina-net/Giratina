@@ -77,6 +77,8 @@ async def on_message(ctx):
     if ctx.author.bot:
         return
 
+    await bot.process_commands(ctx)
+
 
 bot.add_cog(Annict(bot, ANNICT_API_KEY))
 bot.add_cog(Music(bot, youtube, spotdl))
