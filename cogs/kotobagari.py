@@ -184,8 +184,6 @@ class Kotobagari(commands.Cog):
                 "https://cdn.discordapp.com/attachments/929649082924929045/1080125050520354866/image.png"
             )
 
-        
-
         # メッセージの本文が 昼 だった場合
         if "昼" in str(ctx.content) or "おひる" in str(ctx.content):
             images = [
