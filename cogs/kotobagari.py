@@ -177,6 +177,15 @@ class Kotobagari(commands.Cog):
                 "https://cdn.discordapp.com/attachments/889054561170522152/941239897400950794/newdance-min.gif"
             )
 
+        # メッセージの本文が 落合陽一 だった場合
+        if "落合陽一" in str(ctx.content):
+            # メッセージが送られてきたチャンネルに送る
+            await ctx.channel.send(
+                "https://cdn.discordapp.com/attachments/929649082924929045/1080125050520354866/image.png"
+            )
+
+        
+
         # メッセージの本文が 昼 だった場合
         if "昼" in str(ctx.content) or "おひる" in str(ctx.content):
             images = [
