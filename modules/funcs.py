@@ -163,13 +163,8 @@ async def send_uma(channel, author, custom_weights):
 
             chara_results_by_rarity = []
 
-            # レア度1はピックアップが存在しないため等確率で選出
-            chara_results_by_rarity.append(
-                random.choice([ch for ch in chara_list if ch.rarity == 1])
-            )
-
-            # レア度2以降はピックアップの有無ごとに選出
-            for r in range(2, 4):
+            # ピックアップの有無ごとに選出
+            for r in range(1, 4):
                 chara_result_by_rarity = 0
                 list_pickup = [
                     ch for ch in chara_list if ch.rarity == r and ch.is_pickup
@@ -177,8 +172,14 @@ async def send_uma(channel, author, custom_weights):
                 list_not_pickup = [
                     ch for ch in chara_list if ch.rarity == r and not ch.is_pickup
                 ]
+                
                 # ピックアップ1体ごとの確率
-                prob_pickup = 0.75 if r == 3 else 2.25
+                if r == 1:
+                    prob_pickup = 10
+                elif r == 2:
+                    prob_pickup = 2.25
+                else:
+                    prob_pickup = 0.75
 
                 # ピックアップが存在し、出現率が0より大きい場合
                 if len(list_pickup) and w[r - 1] > 0:
