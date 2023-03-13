@@ -6,8 +6,8 @@ on:
 
 jobs:
   auto-formatting:
-    name: Auto Formatting
-    runs-on: ubuntu-latest
+    name: Auto formatting
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout codes
         uses: actions/checkout@v3.3.0
