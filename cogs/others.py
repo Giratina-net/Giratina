@@ -4,8 +4,12 @@ import random
 import discord
 from discord.ext import commands
 
-from constants import (MACHITAN_CHANNEL_ID, NO_CONTEXT_HENTAI_IMG_CHANNEL_ID,
-                       SEIBARI_GUILD_ID, SIRONEKO_GUILD_ID)
+from constants import (
+    MACHITAN_CHANNEL_ID,
+    NO_CONTEXT_HENTAI_IMG_CHANNEL_ID,
+    SEIBARI_GUILD_ID,
+    SIRONEKO_GUILD_ID,
+)
 
 
 class Others(commands.Cog):

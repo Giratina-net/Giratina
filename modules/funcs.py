@@ -172,7 +172,7 @@ async def send_uma(channel, author, custom_weights):
                 list_not_pickup = [
                     ch for ch in chara_list if ch.rarity == r and not ch.is_pickup
                 ]
-                
+
                 # ピックアップ1体ごとの確率
                 if r == 1:
                     prob_pickup = 10
