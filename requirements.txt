@@ -5,7 +5,7 @@ google-api-python-client==2.79.0
 yt-dlp==2023.3.4
 tweepy==4.12.1
 niconico.py==1.2.3
-spotdl==4.0.7
+spotdl==4.1.3
 Pillow==9.4.0
 nltk==3.8.1
 mecab-python3==1.0.6
