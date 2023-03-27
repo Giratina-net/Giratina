@@ -95,11 +95,6 @@ class Kotobagari(commands.Cog):
                 "https://cdn.discordapp.com/attachments/889054561170522152/942109742782889994/GWHiBiKi_StYle_9_-_YouTube_1.png"
             )
 
-        # メッセージの本文が やんぱ だった場合
-        if "やんぱ" in str(ctx.content):
-            # メッセージが送られてきたチャンネルに送る
-            await ctx.channel.send("やんぱ2")
-
         # メッセージの本文が ライカ だった場合
         if "ライカ" in str(ctx.content):
             # メッセージが送られてきたチャンネルに送る
