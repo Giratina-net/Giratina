@@ -12,6 +12,11 @@ from googleapiclient.errors import HttpError
 from niconico import NicoNico
 from spotdl import Spotdl
 
+from constants import (
+    PASOJIN_GUILD_ID,
+    OTOMAD_CHANNEL_ID
+)
+
 # コマンドを送ったユーザーがボイスチャンネルに居ない場合
 EMBED_USER_NOT_JOIN = discord.Embed(
     colour=0xFF0000,
@@ -475,3 +480,37 @@ class Music(commands.Cog):
 
         embed = discord.Embed(colour=0xFF00FF, title="再生を停止します")
         await ctx.channel.send(embed=embed)
+
+    @commands.command(aliases=["mad"])
+    async def otomad(self, ctx):
+        guild = self.bot.get_guild(PASOJIN_GUILD_ID)
+
+        channel = guild.get_channel(OTOMAD_CHANNEL_ID)
+
+        otomad_channel_messages = [
+            message async for message in channel.history(limit=None)
+        ]
+
+        message_contents = []
+    
+        for otomad_channel_message in otomad_channel_messages:
+            message_content = otomad_channel_message.content
+            message_contents.append(message_content)
+
+        # ここチャットGPTに正規表現してもらった
+        # URLと一緒に投稿されたコメントを除外して純粋なURLだけにするために、改行文字以降のテキストを除外するように頼みました
+        pattern = r"(?P<url>https?://[^\n\s]+)"
+        otomad_urls = []
+        
+        for message_content in message_contents:
+            match = re.search(pattern, message_content)
+            if match:
+                otomad_urls.append(match.group('url'))
+
+        random_otomad = random.choice(otomad_urls)
+
+        # メッセージが送られてきたチャンネルに送る
+        await ctx.channel.send(random_otomad)
+
+
+

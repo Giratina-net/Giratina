@@ -20,7 +20,6 @@ from cogs.raika import Raika
 from cogs.twitter import Twitter
 from cogs.uma import Uma
 from cogs.utility import Utility
-from constants import VOICECHAT_NOTIFICATION_CHANNEL_ID
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
