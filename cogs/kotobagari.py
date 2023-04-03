@@ -20,6 +20,9 @@ class Kotobagari(commands.Cog):
     async def on_message(self, ctx):
         if ctx.guild.id == PASOJIN_GUILD_ID:
             return
+        
+        if ctx.author.bot:
+            return
 
         # メッセージの本文が big brother だった場合
         if "big brother" in str(ctx.content):
