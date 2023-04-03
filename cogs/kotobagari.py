@@ -20,7 +20,7 @@ class Kotobagari(commands.Cog):
     async def on_message(self, ctx):
         if ctx.guild.id == PASOJIN_GUILD_ID:
             return
-        
+
         if ctx.author.bot:
             return
 
