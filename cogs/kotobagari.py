@@ -182,6 +182,52 @@ class Kotobagari(commands.Cog):
                 "https://cdn.discordapp.com/attachments/929649082924929045/1080125050520354866/image.png"
             )
 
+        # メッセージの本文が 俺のラプラプの能力が発現してモーター だった場合
+        if "俺のラプラプの能力が発現してモーター" in str(ctx.content):
+            # メッセージが送られてきたチャンネルに送る
+            await ctx.channel.send(
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092592427077992448/Fs06ZyqaEAABEY0.png"
+            )
+
+        # メッセージの本文が 俺のグラグラの能力が発現してモーター だった場合
+        if "俺のグラグラの能力が発現してモーター" in str(ctx.content):
+            # メッセージが送られてきたチャンネルに送る
+            gura_pic_list = [
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092594782536216597/SPWN1h09m19s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092594782905323570/SPWN1h09m44s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092594783333126255/SPWN1h09m44s_screenshot_1.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092594783781924967/SPWN1h09m45s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092594829134929940/SPWN1h09m57s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092594829453688842/SPWN1h09m57s_screenshot_1.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092594879537872906/SPWN1h10m10s_screenshot_1.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092594879915380736/SPWN1h10m10s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595555655483525/SPWN1h11m29s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595556125249546/SPWN1h11m24s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595556414668891/SPWN1h11m25s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595556746002452/SPWN1h11m23s_screenshot_1.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595557123493918/SPWN1h11m23s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595557530353684/SPWN1h10m43s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595557878464532/SPWN1h10m44s_screenshot.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595558205624330/SPWN1h10m41s_screenshot_1.png",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595558960595045/SPWN1h10m32s_screenshot.png"
+            ]
+
+            gura_pic = random.choice(gura_pic_list)
+            await ctx.channel.send(gura_pic)
+
+         # メッセージの本文が 二郎 だった場合
+        if "二郎" in str(ctx.content):
+            # メッセージが送られてきたチャンネルに送る
+            omori_pic_list = [
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092604157946499104/026b279a3b77818a.jpg",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092604245485813810/bacc9ec2b8eaa999.jpg",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092604245720698880/1.jpg",
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092604245922033766/2.jpg"
+            ]
+
+            omori_pic = random.choice(omori_pic_list)
+            await ctx.channel.send(omori_pic)
+
         # メッセージの本文が 昼 だった場合
         if "昼" in str(ctx.content) or "おひる" in str(ctx.content):
             images = [
