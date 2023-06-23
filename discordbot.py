@@ -20,6 +20,7 @@ from cogs.raika import Raika
 from cogs.twitter import Twitter
 from cogs.uma import Uma
 from cogs.utility import Utility
+from cogs.timer import timer 
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
@@ -88,5 +89,6 @@ bot.add_cog(Hiroyuki(bot))
 bot.add_cog(Raika(bot))
 bot.add_cog(Utility(bot))
 bot.add_cog(Others(bot))
+bot.add_cog(timer(bot))
 
 bot.run(DISCORD_BOT_TOKEN)
