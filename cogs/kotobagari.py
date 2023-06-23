@@ -209,20 +209,20 @@ class Kotobagari(commands.Cog):
                 "https://cdn.discordapp.com/attachments/889054561170522152/1092595557530353684/SPWN1h10m43s_screenshot.png",
                 "https://cdn.discordapp.com/attachments/889054561170522152/1092595557878464532/SPWN1h10m44s_screenshot.png",
                 "https://cdn.discordapp.com/attachments/889054561170522152/1092595558205624330/SPWN1h10m41s_screenshot_1.png",
-                "https://cdn.discordapp.com/attachments/889054561170522152/1092595558960595045/SPWN1h10m32s_screenshot.png"
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092595558960595045/SPWN1h10m32s_screenshot.png",
             ]
 
             gura_pic = random.choice(gura_pic_list)
             await ctx.channel.send(gura_pic)
 
-         # メッセージの本文が 二郎 だった場合
+        # メッセージの本文が 二郎 だった場合
         if "二郎" in str(ctx.content):
             # メッセージが送られてきたチャンネルに送る
             omori_pic_list = [
                 "https://cdn.discordapp.com/attachments/889054561170522152/1092604157946499104/026b279a3b77818a.jpg",
                 "https://cdn.discordapp.com/attachments/889054561170522152/1092604245485813810/bacc9ec2b8eaa999.jpg",
                 "https://cdn.discordapp.com/attachments/889054561170522152/1092604245720698880/1.jpg",
-                "https://cdn.discordapp.com/attachments/889054561170522152/1092604245922033766/2.jpg"
+                "https://cdn.discordapp.com/attachments/889054561170522152/1092604245922033766/2.jpg",
             ]
 
             omori_pic = random.choice(omori_pic_list)

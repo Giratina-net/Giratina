@@ -1,5 +1,7 @@
 import asyncio
 import os
+from time import sleep
+import math
 
 import discord
 import requests
@@ -32,6 +34,131 @@ class Utility(commands.Cog):
         latency = self.bot.latency
         latency_milli = round(latency * 1000)
         await ctx.channel.send(f"Pong!: {latency_milli}ms")
+
+    @commands.command()
+    async def pomo(self, ctx):
+        if ctx.author.voice is None or ctx.author.voice.channel is None:
+            embed = discord.Embed(colour=0xFF0000, title="作業通話に参加してください！！")
+            return await ctx.channel.send(embed=embed)
+
+        voice_channel = ctx.author.voice.channel
+        voice_client = await voice_channel.connect()
+
+        embed_sagyou = discord.Embed(colour=0xFF00FF, title="作業開始！！！！(25分)")
+        embed_QK = discord.Embed(colour=0x00FF00, title="休憩！！！！(5分)")
+        embed_daiQK = discord.Embed(colour=0x00FF00, title="大休憩！！！！(30分)")
+
+        embed = discord.Embed(colour=0xFF00FF, title="ポモドーロテクニックを開始します！！！！")
+        pomo_msg: discord.Message = await ctx.channel.send(embed=embed)
+
+        embed = discord.Embed(colour=0x5865f2, title="99:99")
+        t_msg: discord.Message = await ctx.channel.send(embed=embed)
+
+        for _ in range(4):
+            for _ in range(3):
+                # 作業
+                voice_client.stop()  # 再生を停止
+
+                voice_client.play(discord.FFmpegOpusAudio("resources/sagyou.mp3"))
+                
+                await pomo_msg.edit(embed=embed_sagyou)
+
+                input = "25:00"
+                input = list(map(int,input.split(":")))
+                input2 = input
+
+                if len(input) == 2 and input[1] < 60:
+                    input = input[0] * 60 + input[1]
+                    embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
+                    await t_msg.edit(embed=embed)
+                    for i in range(0,input-1)[::-1]:
+                        sleep(1)
+                        t=math.floor((i+1)/60)
+                        embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
+                        await t_msg.edit(embed=embed)
+                    sleep(1)
+                    embed = discord.Embed(colour=0x5865f2, title="0:00")
+                    await t_msg.edit(embed=embed)
+
+                # 5分休憩
+
+                voice_client.stop()  # 再生を停止
+                
+                voice_client.play(discord.FFmpegOpusAudio("resources/QK.mp3"))
+
+                await pomo_msg.edit(embed=embed_QK)
+
+                input = "5:00"
+                input = list(map(int,input.split(":")))
+                input2 = input
+
+                if len(input) == 2 and input[1] < 60:
+                    input = input[0] * 60 + input[1]
+                    embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
+                    await t_msg.edit(embed=embed)
+                    for i in range(0,input-1)[::-1]:
+                        sleep(1)
+                        t=math.floor((i+1)/60)
+                        embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
+                        await t_msg.edit(embed=embed)
+                    sleep(1)
+                    embed = discord.Embed(colour=0x5865f2, title="0:00")
+                    await t_msg.edit(embed=embed)
+
+            # 4周目だけ30分休憩
+
+            # 作業
+            voice_client.stop()  # 再生を停止
+
+            voice_client.play(discord.FFmpegOpusAudio("resources/sagyou.mp3"))
+
+            await pomo_msg.edit(embed=embed_sagyou)
+
+
+            input = "25:00"
+            input = list(map(int,input.split(":")))
+            input2 = input
+
+            if len(input) == 2 and input[1] < 60:
+                input = input[0] * 60 + input[1]
+                embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
+                await t_msg.edit(embed=embed)
+                for i in range(0,input-1)[::-1]:
+                    sleep(1)
+                    t=math.floor((i+1)/60)
+                    embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
+                    await t_msg.edit(embed=embed)
+                sleep(1)
+                embed = discord.Embed(colour=0x5865f2, title="0:00")
+                await t_msg.edit(embed=embed)
+
+            # 30分休憩
+            voice_client.stop()  # 再生を停止
+
+            voice_client.play(discord.FFmpegOpusAudio("resources/QK.mp3"))
+
+            await pomo_msg.edit(embed=embed_daiQK)
+
+
+            input = "30:00"
+            input = list(map(int,input.split(":")))
+            input2 = input
+
+            if len(input) == 2 and input[1] < 60:
+                input = input[0] * 60 + input[1]
+                embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
+                await t_msg.edit(embed=embed)
+                for i in range(0,input-1)[::-1]:
+                    sleep(1)
+                    t=math.floor((i+1)/60)
+                    embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
+                    await t_msg.edit(embed=embed)
+                sleep(1)
+                embed = discord.Embed(colour=0x5865f2, title="0:00")
+                await t_msg.edit(embed=embed)
+
+        embed = discord.Embed(colour=0x0000FF, title="9時間40分作業しました！！お疲れ様！！！！")
+        await pomo_msg.edit(embed=embed)
 
     # mp4
     @commands.command()
