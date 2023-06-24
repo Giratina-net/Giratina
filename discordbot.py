@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import datetime
-import time
+import asyncio
 from ntpath import join
 from os import getenv
 
@@ -20,7 +20,6 @@ from cogs.raika import Raika
 from cogs.twitter import Twitter
 from cogs.uma import Uma
 from cogs.utility import Utility
-from cogs.timer import timer 
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
@@ -62,7 +61,7 @@ async def on_ready():
     now_time = datetime.datetime.utcnow() + datetime.timedelta(hours=9)
     await bot.change_presence(activity=discord.Game(name="ギラティナ、オォン！"))
 
-    time.sleep(5)
+    await asyncio.sleep(5)
 
     await bot.change_presence(
         activity=discord.Game(name=f"{now_time.strftime('%Y/%m/%d %H:%M:%S')} - オォン")
@@ -89,6 +88,5 @@ bot.add_cog(Hiroyuki(bot))
 bot.add_cog(Raika(bot))
 bot.add_cog(Utility(bot))
 bot.add_cog(Others(bot))
-bot.add_cog(timer(bot))
 
 bot.run(DISCORD_BOT_TOKEN)

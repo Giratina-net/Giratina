@@ -8,6 +8,7 @@ import requests
 from discord.ext import commands
 
 import modules.funcs
+import modules.timer
 
 #権限がない場合？
 EMBED_FORBIDDEN = discord.Embed(
@@ -40,9 +41,13 @@ class Utility(commands.Cog):
         if ctx.author.voice is None or ctx.author.voice.channel is None:
             embed = discord.Embed(colour=0xFF0000, title="作業通話に参加してください！！")
             return await ctx.channel.send(embed=embed)
+        
+        if ctx.guild.voice_client is None:
+            voice_channel = ctx.author.voice.channel
+            voice_client = await voice_channel.connect()
 
-        voice_channel = ctx.author.voice.channel
-        voice_client = await voice_channel.connect()
+        else:
+            voice_client = ctx.guild.voice_client
 
         embed_sagyou = discord.Embed(colour=0xFF00FF, title="作業開始！！！！(25分)")
         embed_QK = discord.Embed(colour=0x00FF00, title="休憩！！！！(5分)")
@@ -63,22 +68,10 @@ class Utility(commands.Cog):
                 
                 await pomo_msg.edit(embed=embed_sagyou)
 
-                input = "25:00"
-                input = list(map(int,input.split(":")))
-                input2 = input
+                hunbyou = "25:00"
+                hunbyou2 = list(map(int,hunbyou.split(":")))
 
-                if len(input) == 2 and input[1] < 60:
-                    input = input[0] * 60 + input[1]
-                    embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
-                    await t_msg.edit(embed=embed)
-                    for i in range(0,input-1)[::-1]:
-                        sleep(1)
-                        t=math.floor((i+1)/60)
-                        embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
-                        await t_msg.edit(embed=embed)
-                    sleep(1)
-                    embed = discord.Embed(colour=0x5865f2, title="0:00")
-                    await t_msg.edit(embed=embed)
+                await modules.timer.timer(hunbyou2[0],hunbyou2[1],t_msg)
 
                 # 5分休憩
 
@@ -88,22 +81,10 @@ class Utility(commands.Cog):
 
                 await pomo_msg.edit(embed=embed_QK)
 
-                input = "5:00"
-                input = list(map(int,input.split(":")))
-                input2 = input
+                hunbyou = "5:00"
+                hunbyou2 = list(map(int,hunbyou.split(":")))
 
-                if len(input) == 2 and input[1] < 60:
-                    input = input[0] * 60 + input[1]
-                    embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
-                    await t_msg.edit(embed=embed)
-                    for i in range(0,input-1)[::-1]:
-                        sleep(1)
-                        t=math.floor((i+1)/60)
-                        embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
-                        await t_msg.edit(embed=embed)
-                    sleep(1)
-                    embed = discord.Embed(colour=0x5865f2, title="0:00")
-                    await t_msg.edit(embed=embed)
+                await modules.timer.timer(hunbyou2[0],hunbyou2[1],t_msg)
 
             # 4周目だけ30分休憩
 
@@ -115,22 +96,10 @@ class Utility(commands.Cog):
             await pomo_msg.edit(embed=embed_sagyou)
 
 
-            input = "25:00"
-            input = list(map(int,input.split(":")))
-            input2 = input
+            hunbyou = "25:00"
+            hunbyou2 = list(map(int,hunbyou.split(":")))
 
-            if len(input) == 2 and input[1] < 60:
-                input = input[0] * 60 + input[1]
-                embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
-                await t_msg.edit(embed=embed)
-                for i in range(0,input-1)[::-1]:
-                    sleep(1)
-                    t=math.floor((i+1)/60)
-                    embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
-                    await t_msg.edit(embed=embed)
-                sleep(1)
-                embed = discord.Embed(colour=0x5865f2, title="0:00")
-                await t_msg.edit(embed=embed)
+            await modules.timer.timer(hunbyou2[0],hunbyou2[1],t_msg)
 
             # 30分休憩
             voice_client.stop()  # 再生を停止
@@ -140,22 +109,10 @@ class Utility(commands.Cog):
             await pomo_msg.edit(embed=embed_daiQK)
 
 
-            input = "30:00"
-            input = list(map(int,input.split(":")))
-            input2 = input
+            hunbyou = "30:00"
+            hunbyou2 = list(map(int,hunbyou.split(":")))
 
-            if len(input) == 2 and input[1] < 60:
-                input = input[0] * 60 + input[1]
-                embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
-                await t_msg.edit(embed=embed)
-                for i in range(0,input-1)[::-1]:
-                    sleep(1)
-                    t=math.floor((i+1)/60)
-                    embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
-                    await t_msg.edit(embed=embed)
-                sleep(1)
-                embed = discord.Embed(colour=0x5865f2, title="0:00")
-                await t_msg.edit(embed=embed)
+            await modules.timer.timer(hunbyou2[0],hunbyou2[1],t_msg)
 
         embed = discord.Embed(colour=0x0000FF, title="9時間40分作業しました！！お疲れ様！！！！")
         await pomo_msg.edit(embed=embed)
