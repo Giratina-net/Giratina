@@ -8,20 +8,16 @@ import requests
 from discord.ext import commands
 
 import modules.funcs
+import modules.timer
 
-#権限がない場合？
+# 権限がない場合？
 EMBED_FORBIDDEN = discord.Embed(
-    title = "エラーが発生しました",
-    color = 0xFF000,
-    description = "権限がありません"
+    title="エラーが発生しました", color=0xFF000, description="権限がありません"
 )
-#◆◇ニックネーム長すぎ注意◇◆
+# ◆◇ニックネーム長すぎ注意◇◆
 EMBED_CHARACTER_LIMIT = discord.Embed(
-    title = "エラーが発生しました",
-    color = 0xFF000,
-    description = "ニックネームに使える文字数は最大32文字です"
+    title="エラーが発生しました", color=0xFF000, description="ニックネームに使える文字数は最大32文字です"
 )
-
 
 
 class Utility(commands.Cog):
@@ -41,8 +37,12 @@ class Utility(commands.Cog):
             embed = discord.Embed(colour=0xFF0000, title="作業通話に参加してください！！")
             return await ctx.channel.send(embed=embed)
 
-        voice_channel = ctx.author.voice.channel
-        voice_client = await voice_channel.connect()
+        if ctx.guild.voice_client is None:
+            voice_channel = ctx.author.voice.channel
+            voice_client = await voice_channel.connect()
+
+        else:
+            voice_client = ctx.guild.voice_client
 
         embed_sagyou = discord.Embed(colour=0xFF00FF, title="作業開始！！！！(25分)")
         embed_QK = discord.Embed(colour=0x00FF00, title="休憩！！！！(5分)")
@@ -51,7 +51,7 @@ class Utility(commands.Cog):
         embed = discord.Embed(colour=0xFF00FF, title="ポモドーロテクニックを開始します！！！！")
         pomo_msg: discord.Message = await ctx.channel.send(embed=embed)
 
-        embed = discord.Embed(colour=0x5865f2, title="99:99")
+        embed = discord.Embed(colour=0x5865F2, title="99:99")
         t_msg: discord.Message = await ctx.channel.send(embed=embed)
 
         for _ in range(4):
@@ -60,50 +60,26 @@ class Utility(commands.Cog):
                 voice_client.stop()  # 再生を停止
 
                 voice_client.play(discord.FFmpegOpusAudio("resources/sagyou.mp3"))
-                
+
                 await pomo_msg.edit(embed=embed_sagyou)
 
-                input = "25:00"
-                input = list(map(int,input.split(":")))
-                input2 = input
+                hunbyou = "25:00"
+                hunbyou2 = list(map(int, hunbyou.split(":")))
 
-                if len(input) == 2 and input[1] < 60:
-                    input = input[0] * 60 + input[1]
-                    embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
-                    await t_msg.edit(embed=embed)
-                    for i in range(0,input-1)[::-1]:
-                        sleep(1)
-                        t=math.floor((i+1)/60)
-                        embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
-                        await t_msg.edit(embed=embed)
-                    sleep(1)
-                    embed = discord.Embed(colour=0x5865f2, title="0:00")
-                    await t_msg.edit(embed=embed)
+                await modules.timer.timer(hunbyou2[0], hunbyou2[1], t_msg)
 
                 # 5分休憩
 
                 voice_client.stop()  # 再生を停止
-                
+
                 voice_client.play(discord.FFmpegOpusAudio("resources/QK.mp3"))
 
                 await pomo_msg.edit(embed=embed_QK)
 
-                input = "5:00"
-                input = list(map(int,input.split(":")))
-                input2 = input
+                hunbyou = "5:00"
+                hunbyou2 = list(map(int, hunbyou.split(":")))
 
-                if len(input) == 2 and input[1] < 60:
-                    input = input[0] * 60 + input[1]
-                    embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
-                    await t_msg.edit(embed=embed)
-                    for i in range(0,input-1)[::-1]:
-                        sleep(1)
-                        t=math.floor((i+1)/60)
-                        embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
-                        await t_msg.edit(embed=embed)
-                    sleep(1)
-                    embed = discord.Embed(colour=0x5865f2, title="0:00")
-                    await t_msg.edit(embed=embed)
+                await modules.timer.timer(hunbyou2[0], hunbyou2[1], t_msg)
 
             # 4周目だけ30分休憩
 
@@ -114,23 +90,10 @@ class Utility(commands.Cog):
 
             await pomo_msg.edit(embed=embed_sagyou)
 
+            hunbyou = "25:00"
+            hunbyou2 = list(map(int, hunbyou.split(":")))
 
-            input = "25:00"
-            input = list(map(int,input.split(":")))
-            input2 = input
-
-            if len(input) == 2 and input[1] < 60:
-                input = input[0] * 60 + input[1]
-                embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
-                await t_msg.edit(embed=embed)
-                for i in range(0,input-1)[::-1]:
-                    sleep(1)
-                    t=math.floor((i+1)/60)
-                    embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
-                    await t_msg.edit(embed=embed)
-                sleep(1)
-                embed = discord.Embed(colour=0x5865f2, title="0:00")
-                await t_msg.edit(embed=embed)
+            await modules.timer.timer(hunbyou2[0], hunbyou2[1], t_msg)
 
             # 30分休憩
             voice_client.stop()  # 再生を停止
@@ -139,23 +102,10 @@ class Utility(commands.Cog):
 
             await pomo_msg.edit(embed=embed_daiQK)
 
+            hunbyou = "30:00"
+            hunbyou2 = list(map(int, hunbyou.split(":")))
 
-            input = "30:00"
-            input = list(map(int,input.split(":")))
-            input2 = input
-
-            if len(input) == 2 and input[1] < 60:
-                input = input[0] * 60 + input[1]
-                embed = discord.Embed(colour=0x5865f2, title=str(input2[0])+":"+str(input2[1]).zfill(2))
-                await t_msg.edit(embed=embed)
-                for i in range(0,input-1)[::-1]:
-                    sleep(1)
-                    t=math.floor((i+1)/60)
-                    embed = discord.Embed(colour=0x5865f2, title=str(t)+":"+str((i+1)%60).zfill(2))
-                    await t_msg.edit(embed=embed)
-                sleep(1)
-                embed = discord.Embed(colour=0x5865f2, title="0:00")
-                await t_msg.edit(embed=embed)
+            await modules.timer.timer(hunbyou2[0], hunbyou2[1], t_msg)
 
         embed = discord.Embed(colour=0x0000FF, title="9時間40分作業しました！！お疲れ様！！！！")
         await pomo_msg.edit(embed=embed)
@@ -217,38 +167,37 @@ class Utility(commands.Cog):
             else:
                 await ctx.send(f"```Error:{response.status_code} {response.text}```")
 
-
-    #メンバーのニックネームを一括編集
-    #argを指定しなかった場合の例外誰かかいてください
-    @commands.command(aliase = "nick")
-    async def bulk_edit_nick(self,ctx,arg):
+    # メンバーのニックネームを一括編集
+    # argを指定しなかった場合の例外誰かかいてください
+    @commands.command(aliase="nick")
+    async def bulk_edit_nick(self, ctx, arg):
         try:
-            #discordで使えるニックネームの最大文字数は32
+            # discordで使えるニックネームの最大文字数は32
             if len(arg) > 32:
                 embed = EMBED_CHARACTER_LIMIT
             else:
-                #変更するメンバー数を数える
+                # 変更するメンバー数を数える
                 count = 0
                 for member in ctx.guild.members:
                     if arg == member.nick:
                         continue
-                    #全権限を与えられている場合を除いて、サーバー管理人のニックネームは変更不可（？）
-                    #論理式を使うのが下手なので誰か読みやすいように書き換えてください
-                    if (not ctx.bot_permissions.administrator) and member == ctx.guild.owner: 
+                    # 全権限を与えられている場合を除いて、サーバー管理人のニックネームは変更不可（？）
+                    # 論理式を使うのが下手なので誰か読みやすいように書き換えてください
+                    if (
+                        not ctx.bot_permissions.administrator
+                    ) and member == ctx.guild.owner:
                         continue
                     else:
                         count += 1
-                        await member.edit(nick = arg)
+                        await member.edit(nick=arg)
                 embed = discord.Embed(
-                    title = "ニックネーム一括変更",
-                    description = f"{count}人のメンバーのニックネームを{arg}に変更しました"
+                    title="ニックネーム一括変更", description=f"{count}人のメンバーのニックネームを{arg}に変更しました"
                 )
                 if ctx.guild.icon:
-                    embed.set_thumbnail(url = ctx.guild.icon)
-                
-        #一応権限がない場合（エラー文間違ってるかも）
+                    embed.set_thumbnail(url=ctx.guild.icon)
+
+        # 一応権限がない場合（エラー文間違ってるかも）
         except discord.Forbidden:
             embed = EMBED_FORBIDDEN
 
-        await ctx.channel.send(embed = embed)
-
+        await ctx.channel.send(embed=embed)
