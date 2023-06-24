@@ -16,7 +16,9 @@ class Timer(commands.Cog):
         if hunbyou:
             try:
                 hunbyou = list(map(int, hunbyou.split(":")))
-                timer_task = asyncio.create_task(modules.timer.timer(hunbyou[0], hunbyou[1], t_msg))
+                timer_task = asyncio.create_task(
+                    modules.timer.timer(hunbyou[0], hunbyou[1], t_msg)
+                )
                 await timer_task
                 await ctx.channel.send("時間です！")
             except Exception as e:
@@ -27,13 +29,9 @@ class Timer(commands.Cog):
             t_msg: discord.Message = await ctx.channel.send(embed=embed)
 
 
-
-
-
-
 ##############################################################################################################
 #
- 
+
 # 涼風青葉「こんにちは」
 # 涼風青葉「今日は何をするの？」
 # 涼風青葉「あ、そうだ！今日はゲームの日だよね！」
@@ -44,10 +42,10 @@ class Timer(commands.Cog):
 # 涼風青葉「ゲームの日にゲームをしないなんて、ゲームの日を祝ってないのと同じだよ！」
 
 
-# 
+#
 
 # Discord Server -> [message] -> Giratina
-# 
+#
 # message = 文字列 "!timer 2:00"
 # message.startwith("!")
 # たぶんコマンドだろう
