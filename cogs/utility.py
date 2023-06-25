@@ -61,6 +61,8 @@ class Utility(commands.Cog):
 
                 voice_client.play(discord.FFmpegOpusAudio("resources/sagyou.mp3"))
 
+                await asyncio.sleep(4)
+
                 voice_client.stop()  # 再生を停止
 
                 voice_client.play(discord.FFmpegOpusAudio("resources/Around_The_World.mp3"))
@@ -91,6 +93,8 @@ class Utility(commands.Cog):
             voice_client.stop()  # 再生を停止
 
             voice_client.play(discord.FFmpegOpusAudio("resources/sagyou.mp3"))
+            
+            await asyncio.sleep(4)
 
             voice_client.stop()  # 再生を停止
 
