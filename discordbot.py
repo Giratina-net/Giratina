@@ -21,6 +21,7 @@ from cogs.twitter import Twitter
 from cogs.uma import Uma
 from cogs.utility import Utility
 from cogs.timer import Timer
+from cogs.short import Short
 
 # DiscordBot
 DISCORD_BOT_TOKEN = getenv("DISCORD_BOT_TOKEN")
@@ -90,5 +91,6 @@ bot.add_cog(Raika(bot))
 bot.add_cog(Utility(bot))
 bot.add_cog(Others(bot))
 bot.add_cog(Timer(bot))
+bot.add_cog(Short(bot))
 
 bot.run(DISCORD_BOT_TOKEN)

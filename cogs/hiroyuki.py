@@ -3,7 +3,7 @@ import os
 
 import discord
 import ffmpeg
-import gdshortener
+import mod
 import requests
 from discord.ext import commands
 
@@ -59,9 +59,10 @@ class Hiroyuki(commands.Cog):
                 stream = ffmpeg.output(stream, "hiroyuki.mp3")
                 ffmpeg.run(stream)
                 await ctx.channel.send(file=discord.File("hiroyuki.mp3"))
+                url=mod.gen(url)
                 embed0 = discord.Embed(
                     colour=0x4DB56A,
-                    title=f"動画 {gdshortener.ISGDShortener().shorten(url=url)[0]}",
+                    title=f"動画 {url}",
                 )
                 hiroyuki0_msg: discord.Message = await ctx.channel.send(embed=embed0)
                 os.remove("temp.mp4")
