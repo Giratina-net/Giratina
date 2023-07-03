@@ -3,9 +3,13 @@ import os
 
 import discord
 import ffmpeg
-import mod
 import requests
 from discord.ext import commands
+import requests
+from os import getenv
+#envから取得
+KUTT_HOST = str(getenv("KUTT_HOST"))+"/api/v2/links"
+KUTT_API_KEY = getenv("KUTT_API_KEY")
 
 
 class Hiroyuki(commands.Cog):
@@ -59,7 +63,11 @@ class Hiroyuki(commands.Cog):
                 stream = ffmpeg.output(stream, "hiroyuki.mp3")
                 ffmpeg.run(stream)
                 await ctx.channel.send(file=discord.File("hiroyuki.mp3"))
-                url=mod.gen(url)
+                try:
+                    r = requests.post(KUTT_HOST, data={"target": url}, headers={'X-API-KEY': KUTT_API_KEY}).json()
+                    url=r['link']
+                except:
+                    pass
                 embed0 = discord.Embed(
                     colour=0x4DB56A,
                     title=f"動画 {url}",
