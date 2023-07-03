@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from os import getenv
 #envから取得
-KUTT_HOST = getenv("KUTT_HOST")+"/api/v2/links"
+KUTT_HOST = str(getenv("KUTT_HOST"))+"/api/v2/links"
 KUTT_API_KEY = getenv("KUTT_API_KEY")
 def gen(url):
     try:
