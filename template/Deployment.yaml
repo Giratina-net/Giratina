@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: giratina
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: giratina
+  template:
+    metadata:
+      labels:
+        app: giratina
+    spec:
+      containers:
+      - name: giratina
+        image: registry.giratina.net/giratina/giratina:latest
+        imagePullPolicy: Always
+        env:
+          - name: ACCESS_TOKEN_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: ACCESS-TOKEN-KEY
+          - name: ACCESS_TOKEN_SECRET
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: ACCESS-TOKEN-SECRET
+          - name: ANNICT_API_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: ANNICT-API-KEY
+          - name: CONSUMER_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: CONSUMER-KEY
+          - name: CONSUMER_SECRET
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: CONSUMER-SECRET
+          - name: DISCORD_BOT_TOKEN
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: DISCORD-BOT-TOKEN
+          - name: REMOVEBG_APIKEY
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: REMOVEBG-APIKEY
+          - name: SPOTIFY_CLIENT_ID
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: SPOTIFY-CLIENT-ID
+          - name: SPOTIFY_CLIENT_SECRET
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: SPOTIFY-CLIENT-SECRET
+          - name: YOUTUBE_API_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: YOUTUBE-API-KEY
+          - name: KUTT_API_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: KUTT-API-KEY
+          - name: KUTT_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: giratina-env
+                key: KUTT-HOST
+      imagePullSecrets: 
+      - name: regcred
