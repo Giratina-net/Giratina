@@ -12,7 +12,6 @@ from googleapiclient.discovery import build
 from spotdl import Spotdl
 
 from cogs.annict import Annict
-from cogs.hiroyuki import Hiroyuki
 from cogs.kotobagari import Kotobagari
 from cogs.music import Music
 from cogs.others import Others
@@ -86,7 +85,6 @@ bot.add_cog(Music(bot, youtube, spotdl))
 bot.add_cog(Twitter(bot, twapi))
 bot.add_cog(Kotobagari(bot, youtube))
 bot.add_cog(Uma(bot))
-bot.add_cog(Hiroyuki(bot))
 bot.add_cog(Raika(bot))
 bot.add_cog(Utility(bot))
 bot.add_cog(Others(bot))

@@ -1,5 +1,4 @@
 FROM debian:bullseye-slim
-
 RUN apt update -y && apt install -y python3 python3-pip ffmpeg
 WORKDIR /app
 COPY requirements.txt /app/requirements.txt
