@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: giratina
-        image: ghcr.io/ne53/giratina:latest
+        image: ghcr.io/giratina-net/giratina:latest
         imagePullPolicy: Always
         env:
           - name: ACCESS_TOKEN_KEY
