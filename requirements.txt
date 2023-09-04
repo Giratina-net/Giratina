@@ -2,12 +2,12 @@ aiohttp==3.8.4
 py-cord[voice]==2.4.1
 ffmpeg-python==0.2.0
 google-api-python-client==2.79.0
-yt-dlp==2023.3.4
+yt-dlp==2023.7.6
 tweepy==4.12.1
 niconico.py==1.2.3
-spotdl==4.0.7
+spotdl==4.2.1
 Pillow==9.4.0
-nltk==3.8.1
-mecab-python3==1.0.6
 unidic-lite==1.0.8
-gdshortener==1.0.1
+requests==2.31.0
+six==1.16.0
+launchpadlib==1.11.0
