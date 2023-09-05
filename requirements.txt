@@ -4,7 +4,7 @@ ffmpeg-python==0.2.0
 google-api-python-client==2.79.0
 yt-dlp==2023.7.6
 tweepy==4.12.1
-niconico.py==1.2.3
+niconico.py==1.2.4
 spotdl==4.2.1
 Pillow==9.4.0
 unidic-lite==1.0.8
