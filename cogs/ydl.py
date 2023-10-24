@@ -32,8 +32,7 @@ def task_status(task_id):
     except Exception as e:
         return False
 
-async def download(ctx,arg,request_type):
-    url = arg[0]
+async def download(ctx, url, request_type):
     #msgの定義
     msg:  discord.Message = await ctx.channel.send(embed=discord.Embed(colour=0xEE7800, title=f"データの取得中です"))
     #値の初期化
