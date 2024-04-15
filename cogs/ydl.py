@@ -36,7 +36,6 @@ async def download(ctx, url, request_type):
     #msgの定義
     msg:  discord.Message = await ctx.channel.send(embed=discord.Embed(colour=0xEE7800, title=f"データの取得中です"))
     #値の初期化
-    title_flag = False
     error_count = 0
     #タスクの作成
     task_info = task_create(url, request_type)
@@ -46,9 +45,9 @@ async def download(ctx, url, request_type):
         return False
     #タスクの作成に成功した場合
     task_id = task_info.get("task_id")
+    await msg.edit(embed=discord.Embed(colour=0xFF0000, title=f"[{task_id}] ダウンロードを開始します"))
     #"""""この下のコードを消すと動かない"""""
     time.sleep(3)
-    
     while True:
         #タスクのステータスを取得
         d = task_status(task_id)
@@ -61,9 +60,8 @@ async def download(ctx, url, request_type):
             else:
                 continue
         #タイトルを取得してたらタイトルを表示
-        if d["media"]["title"] and not title_flag:
+        if d["media"]["title"] is not None:
             await msg.edit(embed=discord.Embed(colour=0xFFF100, title=f"[{task_id}] {d['media']['title']}のダウンロードを開始しました"))
-            title_flag = True
         #request_timeが現在時刻からtimeout秒以上経過していたらタイムアウト
         current_time = datetime.datetime.now(ZoneInfo("Asia/Tokyo")).isoformat()
         diff = (datetime.datetime.fromisoformat(current_time) - datetime.datetime.fromisoformat(d["request_time"])).seconds
@@ -79,8 +77,7 @@ async def download(ctx, url, request_type):
             await msg.edit(embed=discord.Embed(colour=0xFF0000, title=f"[{task_id}] ダウンロードエラー {d['message']}"))
             return False
         
-        time.sleep(1)
-
+        time.sleep(0.5)
 class Ydl(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
