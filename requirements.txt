@@ -8,6 +8,6 @@ niconico.py==1.2.3
 spotdl==4.2.5
 Pillow==10.1.0
 unidic-lite==1.0.8
-requests==2.31.0
+requests==2.32.2
 six==1.16.0
 launchpadlib==1.11.0
