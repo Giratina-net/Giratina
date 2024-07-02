@@ -2,7 +2,7 @@ aiohttp==3.8.6
 py-cord[voice]==2.4.1
 ffmpeg-python==0.2.0
 google-api-python-client==2.109.0
-yt-dlp==2024.4.9
+yt-dlp==2024.7.1
 tweepy==4.12.1
 niconico.py==1.2.3
 spotdl==4.2.5
