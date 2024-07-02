@@ -6,7 +6,7 @@ yt-dlp==2024.4.9
 tweepy==4.12.1
 niconico.py==1.2.3
 spotdl==4.2.5
-Pillow==10.1.0
+Pillow==10.4.0
 unidic-lite==1.0.8
 requests==2.31.0
 six==1.16.0
