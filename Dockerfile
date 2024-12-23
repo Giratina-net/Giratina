@@ -1,5 +1,5 @@
-FROM debian:bullseye-slim
-RUN apt update -y && apt install -y python3 python3-pip ffmpeg
+FROM python:3.13.1-bullseye
+RUN apt update -y && apt install -y ffmpeg build-essential
 WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip3 install -r requirements.txt
