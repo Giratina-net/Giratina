@@ -77,15 +77,5 @@ spec:
               configMapKeyRef:
                 name: giratina-env
                 key: KUTT-HOST
-          - name: G2YDL_HOST
-            valueFrom:
-              configMapKeyRef:
-                name: giratina-env
-                key: G2YDL_HOST
-          - name: G2YDL_API_KEY
-            valueFrom:
-              configMapKeyRef:
-                name: giratina-env
-                key: G2YDL_API_KEY
       imagePullSecrets: 
       - name: regcred
