@@ -87,28 +87,6 @@ class Others(commands.Cog):
             "https://cdn.discordapp.com/attachments/964831309627289620/982691239025598494/long_ver.___feat._0s_screenshot.png"
         )
 
-    # マチカネタンホイザの画像を送信
-    @commands.command(aliases=["matitan", "matikanetanhoiza"])
-    async def machitan(self, ctx):
-        guild = self.bot.get_guild(SEIBARI_GUILD_ID)
-
-        channel = guild.get_channel(MACHITAN_CHANNEL_ID)
-
-        machitan_channel_messages = [
-            message async for message in channel.history(limit=None)
-        ]
-
-        random_machitan = random.choice(machitan_channel_messages)
-
-        content = (
-            random_machitan.attachments[0].url
-            if random_machitan.content == ""
-            else random_machitan.content
-        )
-
-        # メッセージが送られてきたチャンネルに送る
-        await ctx.channel.send(content)
-
     # マノム
     @commands.command(aliases=["mano"])
     async def manomu(self, ctx):
