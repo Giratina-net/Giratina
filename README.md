@@ -1,3 +1,4 @@
+
 # Giratina
 [![Auto Formatting](https://github.com/Giratina-net/Giratina/actions/workflows/auto_formatting.yml/badge.svg?branch=master)](https://github.com/Giratina-net/Giratina/actions/workflows/auto_formatting.yml)  
 身内のサーバーで使うことを目的としたDiscord向けのBotです。  
@@ -14,16 +15,12 @@
 `ファル子☆面白画像集`チャンネルに貼られた画像やテキストをランダムで返します。
 ### !fami2
 [@fami2repo_bot](https://twitter.com/fami2repo_bot)から最新のツイート10件からランダムでテキストを送信します。
-### !genshin
-Twitterから#GenshinImpactのついた1000いいね以上のツイートの画像を貼ります。
 ### !giratina
 テスト用コマンドです。ギラティナの画像が返ってきます。
 ### !help
 コマンド一覧を表示します。
 ### !hentai
 `no context hentai img`チャンネルに貼られた画像やテキストをランダムで返します。
-### !hiroyuki
-おしゃべりひろゆきを生成します。
 ### !hutao
 Twitterから`#胡桃`のついた1000いいね以上のツイートの画像を貼ります。
 ### !inm
@@ -40,8 +37,6 @@ Twitterから`#胡桃`のついた1000いいね以上のツイートの画像を
 `まちカドたんほいざ`チャンネルに貼られた画像やテキストをランダムで返します。
 ### !manomu, !mano
 家で飼ってるピーちゃんを使ったお料理も好きです。
-### !mraika
-マルコフ連鎖でRaikaさんのツイートを生成します。
 ### !odai
 絵のお題を出してくれます。  
 [Annict](https://annict.com)のデータベースからお気に入りが5人以上いるキャラクターをランダムで表示します。
@@ -51,35 +46,8 @@ BotサーバーとDiscordサーバー間のPingを表示します。
 9586件のRaikaツイートからランダムでテキストを送信。
 ### !removebg
 remove.bg APIを用いて画像の背景を透過します。
-### !satanya
-[@satanya_gazobot](https://twitter.com/satanya_gazobot)から最新の画像を貼ります。
-### !sushi
-[@kasakioiba](https://twitter.com/kasakioiba)から最新の画像を貼ります。
 ### !toukaiteiou, !teiou, !teio-, !teio
 `ﾎﾞｸはﾃｲｵｰ！ちゃんねる`に貼られた画像やテキストをランダムで返します。
-### !twitter, !tw
-Twitterの検索を使って画像を返します。  
-たとえば`!twitter 猫`と打つと、Twitterで猫と検索した時に表示されるツイートの画像を送信します。  
-`!twitter from:@hikakin 猫`みたいなこともできます。
-
-TwitterのJSONの仕様がよくわかってなくて、画像が返ってこないときがあります。  
-そもそも検索したツイートがないか、検索ワードがでか過ぎると返されないっぽいです。  
-`!twitter ウマ娘`だと何も返ってこないけど`!twitter アグネスタキオン`だとひっかかる場合がありました。
-### !twitterdl, !twdl
-ツイートのURLから最も高画質な動画URLを送信します。
-### !uma
-ウマ娘のガチャシミュレーターです。    
-確率は以下の通り。  
-
-1~9回目:  
-| ☆1 | ☆2 | ☆3 |
-| :---: | :---: | :---: |
-| 79% | 18% | 3% |
-
-10回目:  
-| ☆1 | ☆2 | ☆3 |
-| :---: | :---: | :---: |
-| 0% | 97% | 3% |  
 
 ※1~9回目も10回目も、ピックアップキャラの出現率は1体当たり0.75%です。
 ### !yuruyuri
