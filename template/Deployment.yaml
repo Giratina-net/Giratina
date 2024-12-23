@@ -67,15 +67,5 @@ spec:
               configMapKeyRef:
                 name: giratina-env
                 key: YOUTUBE-API-KEY
-          - name: KUTT_API_KEY
-            valueFrom:
-              configMapKeyRef:
-                name: giratina-env
-                key: KUTT-API-KEY
-          - name: KUTT_HOST
-            valueFrom:
-              configMapKeyRef:
-                name: giratina-env
-                key: KUTT-HOST
       imagePullSecrets: 
       - name: regcred

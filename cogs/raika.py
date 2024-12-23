@@ -22,10 +22,3 @@ class Raika(commands.Cog):
                 await ctx.channel.send(requests.get(url).url)
             else:
                 await ctx.channel.send(word)
-
-    # raikaマルコフ
-    # https://monachanpapa-scripting.com/marukofu-python/ほぼ丸コピですすみません...
-    @commands.command()
-    async def mraika(self, ctx):
-        text = json.loads(requests.get('https://api.giratina.net/v1/raika').text)['text']
-        await ctx.channel.send(text)

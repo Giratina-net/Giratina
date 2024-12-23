@@ -118,7 +118,7 @@ class Kotobagari(commands.Cog):
             yamadahouse_response = (
                 self.youtube.search()
                 .list(
-                    channelId="UCmEG6Kw9z2PJM2yjQ1VQouw", part="snippet", maxResults=50
+                    channelId="TV-vz4ps", part="snippet", maxResults=50
                 )
                 .execute()
             )

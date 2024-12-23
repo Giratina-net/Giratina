@@ -3,7 +3,6 @@ py-cord[voice]==2.6.1
 ffmpeg-python==0.2.0
 google-api-python-client==2.109.0
 yt-dlp==2024.12.13
-tweepy==4.12.1
 niconico.py==1.2.3
 spotdl==4.2.5
 Pillow==10.1.0
